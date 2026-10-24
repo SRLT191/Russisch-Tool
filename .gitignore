@@ -1,0 +1,5 @@
+# Lernstand-Sicherungen nicht ins Repository
+sprachtool-sicherung-*.json
+*.backup*.html
+node_modules/
+pruefungen/node_modules/
