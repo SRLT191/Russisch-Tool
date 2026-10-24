@@ -121,7 +121,13 @@
   /* layout */
   #trainer { display: flex; gap: 0; align-items: flex-start; min-height: 100vh; }
   #sidebar-mobile-toggle { display: none; }
-  #sidebar { width: 200px; flex-shrink: 0; background: var(--c-surface); border-right: 0.5px solid var(--c-border); padding: 1.5rem 10px; min-height: 100vh; }
+  #sidebar { width: var(--sidebar-w, 200px); flex-shrink: 0; background: var(--c-surface); border-right: 0.5px solid var(--c-border); padding: 1.5rem 10px; min-height: 100vh; position: relative; }
+  /* Griff am rechten Rand: Seitenleiste breiter oder schmaler ziehen (nur breite Fenster) */
+  #sidebar-resizer { position: absolute; top: 0; right: -5px; width: 10px; height: 100%; cursor: col-resize; z-index: 5; touch-action: none; }
+  #sidebar-resizer::after { content: ''; position: absolute; top: 0; bottom: 0; left: 4px; width: 2px; background: transparent; transition: background 0.15s; }
+  #sidebar-resizer:hover::after, #sidebar-resizer:focus-visible::after, body.sidebar-ziehen #sidebar-resizer::after { background: var(--c-accent); }
+  #sidebar-resizer:focus-visible { outline: none; }
+  body.sidebar-ziehen { cursor: col-resize; user-select: none; }
   #sidebar-title { font-size: 10px; font-weight: 500; color: var(--c-text-muted); letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 8px 8px; }
   #main-content { flex: 1; min-width: 0; padding: 2rem 1.75rem; display: flex; flex-direction: column; align-items: center; }
   #inner { width: 100%; max-width: 520px; }
@@ -756,6 +762,7 @@
      Übungsbereich darunter über die volle Breite. */
   @media (max-width: 700px) {
     #trainer { flex-direction: column; }
+    #sidebar-resizer { display: none; }
     #sidebar-mobile-toggle {
       display: flex; align-items: center; gap: 8px; width: 100%;
       padding: 11px 14px; margin-bottom: 8px; border-radius: 10px;
@@ -829,6 +836,7 @@
 <body>
 <div id="trainer">
   <div id="sidebar">
+    <div id="sidebar-resizer" role="separator" aria-orientation="vertical" aria-label="Breite der Seitenleiste" tabindex="0" title="Ziehen ändert die Breite · Doppelklick: Standardbreite"></div>
     <button id="sidebar-mobile-toggle" onclick="toggleMobileSidebar()">
       <i class="ti ti-list" aria-hidden="true"></i>
       <span id="sidebar-mobile-label">Kategorie wählen</span>
@@ -6892,7 +6900,7 @@ const BACKUP_KEYS = ['vokabeltrainer-grammar-info-open','vokabeltrainer-grammar-
   'vokabeltrainer-hearquiz-settings','vokabeltrainer-hoertrainer-cats','vokabeltrainer-hoertrainer-pause',
   'vokabeltrainer-autoplay','vokabeltrainer-block-size','vokabeltrainer-direction',
   'vokabeltrainer-skip-cognates','vokabeltrainer-theme','vokabeltrainer-session-goal',
-  'vokabeltrainer-cyr-keyboard','vokabeltrainer-max-level','vokabeltrainer-lifetime','vokabeltrainer-level-order','vokabeltrainer-my-level','vokabeltrainer-speak-rate','vokabeltrainer-view','vokabeltrainer-grammar-panel','vokabeltrainer-listening-panel'];
+  'vokabeltrainer-cyr-keyboard','vokabeltrainer-max-level','vokabeltrainer-lifetime','vokabeltrainer-level-order','vokabeltrainer-my-level','vokabeltrainer-speak-rate','vokabeltrainer-view','vokabeltrainer-grammar-panel','vokabeltrainer-listening-panel','vokabeltrainer-sidebar-width'];
 function exportBackup() {
   const data = { app: APP_ID, version: 1, saved: new Date().toISOString(), data: {} };
   BACKUP_KEYS.forEach(k => { try { const v = localStorage.getItem(k); if (v !== null) data.data[k] = v; } catch (e) {} });
@@ -12836,6 +12844,62 @@ function toggleAutoplay() {
   updateCardModeIndicator();
 })();
 // Barrierefreiheit: Dialoge als solche auszeichnen, Felder ohne Beschriftung benennen
+// ── Seitenleiste in der Breite verstellbar ──────────────────────
+// Am rechten Rand ziehen (Maus, Stift, Finger) oder mit ←/→ auf dem fokussierten Griff;
+// Doppelklick oder Pos1 stellt die Standardbreite wieder her. Gespeichert wird die Breite
+// in Pixeln, beim Laden auf den erlaubten Bereich begrenzt.
+const SIDEBAR_WIDTH_KEY = 'vokabeltrainer-sidebar-width';
+const SIDEBAR_W_DEFAULT = 200, SIDEBAR_W_MIN = 160;
+function sidebarMaxWidth() { return Math.round(Math.max(SIDEBAR_W_DEFAULT, Math.min(480, window.innerWidth * 0.45))); }
+function setSidebarWidth(px, save) {
+  const sb = document.getElementById('sidebar');
+  const rz = document.getElementById('sidebar-resizer');
+  if (!sb) return;
+  const w = Math.round(Math.min(sidebarMaxWidth(), Math.max(SIDEBAR_W_MIN, Number(px) || SIDEBAR_W_DEFAULT)));
+  sb.style.setProperty('--sidebar-w', w + 'px');
+  if (rz) { rz.setAttribute('aria-valuenow', w); rz.setAttribute('aria-valuemin', SIDEBAR_W_MIN); rz.setAttribute('aria-valuemax', sidebarMaxWidth()); }
+  if (save) {
+    try { if (w === SIDEBAR_W_DEFAULT) localStorage.removeItem(SIDEBAR_WIDTH_KEY); else localStorage.setItem(SIDEBAR_WIDTH_KEY, String(w)); } catch (e) {}
+  }
+  return w;
+}
+function savedSidebarWidth() {
+  try { const v = parseInt(localStorage.getItem(SIDEBAR_WIDTH_KEY), 10); return Number.isFinite(v) ? v : SIDEBAR_W_DEFAULT; } catch (e) { return SIDEBAR_W_DEFAULT; }
+}
+(function initSidebarResizer() {
+  const sb = document.getElementById('sidebar');
+  const rz = document.getElementById('sidebar-resizer');
+  if (!sb || !rz) return;
+  setSidebarWidth(savedSidebarWidth(), false);
+  let start = null;
+  rz.addEventListener('pointerdown', e => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    start = { x: e.clientX, w: sb.getBoundingClientRect().width };
+    try { rz.setPointerCapture(e.pointerId); } catch (err) {}
+    document.body.classList.add('sidebar-ziehen');
+  });
+  rz.addEventListener('pointermove', e => { if (start) setSidebarWidth(start.w + e.clientX - start.x, false); });
+  const ende = () => {
+    if (!start) return;
+    start = null;
+    document.body.classList.remove('sidebar-ziehen');
+    setSidebarWidth(sb.getBoundingClientRect().width, true);
+  };
+  rz.addEventListener('pointerup', ende);
+  rz.addEventListener('pointercancel', ende);
+  rz.addEventListener('dblclick', () => setSidebarWidth(SIDEBAR_W_DEFAULT, true));
+  rz.addEventListener('keydown', e => {
+    const w = sb.getBoundingClientRect().width;
+    if (e.key === 'ArrowRight') setSidebarWidth(w + 16, true);
+    else if (e.key === 'ArrowLeft') setSidebarWidth(w - 16, true);
+    else if (e.key === 'Home') setSidebarWidth(SIDEBAR_W_DEFAULT, true);
+    else return;
+    e.preventDefault(); e.stopPropagation();
+  });
+  // kleineres Fenster: gespeicherte Breite wieder in den erlaubten Bereich holen
+  window.addEventListener('resize', () => setSidebarWidth(savedSidebarWidth(), false));
+})();
 (function initA11y() {
   document.querySelectorAll('.overlay').forEach(o => {
     const box = o.querySelector('.overlay-box') || o;
