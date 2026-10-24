@@ -889,8 +889,8 @@
   <!-- Zeile 2: Direktbuttons + Dropdown Rest + Reset + Theme -->
   <div id="toolbar">
     <button class="tool-btn tool-btn-primary" id="transcription-btn" onclick="toggleTranscription()"
-            title="Lautschrift unter dem Wort ein- oder ausblenden" aria-pressed="true">
-      <i class="ti ti-eye" id="transcription-btn-icon"></i> <span>Transkription</span>
+            title="Transliteration: nach der Aussprache → Buchstabe für Buchstabe → aus" aria-pressed="true">
+      <i class="ti ti-eye" id="transcription-btn-icon"></i> <span id="transcription-btn-label">Aussprache</span>
     </button>
     <button class="tool-btn" onclick="openSessionSummary()" title="Zusammenfassung dieser Runde">
       <i class="ti ti-chart-bar"></i> <span id="session-btn-label">Runde</span>
@@ -2490,7 +2490,8 @@
 //  Wort-Format:
 //    { ru: "кот",  tr: "kot",  de: ["kater", "katze"] }
 //      ru = Kyrillisch
-//      tr = Aussprache (Transkription)
+//      tr = Transliteration Buchstabe für Buchstabe (deutsches Schema);
+//           die Fassung nach der Aussprache entsteht zur Laufzeit (trSpeech)
 //      de = Array aller gültigen deutschen Übersetzungen
 //
 //  Neues Wort einfügen: einfach neue Zeile im t1 oder t2 Block.
@@ -4346,7 +4347,7 @@ const vocab = {
         {ru:"вечерний", tr:"wetschernij", de:["Abend-"]},
         {ru:"летний", tr:"letnij", de:["Sommer-"]},
         {ru:"зимний", tr:"simnij", de:["Winter-"]},
-        {ru:"сегодняшний", tr:"sewodnjaschnij", de:["von heute"]}
+        {ru:"сегодняшний", tr:"segodnjaschnij", de:["von heute"]}
       ]
     ],
     newBlock: [],
@@ -4613,7 +4614,7 @@ const vocab = {
         {ru:"наш", tr:"nasch", de:["unser"]},
         {ru:"ваш", tr:"wasch", de:["euer","Ihr"]},
         {ru:"свой", tr:"swoj", de:["sein eigener","ihr eigener (rückbezüglich)"]},
-        {ru:"его", tr:"jewo", de:["sein (von ihm)"]},
+        {ru:"его", tr:"jego", de:["sein (von ihm)"]},
         {ru:"её", tr:"jejo", de:["ihr (von ihr)"]},
         {ru:"их", tr:"ich", de:["ihr (von ihnen)"]},
         {ru:"тот", tr:"tot", de:["jener"]},
@@ -4666,7 +4667,7 @@ const vocab = {
         {ru:"рад познакомиться", tr:"rad posnakomit'sja", de:["Freut mich","Freut mich, dich kennenzulernen"]},
         {ru:"приятного аппетита", tr:"prijatnogo appetita", de:["Guten Appetit"]},
         {ru:"с днём рождения", tr:"s dnjom roschdenija", de:["Alles Gute zum Geburtstag"]},
-        {ru:"всего доброго", tr:"wsewo dobrowo", de:["Alles Gute"]}
+        {ru:"всего доброго", tr:"wsego dobrogo", de:["Alles Gute"]}
       ]
     ],
     newBlock: [],
@@ -4679,7 +4680,7 @@ const vocab = {
         {ru:"и", tr:"i", de:["und"]},
         {ru:"или", tr:"ili", de:["oder"]},
         {ru:"но", tr:"no", de:["aber"]},
-        {ru:"что", tr:"schto", de:["dass","was"]},
+        {ru:"что", tr:"tschto", de:["dass","was"]},
         {ru:"если", tr:"jesli", de:["wenn","falls"]},
         {ru:"а", tr:"a", de:["aber","und (Kontrast)"]},
         {ru:"хотя", tr:"chotja", de:["obwohl","obgleich"]},
@@ -4688,7 +4689,7 @@ const vocab = {
         {ru:"зато", tr:"sato", de:["dafür","aber dafür"]},
         {ru:"однако", tr:"odnako", de:["jedoch"]},
         {ru:"также", tr:"taksche", de:["auch","außerdem"]},
-        {ru:"потому что", tr:"potomu schto", de:["weil"]},
+        {ru:"потому что", tr:"potomu tschto", de:["weil"]},
         {ru:"будто / словно", tr:"budto / slowno", de:["als ob", "wie wenn"], ruAlt:["будто", "словно", "будто/словно"]},
         {ru:"так как / поскольку", tr:"tak kak / poskol'ku", de:["da", "weil", "zumal"], ruAlt:["так как", "поскольку", "таккак/поскольку"]}
       ]
@@ -4827,7 +4828,7 @@ const vocab = {
         {ru:"сейчас", tr:"sejtschas", de:["jetzt","gerade"]},
         {ru:"потом", tr:"potom", de:["dann","danach","später"]},
         {ru:"всегда", tr:"wsegda", de:["immer"]},
-        {ru:"сегодня", tr:"sewodnja", de:["heute"]},
+        {ru:"сегодня", tr:"segodnja", de:["heute"]},
         {ru:"вчера", tr:"wtschera", de:["gestern"]},
         {ru:"завтра", tr:"sawtra", de:["morgen"]},
         {ru:"очень", tr:"otschen'", de:["sehr"]},
@@ -5144,7 +5145,7 @@ const vocab = {
         {ru:"ваза", tr:"wasa", de:["Vase"]},
         {ru:"банка", tr:"banka", de:["Dose"]},
         {ru:"вешалка", tr:"weschalka", de:["Kleiderbügel"]},
-        {ru:"скотч", tr:"skotsch", de:["Klebeband"]},
+        {ru:"скотч", tr:"skottsch", de:["Klebeband"]},
         {ru:"ящик", tr:"jaschtschik", de:["Kiste"]},
         {ru:"открытка", tr:"otkrytka", de:["Postkarte"]},
         {ru:"марка", tr:"marka", de:["Briefmarke"]},
@@ -5302,7 +5303,7 @@ const vocab = {
         {ru:"гора", tr:"gora", de:["Berg"]},
         {ru:"озеро", tr:"osero", de:["See"]},
         {ru:"небо", tr:"nebo", de:["Himmel"]},
-        {ru:"солнце", tr:"sonze", de:["Sonne"]},
+        {ru:"солнце", tr:"solnze", de:["Sonne"]},
         {ru:"луна", tr:"luna", de:["Mond"]},
         {ru:"звезда", tr:"swesda", de:["Stern"]},
         {ru:"пустыня", tr:"pustynja", de:["Wüste"]},
@@ -6703,6 +6704,8 @@ let blockPickerCat = null; // Kategorie, für die das Block-Auswahl-Fenster gera
 let selectedCats = new Set(); // für Mehrfachauswahl-Modus ('multi')
 let currentWord = null;
 let correct = 0, wrong = 0, streak = 0, answered = false, showTranscription = true;
+// Transliteration: 'speech' = nach der Aussprache, 'letters' = Buchstabe für Buchstabe, 'off' = aus
+let transcriptionMode = 'speech';
 // Falsch beantwortete Wörter dieser Sitzung (für die Runden-Zusammenfassung)
 let sessionWrong = [];
 function noteSessionWrong(w) {
@@ -6805,7 +6808,8 @@ function openWordDetail(w) {
   if (!w) return;
   wdWord = w;
   document.getElementById('wd-ru').textContent = w.ru;
-  document.getElementById('wd-tr').textContent = '[ ' + w.tr + ' ]';
+  const trS = trFor(w, 'speech'), trL = trFor(w, 'letters');
+  document.getElementById('wd-tr').textContent = '[ ' + trS + ' ]' + (trL !== trS ? '  ·  Buchstaben: [ ' + trL + ' ]' : '');
   document.getElementById('wd-de').textContent = w.de.join(', ');
   const sent = getWordSentence(w);
   const sentRow = document.getElementById('wd-sentence-row');
@@ -7135,7 +7139,7 @@ function saveSelection() {
   try {
     localStorage.setItem(SELECTION_KEY, JSON.stringify({
       activeMain, activeSub, selectedCats: [...selectedCats], blocks,
-      quizMode, showTranscription
+      quizMode, showTranscription, transcriptionMode
     }));
   } catch (e) {}
 }
@@ -7153,6 +7157,9 @@ function loadSelection() {
       });
       if (['mc','free','flip'].includes(d.quizMode)) quizMode = d.quizMode;
       if (typeof d.showTranscription === 'boolean') showTranscription = d.showTranscription;
+      // ältere Stände kennen nur an/aus: an = nach der Aussprache
+      transcriptionMode = ['speech', 'letters', 'off'].includes(d.transcriptionMode) ? d.transcriptionMode : (showTranscription ? 'speech' : 'off');
+      showTranscription = transcriptionMode !== 'off';
       // Kategorie inzwischen verschwunden oder Auswahl leer → zurück auf alle
       if (activeMain !== 'all' && activeMain !== 'bookmarks' && activeMain !== 'multi' && activeMain !== 'exam'
           && !isCatGroup(activeMain) && !vocab[activeMain]) { activeMain = 'all'; activeSub = null; }
@@ -11901,20 +11908,83 @@ function buildNav() {
   });
 }
 
+// ── Transliteration: nach der Aussprache oder Buchstabe für Buchstabe ──
+// Buchstaben: das feste deutsche Schema (з→s, ж→sch, ц→z, в→w, х→ch, щ→schtsch, ё→jo,
+// ы→y, ь→', с→ss zwischen Vokalen, е→je am Wortanfang und nach Vokal/ь/ъ) – so steht
+// es auch in den Daten (w.tr).
+const TR_MAP = { а:'a', б:'b', в:'w', г:'g', д:'d', ж:'sch', з:'s', и:'i', й:'j', к:'k', л:'l', м:'m', н:'n', о:'o',
+  п:'p', р:'r', т:'t', у:'u', ф:'f', х:'ch', ц:'z', ч:'tsch', ш:'sch', щ:'schtsch', ы:'y', ь:"'", ъ:'', э:'e', ю:'ju', я:'ja', ё:'jo' };
+const TR_VOWELS = 'аеёиоуыэюя';
+function trLettersWord(w) {
+  const lw = w.toLowerCase();
+  let out = '';
+  for (let i = 0; i < lw.length; i++) {
+    const ch = lw[i], prev = lw[i - 1] || '', next = lw[i + 1] || '';
+    let t;
+    if (ch === 'е') t = (i === 0 || 'аеёиоуыэюяьъ'.includes(prev)) ? 'je' : 'e';
+    else if (ch === 'с') t = (prev && next && TR_VOWELS.includes(prev) && TR_VOWELS.includes(next)) ? 'ss' : 's';
+    else t = TR_MAP[ch] !== undefined ? TR_MAP[ch] : ch;
+    if (w[i] !== lw[i] && t) t = t.charAt(0).toUpperCase() + t.slice(1);   // Großbuchstabe (Namen)
+    out += t;
+  }
+  return out;
+}
+function trLetters(ru) { return String(ru).replace(/[А-Яа-яЁё]+/g, trLettersWord); }
+// Aussprache: dieselbe Umschrift, vorher werden die Laute so umgeschrieben, wie man sie
+// spricht – Auslautverhärtung (хлеб → chlep), Angleichung an den Nachbarlaut (вокзал →
+// wogsal, всё → fsjo), stumme Konsonanten (здравствуйте, праздник, солнце, честный, тридцать),
+// -ться/-тся wie [za], -ого/-его wie [owo/ewo]. Unbetonte Vokale bleiben stehen, weil die
+// Betonung nicht hinterlegt ist.
+const TR_SPEECH_WORDS = { 'что': 'schto', 'чтобы': 'schtoby', 'конечно': 'koneschno', 'скучно': 'skuschno', 'скучный': 'skuschnyj',
+  'его': 'jewo', 'ничего': 'nitschewo', 'сегодня': 'sewodnja', 'сегодняшний': 'sewodnjaschnij', 'бог': 'boch' };
+const TR_OGO_KEEP = ['много', 'немного', 'дорого', 'недорого', 'строго', 'убого'];
+function trSpeechWord(w) {
+  const lw = w.toLowerCase().replace(/ё/g, 'ё');
+  const fix = TR_SPEECH_WORDS[lw];
+  let out;
+  if (fix) out = fix;
+  else {
+    let s = lw;
+    s = s.replace(/т?ь?ся$/, m => /^ть?ся$/.test(m) ? 'ца' : m);            // -ться/-тся → [ца]
+    s = s.replace(/вств/g, 'ств').replace(/стн/g, 'сн').replace(/здн/g, 'зн').replace(/лнц/g, 'нц').replace(/рдц/g, 'рц').replace(/[дт]ц/g, 'ц');
+    s = s.replace(/[сз]ч/g, 'щ');                                             // счастье → щастье
+    if (s.length > 3 && /[ое]го$/.test(s) && !TR_OGO_KEEP.includes(s)) s = s.replace(/го$/, 'во');
+    s = s.replace(/г(?=[кч])/g, 'х');                                         // лёгкий → лёхкий
+    const stl = { б: 'п', в: 'ф', г: 'к', д: 'т', з: 'с', ж: 'ш' }, sth = { к: 'г', п: 'б', т: 'д', с: 'з', ф: 'в', ш: 'ж' };
+    s = s.replace(/[бвгдзж](?=[кпстфхцчшщ])/g, c => stl[c]);                 // vor stimmlosem Laut stimmlos
+    s = s.replace(/[кптсфш](?=[бгджз])/g, c => sth[c]);                      // vor stimmhaftem Laut stimmhaft
+    s = s.replace(/[бвгдзж](?=ь?$)/, c => stl[c]);                            // Auslautverhärtung
+    out = trLettersWord(s);
+  }
+  if (w[0] !== lw[0]) out = out.charAt(0).toUpperCase() + out.slice(1);
+  return out;
+}
+function trSpeech(ru) { return String(ru).replace(/[А-Яа-яЁё]+/g, trSpeechWord); }
+// Umschrift eines Worts in der gewählten Art (bei „aus“ die Aussprache, z. B. für die Liste)
+function trFor(w, mode) {
+  const m = mode || (transcriptionMode === 'off' ? 'speech' : transcriptionMode);
+  return m === 'letters' ? (w.tr || trLetters(w.ru)) : trSpeech(w.ru);
+}
+const TR_MODE_LABEL = { speech: 'Aussprache', letters: 'Buchstaben', off: 'Transliteration aus' };
+// Schalter: Aussprache → Buchstaben → aus → Aussprache
 function toggleTranscription() {
-  showTranscription = !showTranscription;
+  transcriptionMode = { speech: 'letters', letters: 'off', off: 'speech' }[transcriptionMode] || 'speech';
+  showTranscription = transcriptionMode !== 'off';
   saveSelection();
   applyTranscriptionButton();
   renderTranscription();
 }
-// Zustand des Transkriptions-Knopfs in der Werkzeugleiste
+// Zustand des Transliterations-Knopfs in der Werkzeugleiste
 function applyTranscriptionButton() {
   const btn = document.getElementById('transcription-btn');
   if (!btn) return;
   btn.classList.toggle('active', showTranscription);
   btn.setAttribute('aria-pressed', showTranscription ? 'true' : 'false');
+  btn.setAttribute('aria-label', 'Transliteration: ' + TR_MODE_LABEL[transcriptionMode] + ' (weiter mit Klick)');
   const icon = document.getElementById('transcription-btn-icon');
-  if (icon) icon.className = 'ti ' + (showTranscription ? 'ti-eye' : 'ti-eye-off');
+  if (icon) icon.className = 'ti ' + (transcriptionMode === 'off' ? 'ti-eye-off' : transcriptionMode === 'letters' ? 'ti-abc' : 'ti-eye');
+  const label = document.getElementById('transcription-btn-label');
+  if (label) label.textContent = TR_MODE_LABEL[transcriptionMode];
 }
 function renderTranscription(forceShow) {
   // forceShow wird nach einer Antwort verwendet, um die Transkription auch im
@@ -11923,7 +11993,7 @@ function renderTranscription(forceShow) {
   const show = showTranscription && (forceShow || quizDirection === 'ru-de');
   const el = document.getElementById('transcription');
   if (!show || !currentWord) { el.textContent = ''; return; }
-  el.textContent = '[ ' + currentWord.tr + ' ]';
+  el.textContent = '[ ' + trFor(currentWord) + ' ]';
 }
 
 function weightedPick(pool, weightFn) {
@@ -13847,7 +13917,7 @@ function renderVocabTable() {
     if (catFilterVal && catFilterVal !== 'all' && getWordCategory(w) !== catFilterVal) return false;
     if (!search) return true;
     return w.ru.toLowerCase().includes(search) ||
-           w.tr.toLowerCase().includes(search) ||
+           w.tr.toLowerCase().includes(search) || trSpeech(w.ru).toLowerCase().includes(search) ||
            w.de.some(d => d.toLowerCase().includes(search));
   });
 
@@ -13901,7 +13971,7 @@ function renderVocabTable() {
       tr.tabIndex = 0;
       tr.onclick = (ev) => { if (!ev.target.closest('button')) openWordDetail(w); };
       tr.innerHTML = `
-        <td><div class="td-ru" lang="ru">${w.ru} ${lvlBadge(wordLevel(w))}</div><div class="td-tr">[ ${w.tr} ]</div></td>
+        <td><div class="td-ru" lang="ru">${w.ru} ${lvlBadge(wordLevel(w))}</div><div class="td-tr">[ ${trFor(w)} ]</div></td>
         <td class="td-de">${w.de.join(', ')}</td>
         <td class="td-cat">${catText}</td>
         <td class="td-score">${pill}${(le => le && le.d ? ' <span class="ever-ok runs-' + le.d + '" role="img" title="' + lifeRunsText(le) + '" aria-label="' + lifeRunsText(le) + '"><i class="ti ti-circle-check" aria-hidden="true"></i>' + le.d + '/' + LIFE_RUNS_MAX + '</span>' : '')(lifeVocabEntry(w))}</td>
@@ -21072,12 +21142,12 @@ function revealHearquizFlip() {
   const zeilen = [];
   if (hqState.lang === 'ru') {
     zeilen.push('<span>' + esc(w.ru) + '</span>');
-    if (showTranscription && w.tr) zeilen.push('<span class="hq-flip-tr">' + esc(w.tr) + '</span>');
+    if (showTranscription && w.tr) zeilen.push('<span class="hq-flip-tr">' + esc(trFor(w)) + '</span>');
     zeilen.push('<span class="hq-flip-sub">' + esc(getDeDisplay(w)) + '</span>');
   } else {
     zeilen.push('<span>' + esc(getDeDisplay(w)) + '</span>');
     zeilen.push('<span class="hq-flip-sub">' + esc(w.ru) + '</span>');
-    if (showTranscription && w.tr) zeilen.push('<span class="hq-flip-tr">' + esc(w.tr) + '</span>');
+    if (showTranscription && w.tr) zeilen.push('<span class="hq-flip-tr">' + esc(trFor(w)) + '</span>');
   }
   document.getElementById('hq-flip-answer').innerHTML = zeilen.join('');
   document.getElementById('hq-actions').style.display = 'none';
