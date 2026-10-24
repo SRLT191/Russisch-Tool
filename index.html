@@ -2376,6 +2376,14 @@
         <label class="gh-check"><input type="checkbox" id="gh-warn-close" onchange="ghSetOption('warnClose', this.checked)"> Beim Schließen warnen, wenn nicht gespeichert</label>
       </div>
       <div class="set-row">
+        <i class="ti ti-repeat" aria-hidden="true"></i>
+        <div class="set-text"><strong>Falsch stuft zurück</strong><span>Eine falsche Antwort senkt die Wiederholungsstufe um 1 (höchstens einmal am Tag)</span></div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="lifedemote-toggle" onchange="toggleLifeDemote()">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="set-row">
         <i class="ti ti-trash" aria-hidden="true"></i>
         <div class="set-text"><strong>Gesamtstand löschen</strong><span>„Schon einmal gelernt“ für Vokabeln und Grammatik leeren – der Übungsstand bleibt</span></div>
         <button class="tool-btn" id="lifetime-reset-btn" onclick="resetLifetime()"><i class="ti ti-trash"></i> Löschen</button>
@@ -2486,7 +2494,7 @@
           <option value="level-asc">Stufe: leicht zuerst</option>
           <option value="status-open">Status: Offen zuerst</option>
           <option value="status-learned">Status: Gelernt zuerst</option>
-          <option value="runs-asc">Durchgänge: wenige zuerst</option>
+          <option value="runs-asc">Wiederholt: wenig zuerst</option>
         </select>
       </div>
       <table class="vocab-table">
@@ -6338,12 +6346,35 @@ const MERGED_CARDS = {
   'семя / семена': ['семя', 'семена']
 };
 const LIFETIME_KEY = 'vokabeltrainer-lifetime';
-const LIFE_RUNS_MAX = 5;   // ab 5 Durchgängen gilt ein Wort als sicher
-// „In 3 von 5 Durchgängen richtig · zuletzt am …“
+const LIFE_RUNS_MAX = 5;   // ab Wiederholungsstufe 5 gilt ein Wort als sicher
+// Wiederholung mit Abstand: die Stufe steigt nur bei einer richtigen Antwort und nur, wenn
+// seit dem letzten Anstieg (dd) genug Zeit vergangen ist – 0 → 1 sofort, 1 → 2 nach 1 Tag,
+// 2 → 3 nach 3, 3 → 4 nach 7, 4 → 5 nach 14 Tagen. Zurücksetzen bringt keine Stufe.
+const LIFE_STEP_DAYS = [0, 1, 3, 7, 14];
+const LIFE_DAY_MS = 864e5;
+// Wahlweise (Einstellungen, standardmäßig aus): falsch = eine Stufe zurück, höchstens einmal am Tag
+const LIFE_DEMOTE_KEY = 'vokabeltrainer-life-demote';
+let lifeDemote = false;
+try { lifeDemote = localStorage.getItem(LIFE_DEMOTE_KEY) === '1'; } catch (e) {}
+function toggleLifeDemote() {
+  lifeDemote = !!document.getElementById('lifedemote-toggle').checked;
+  try { localStorage.setItem(LIFE_DEMOTE_KEY, lifeDemote ? '1' : '0'); } catch (e) {}
+}
+// frühester Zeitpunkt für die nächste Stufe (0 = sofort bzw. schon ganz oben)
+function lifeNextDue(e) {
+  const d = (e && e.d) || 0;
+  if (!d || d >= LIFE_RUNS_MAX) return 0;
+  return (e.dd || 0) + LIFE_STEP_DAYS[d] * LIFE_DAY_MS;
+}
+function lifeDateTime(t) { return new Date(t).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+// „Wiederholt: 3 von 5 · nächste Stufe ab … · zuletzt geübt …“
 function lifeRunsText(e) {
-  if (!e || !e.d) return '';
-  return 'In ' + e.d + ' von ' + LIFE_RUNS_MAX + ' Durchgängen richtig' + (e.d >= LIFE_RUNS_MAX ? ' (sicher)' : '')
-    + (e.dd ? ' · zuletzt am ' + new Date(e.dd).toLocaleDateString('de-DE') : '');
+  if (!e || (!e.d && !e.z)) return '';
+  let s = 'Wiederholt: ' + (e.d || 0) + ' von ' + LIFE_RUNS_MAX + ((e.d || 0) >= LIFE_RUNS_MAX ? ' (sicher)' : '');
+  if (e.d && e.d < LIFE_RUNS_MAX) { const due = lifeNextDue(e); s += due > Date.now() ? ' · nächste Stufe ab ' + lifeDateTime(due) : ' · nächste Stufe jetzt möglich'; }
+  if (e.z) s += ' · zuletzt geübt ' + lifeDateTime(e.z);
+  else if (e.dd) s += ' · zuletzt am ' + new Date(e.dd).toLocaleDateString('de-DE');
+  return s;
 }
 let lifetime = null;
 function lifeFromSrs(map, id, st) {
@@ -6351,7 +6382,8 @@ function lifeFromSrs(map, id, st) {
   map[id] = { c: st.correct || 0, w: st.wrong || 0, mb: st.box || 0, l: st.correct > 0 ? (st.lastSeen || Date.now()) : 0 };
 }
 // Nur Zahlen übernehmen – der Gesamtstand kann aus einer fremden Sicherung stammen
-const LIFE_FIELDS = ['c', 'w', 'mb', 'l', 'd', 'dd', 'lr'];
+// z = zuletzt geübt (jede Antwort), dw = letzte Rückstufung; lr = alter Durchgangszähler (nicht mehr benutzt)
+const LIFE_FIELDS = ['c', 'w', 'mb', 'l', 'd', 'dd', 'lr', 'z', 'dw'];
 const LV_NAMES = ['A1', 'A2', 'B1', 'B2', 'C1'];   // wie LEVELS, aber schon beim Start verfügbar
 function cleanLifeEntry(e) {
   if (!e || typeof e !== 'object') return null;
@@ -6436,10 +6468,15 @@ function lifeNote(map, id, ok, box) {
   const e = map[id] || (map[id] = { c: 0, w: 0, mb: 0, l: 0 });
   if (ok) e.c++; else e.w++;
   e.mb = Math.max(e.mb, box);
-  if (ok && !e.l) e.l = Date.now();
-  // Durchgänge: höchstens einmal je Durchgang (= Zeit zwischen zwei Zurücksetzen), bis 5
-  const run = lifetime.run || 1;
-  if (ok && e.lr !== run) { e.d = Math.min(LIFE_RUNS_MAX, (e.d || 0) + 1); e.lr = run; e.dd = Date.now(); }
+  const now = Date.now();
+  if (ok && !e.l) e.l = now;
+  e.z = now;
+  // Wiederholungsstufe: nur mit Abstand (LIFE_STEP_DAYS), bis 5
+  if (ok) {
+    if ((e.d || 0) < LIFE_RUNS_MAX && now >= lifeNextDue(e)) { e.d = (e.d || 0) + 1; e.dd = now; }
+  } else if (lifeDemote && e.d > 0 && now - (e.dw || 0) >= LIFE_DAY_MS) {
+    e.d--; e.dd = now; e.dw = now;   // Abstand zur nächsten Stufe läuft ab jetzt
+  }
   saveLifetime();
 }
 // ── Mehrere Tabs: Lernstand aus dem anderen Tab übernehmen, bevor hier weitergeschrieben wird ──
@@ -6581,7 +6618,7 @@ const scores = loadScores();
   const n = v => { const x = Number(v); return Number.isFinite(x) && x >= 0 ? x : 0; };
   const srs = (a, b) => ({ correct: n(a.correct) + n(b.correct), wrong: n(a.wrong) + n(b.wrong), box: Math.max(n(a.box), n(b.box)), lastSeen: Math.max(n(a.lastSeen), n(b.lastSeen)) });
   const life = (a, b) => ({ c: n(a.c) + n(b.c), w: n(a.w) + n(b.w), mb: Math.max(n(a.mb), n(b.mb)),
-    l: n(a.l) && n(b.l) ? Math.min(n(a.l), n(b.l)) : (n(a.l) || n(b.l)), d: Math.max(n(a.d), n(b.d)), dd: Math.max(n(a.dd), n(b.dd)), lr: Math.max(n(a.lr), n(b.lr)) });
+    l: n(a.l) && n(b.l) ? Math.min(n(a.l), n(b.l)) : (n(a.l) || n(b.l)), d: Math.max(n(a.d), n(b.d)), dd: Math.max(n(a.dd), n(b.dd)), lr: Math.max(n(a.lr), n(b.lr)), z: Math.max(n(a.z), n(b.z)), dw: Math.max(n(a.dw), n(b.dw)) });
   const fix = (m, fn) => {
     if (!m || typeof m !== 'object') return false;
     let ch = false;
@@ -6748,7 +6785,11 @@ function updateSessionButton() {
   updateSessionGoal();
 }
 // ── Einstellungen, Sicherung, Sitzungsziel ──────────────────
-function openSettings() { document.getElementById('overlay-settings').classList.add('open'); ghFillForm(); }
+function openSettings() {
+  document.getElementById('overlay-settings').classList.add('open');
+  const ld = document.getElementById('lifedemote-toggle'); if (ld) ld.checked = lifeDemote;
+  ghFillForm();
+}
 function openShortcuts() { document.getElementById('overlay-shortcuts').classList.add('open'); }
 
 // Welches Werkzeug ist offen und wie heißt dort „Lösung zeigen"?
@@ -6858,7 +6899,7 @@ function openWordDetail(w) {
   document.getElementById('wd-srs').textContent = (scoresDir === 'de-ru' ? 'DE → RU: ' : 'RU → DE: ') + (!s ? 'noch nicht abgefragt'
     : srsDone(s) ? 'erledigt – kommt nach dem Zurücksetzen wieder' : 'offen (' + s.wrong + '× falsch)')
     + (le ? ' · Gesamt: ' + le.c + '× richtig, ' + le.w + '× falsch' + (le.l ? ', gelernt seit ' + new Date(le.l).toLocaleDateString('de-DE') : '') : '')
-    + (le && le.d ? ' · ' + lifeRunsText(le) : '');
+    + (le && (le.d || le.z) ? ' · ' + lifeRunsText(le) : '');
   const pill = document.getElementById('wd-score');
   if (!s || (s.correct === 0 && s.wrong === 0)) {
     pill.className = 'score-pill unseen'; pill.textContent = '–';
@@ -6968,7 +7009,7 @@ const BACKUP_KEYS = ['vokabeltrainer-grammar-info-open','vokabeltrainer-grammar-
   'vokabeltrainer-hearquiz-settings','vokabeltrainer-hoertrainer-cats','vokabeltrainer-hoertrainer-pause',
   'vokabeltrainer-autoplay','vokabeltrainer-block-size','vokabeltrainer-direction',
   'vokabeltrainer-skip-cognates','vokabeltrainer-theme','vokabeltrainer-session-goal',
-  'vokabeltrainer-cyr-keyboard','vokabeltrainer-max-level','vokabeltrainer-lifetime','vokabeltrainer-level-order','vokabeltrainer-my-level','vokabeltrainer-speak-rate','vokabeltrainer-view','vokabeltrainer-grammar-panel','vokabeltrainer-listening-panel','vokabeltrainer-sidebar-width'];
+  'vokabeltrainer-cyr-keyboard','vokabeltrainer-max-level','vokabeltrainer-lifetime','vokabeltrainer-level-order','vokabeltrainer-my-level','vokabeltrainer-speak-rate','vokabeltrainer-view','vokabeltrainer-grammar-panel','vokabeltrainer-listening-panel','vokabeltrainer-sidebar-width','vokabeltrainer-life-demote'];
 function exportBackup() {
   const data = { app: APP_ID, version: 1, saved: new Date().toISOString(), data: {} };
   BACKUP_KEYS.forEach(k => { try { const v = localStorage.getItem(k); if (v !== null) data.data[k] = v; } catch (e) {} });
@@ -7002,7 +7043,7 @@ function mergeLifeEntry(a, b) {
   if (!a) return b ? Object.assign(b, { lr: 0 }) : null;   // Durchgang des anderen Geräts zählt hier nicht als laufend
   if (!b) return a;
   const m = Object.assign({}, a);
-  ['c', 'w', 'mb', 'd', 'dd'].forEach(f => { m[f] = Math.max(a[f] || 0, b[f] || 0); });
+  ['c', 'w', 'mb', 'd', 'dd', 'z', 'dw'].forEach(f => { m[f] = Math.max(a[f] || 0, b[f] || 0); });
   m.l = a.l && b.l ? Math.min(a.l, b.l) : (a.l || b.l || 0);
   return m;
 }
@@ -11784,7 +11825,7 @@ function renderLevelPlan(l) {
   }
   h += '</div><ul class="lvl-check">';
   h += '<li>' + hak(ever / (words.length || 1) >= LEVEL_PLAN_DONE) + '<span><strong>Wörter ' + l + '</strong>: ' + ever + ' von ' + words.length + ' schon einmal gelernt (' + pct(ever, words.length) + ' %)'
-    + ' · ' + sicher + ' sicher (' + LIFE_RUNS_MAX + ' Durchgänge)</span></li>';
+    + ' · ' + sicher + ' sicher (' + LIFE_RUNS_MAX + '× mit Abstand wiederholt)</span></li>';
   const everTexts = {}; updateGrammarTileProgress(lifetimeAsSrs(), everTexts);
   const tools = Object.keys(GRAMMAR_TOOL_LEVEL).filter(t => GRAMMAR_TOOL_LEVEL[t] === l);
   tools.forEach(t => {
