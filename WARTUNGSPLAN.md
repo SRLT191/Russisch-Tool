@@ -1,0 +1,135 @@
+# Wartungsplan Russisch Sprachtool
+
+Stand: 2026-10-24. Jeder Befehl löst eine vollständige Prüfroutine aus: Der Befehl wird gegeben, Claude arbeitet ihn ab und meldet Funde mit Korrekturvorschlag. Einbau erst nach Bestätigung.
+
+**Umfang heute:** 2989 Karten mit 3006 russischen Wörtern in 79 Kategorien (17 Karten mit zwei gleichbedeutenden Wörtern, MERGED_CARDS), 17 Grammatikwerkzeuge in 6 Oberkategorien (Verben 5, Substantive 4, Adjektive 3, Pronomen 2, Präpositionen 1, Sätze 2) und 3 Hörwerkzeuge, 146 Konjugationstabellen für 483 Verben, 84 Substantiv- und 91 Adjektivtabellen, Kurzform und Steigerung für 60 Adjektive, Pronomen-Deklination für 19 Pronomen (inkl. кто, что, себя, весь, этот, тот), Rektion für 40 Verben, Geschlecht für 1785 Substantive aus dem Wortschatz, Satzbau mit 8 Satzarten und 188 Sätzen. Jedes Wort und jeder Übungssatz hat ein Sprachniveau (Karten: A1 760 · A2 422 · B1 487 · B2 649 · C1 671; Richtwert: A1 nach FIPI „Уровень 1“ 2023, sonst nach Häufigkeit in OpenSubtitles mit Formen aus OpenRussian.org), jedes Grammatikwerkzeug eine Stufe.
+
+## Sammelbefehle
+
+| Befehl | Was er auslöst |
+| --- | --- |
+| Prüfe Lerndaten | Alle zwölf Befehle der Tabelle *Lerndaten* nacheinander |
+| Prüfe Code und Oberfläche | Alle elf Befehle der Tabelle *Code und Oberfläche* nacheinander |
+| Prüfe Bedienung und Lernführung | Alle neun Befehle der Tabelle *Bedienung und Lernführung* nacheinander |
+| Prüfe die Grammatikwerkzeuge | Alle fünf Befehle der Tabelle *Grammatikwerkzeuge* nacheinander |
+| Prüfe Speicher und Lernniveau | Alle zehn Befehle der Tabelle *Speicher und Lernniveau* nacheinander |
+| Mach eine Gesamtprüfung | Alle fünf Tabellen, also jeden Befehl dieses Plans (47 Befehle) |
+
+Bei einem Sammelbefehl wird jeder Einzelbefehl vollständig abgearbeitet; gemeldet wird am Ende eine Liste der Funde, nach Befehl gruppiert, mit je einem Korrekturvorschlag. „Überprüfe alle Übersetzungen" ist die einzige Prüfung, die Wort für Wort gelesen wird und entsprechend lange dauert.
+
+## Lerndaten
+
+Sammelbefehl: **Prüfe Lerndaten**
+
+| Befehl | Was geprüft wird | Typischer Fund |
+| --- | --- | --- |
+| Überprüfe alle Übersetzungen | Alle deutschen Übersetzungen inhaltlich, Kategorie für Kategorie; Groß-/Kleinschreibung, Infinitive bei Verben, Nominativ bei Adjektiven, Klammern, Fremdzeichen, doppelte Übersetzungen | реликвия als „Relikt" statt „Reliquie"; Planeten kleingeschrieben |
+| Überprüfe alle Transliterationen | Schema neu erzeugt (з→s, ж→sch, ц→z, в→w, х→ch, щ→schtsch, ё→jo, ы→y, ь→', с→ss zwischen Vokalen, е→je am Wortanfang) und gegen jeden Eintrag gestellt; Karten mit Partnerverben führen beide Formen mit Schrägstrich | щётка als „schtschotka" statt „schtschjotka" |
+| Überprüfe alle Beispielsätze | Jeder Satz mit eingesetztem Wort gefüllt, deutsche Artikel/Fälle/Verbformen geprüft, fehlende Lücken, Sätze ohne Zielwort | „Das Erbschaft"; „Der Bruder helfen mir jeden Tag" |
+| Überprüfe die Grammatiktabellen | Konjugation, Deklination, Pronomen (auch die Aufgaben von „Pronomen umformen“: н-Formen nach Präposition, ко/со/обо/передо мне), Bewegungspaare gegen Referenzformen; Akkusativ belebt/unbelebt bei Adjektiven und Possessiva; Spelling-Rule nach ж/ш/щ/ч/г/к/х, Reflexivendungen, Sonderpräterita, Genitiv Plural | ночь im Plural mit я statt а; врачов statt врачей |
+| Überprüfe die Konjugationsklassen | Die abgeleitete Klasse jedes Verbs (1./2. Konjugation, Wechsel in der 1. Person, Ausnahme-Infinitiv, Stammwechsel, Sonderfall) gegen die Grammatik; Sonderfall-Liste nur für echte Unregelmäßige | Verb landet im Sonderfall, obwohl es nur reflexiv ist |
+| Prüfe den Wortschatz auf Lücken | Kategoriegrößen, Dubletten, fehlende Aspekt- und Bewegungspartner, häufige Alltagswörter | Kategorien unter Zielgröße; Partnerverb fehlt auf der Karte |
+| Prüfe die Kategoriezuordnung | Passende Kategorie je Wort; alle Registrierungsstellen (vocab, CAT_ICONS, Themen-/Wortartgruppen, Oberkategorie-Pools) | Verb in einer Substantivkategorie; fehlendes Icon; Kategorie in keiner Gruppe |
+| Überprüfe die Satzgeneratoren | Wortgruppen und Satzbau über alle Typen: russische Formen (Aspekt, Belebtheit, Zahlwörter, Präpositionsvarianten о/об, в/во, с/со) und die erzeugte deutsche Seite (Artikel, Endungen, Zusammenziehungen) | „нежных мамы"; „deinem Antwort"; „со синим" |
+| Überprüfe die Antwortvarianten | Ob jede richtige Antwort angenommen wird: Wortstellung (Satzglieder frei, не/Präposition/давай am Folgewort, Fragewort vorn), ё = е, Doppelformen (старше/старее, лучший/самый лучший), weibliche und männliche Form in Sätzen mit я/ты, пожалуйста mit und ohne, Komma und Satzzeichen | „Сегодня он не работает" als falsch gewertet; „Ты здоров?" nimmt kein „здорова" |
+| Überprüfe die deutschen Übungssätze | Die deutsche Seite aller fest geschriebenen Sätze (Satzbau aller Satzarten und Zeiten, Kurzform- und Komparativsätze, Diktat): natürliches Deutsch, passende Zeit, du/ihr/Sie passend zur russischen Anrede, Artikel und Fälle | „Sie spielen nicht Fußball"; „Machen Sie …" bei einer ты-Aufgabe |
+| Überprüfe die Querbezüge der Daten | Dasselbe Wort in Wortschatz, Konjugations-/Deklinationstabellen, Geschlechterliste, Rektion, Aspektpaaren und Sätzen ohne Widerspruch: Geschlecht, Übersetzung, Aspektpartner, Belebtheit, Rektion | Geschlecht im Werkzeug anders als in der Deklinationstabelle; Aspektpartner im Wortschatz ≠ Aspektpaar-Werkzeug |
+| Prüfe neue Wörter für die Grammatikwerkzeuge | Ob neue Wörter dort ankommen, wo sie sollen: Substantive im Werkzeug Geschlecht (Wörter auf -ь ohne Faustregel, männliche Personen auf -а/-я, Fremdwörter, Pluralwörter brauchen einen Eintrag in GENDER_LIST), neue Wörter mit Sprachniveau (WORD_LEVEL_LISTS; ohne Eintrag gibt es keine Stufe und der Stufenfilter blendet das Wort nicht aus), Verben mit Konjugationstabelle, neue Tabellen-Substantive und -Adjektive mit Bedeutungsklasse (WG_NOUN_CLASS / WG_ADJ_FIT, sonst tauchen sie in den Wortgruppen nicht auf), mögliche Rektions- und Satzbaueinträge; Liste der Wörter, die still herausfallen | Neues Substantiv auf -ь fehlt ohne Hinweis im Werkzeug Geschlecht |
+
+## Code und Oberfläche
+
+Sammelbefehl: **Prüfe Code und Oberfläche**
+
+| Befehl | Was geprüft wird | Typischer Fund |
+| --- | --- | --- |
+| Überprüfe den Code auf Fehler | Syntax, Ladetest im echten DOM, Verweise auf fehlende Elemente, ungeschützte Zugriffe, Start ohne Sprachausgabe und ohne localStorage | Absturz beim Start wegen entferntem Element |
+| Überprüfe alle Funktionen | Alle drei Ansichten, 17 Grammatik- und 3 Hörwerkzeuge, alle Dialoge und Schalter im Browser; derzeit 80 Einzelprüfungen; eigene Tests: Zurücksetzen (chk/resettest.js, 31), Lernlogik ohne Zeit (ohnezeittest, 18), Durchgänge (durchgangtest, 14), Richtungen (richtungtest ru/de), Sicherung zusammenführen (mergetest, 12), Stufen fürs Hören und Sätze (stufenhoerentest, 10), Stufenplan und Abschluss (stufenplantest, 18), Einstufungstest (einstufungtest, 9), Fixes der Gesamtprüfung 24.10. (fixg1test 10, fixg2test 8, fixg3test 8), Tastenkürzel + (resettastetest, 9), zusammengelegte Karten (zusammenlegentest, 15) | Zähler sinkt nach richtiger Antwort nicht |
+| Überprüfe auf Sicherheitslücken | Ausgehende Anfragen, eval & Co., ungeprüfte Eingaben in innerHTML, Speicher- und Sicherungs-Import, externe Ressourcen | Aufruf an fremden Server bei jeder falschen Antwort |
+| Überprüfe auf Spaghetticode | Funktionslängen, Zahl globaler Variablen, doppelte Codeblöcke, Verschachtelungstiefe, toter Code | Funktion mit 182 Zeilen; dreifach kopierter Block |
+| Überprüfe die Schmalansicht | Jede Ansicht, jedes Panel, jeder Dialog bei 320/360/390/768 px auf waagerechten Überlauf, dazu Tabellen, die aus ihrem Kasten laufen | Grammatik-Panel ragt bei 320 px über den Rand; Verbliste breiter als das Fenster |
+| Überprüfe die Dunkelansicht | Jede Ansicht und jeden Dialog hell und dunkel: Kontraste, hartkodierte Farben, unsichtbarer Text, Zustände wie „richtig/falsch/aufgedeckt" | Rot auf Dunkelgrau nicht lesbar |
+| Überprüfe Speicher und Lernstand | Kurzprüfung: Sicherung schreiben und einlesen, Zustand nach Neuladen, alle Einstellungen bleiben erhalten; gründlich über die Tabelle *Speicher und Lernniveau* | Einstellung wird nicht gespeichert |
+| Überprüfe die Dateigröße | Gesamtgröße, eingebettete Schrift und Icons, ungenutzte Icons, Regeln und Funktionen | 40 eingebettete Icons, die niemand benutzt |
+| Vergleiche mit der letzten Sicherung | Vorher/Nachher gegen die jüngste Sicherungskopie: Funktionen, Knopf-Handler (jedes onclick hat eine Funktion), Speicherschlüssel, gespeicherte Einstellungen, Panels und Chips; jede Änderung muss gewollt sein | Anhören-Knopf ohne Funktion nach einem Umbau; Einstellung fällt aus der Sicherung |
+| Überprüfe die Prüfskripte | Ob die Prüfskripte alles erfassen: alle Werkzeuge, Modi und Zustände (beantwortet, falsch, Info offen) aus der laufenden Werkzeugliste statt aus fest eingetragenen Listen; neue Funktionen haben eine eigene Prüfung. Sprachausgabe (speech2) und Hilfe-Zustand (hintstate) lesen Werkzeuge, Modi und Schalter aus der App; die Prüfen-Prüfung meldet „Werkzeuge ohne Prüfen-Prüfung“ | Schmal- und Dunkelprüfung kannte die drei neuesten Werkzeuge nicht |
+| Überprüfe die Geschwindigkeit | Ladezeit bis bedienbar, erstes Öffnen jedes Werkzeugs, Aufbau großer Listen (Geschlecht, Wortstellungsvarianten, Vokabelliste), Reaktionszeit beim Prüfen, Speicherbedarf | Werkzeug braucht beim ersten Öffnen spürbar lange |
+
+## Bedienung und Lernführung
+
+Sammelbefehl: **Prüfe Bedienung und Lernführung**
+
+| Befehl | Was geprüft wird | Typischer Fund |
+| --- | --- | --- |
+| Überprüfe die Lernlogik | Lernstand für Vokabeln und Grammatik getrennt, ohne Zeitabstände: einmal richtig = erledigt, kommt erst nach dem Zurücksetzen wieder; falsch beantwortet bleibt offen; Grammatik: ungesehene vor offenen, bei allem erledigt die am längsten nicht geübten; „Alles gelernt!“-Zustand, Fortschritt in den Kopfzeilen der Werkzeuge und auf den Zählern, Zurücksetzen mit einem Klick ohne Rückfrage (Vokabeln und Grammatik) löscht nur den Übungsstand, der Gesamtstand (vokabeltrainer-lifetime: je Wort/Aufgabe richtig, falsch, höchster Kasten, „gelernt seit“, Durchgänge) bleibt erhalten, läuft bei jeder Antwort mit und wird bei „Bewertung zurücknehmen“ mit zurückgesetzt; „Alles gelernt!“ bietet nur das Zurücksetzen an (kein Countdown, kein Weiterüben); gelöscht wird der Gesamtstand nur über Einstellungen → „Gesamtstand löschen“ (mit Rückfrage) | Werkzeug führt gar keinen Lernstand; Zurücksetzen lässt Grammatik stehen |
+| Überprüfe die Auswahllisten | Verben, Adjektive, Substantive, Pronomen: Sortierschalter, Zwischenüberschriften, Suche, Umfang, Lernstandspalte, Knopfbeschriftung — und ob „Nächstes" wirklich der angezeigten Reihenfolge folgt | Sortierschalter ohne Wirkung; nach dem Prüfen kommt ein zufälliges Wort |
+| Überprüfe die Tastenkürzel | Jede Taste in jeder Ansicht: Enter, 1/2/3/4, Taste 3 als „Lösung zeigen" überall, Zurücknehmen im Hörquiz, Esc, die ?-Übersicht auf Vollständigkeit | Taste 3 deckt das Werkzeug der anderen Ansicht auf |
+| Überprüfe die Hinweise und Hilfen | Versteckbare Hinweise (Zielverb, Grundformen, Klasse, Kasus, Erklärungen), Tippfehlermeldungen, Teilrückmeldung bei falscher Eingabe | Hinweis verrät die Lösung; Erklärung bleibt nach dem Umschalten stehen |
+| Überprüfe die Infotexte | Jedes Info-Fenster (i-Knopf) aller Werkzeuge, bei Konjugieren jede Zeit, bei Substantiven Singular und Plural: Grammatik richtig und vollständig, Beispiele korrekt, Abgleich mit dem Werkzeug (Aufgabentypen, Modi, Schalter, Knopfnamen), veraltete Angaben, Doppelungen, einheitlicher Aufbau (Worum es geht → Regel mit Beispiel → Bedienung), einheitliche Anführungszeichen, Tabellen bei 320 px | Imperativregel richtet sich nach der falschen Person; Aufgabentyp fehlt im Text; „Tempo“ statt „Abspielgeschwindigkeit“ |
+| Überprüfe die Sprachausgabe | Vorlesen in allen Werkzeugen, Tempo-Einstellung, Abbruch beim Ansichtswechsel, Verhalten ohne Stimme im System | Hörtrainer läuft nach dem Wechsel weiter |
+| Überprüfe die Prüfen-Knöpfe | In jedem Übungswerkzeug: erste Eingabe bewerten, zweiter Druck führt weiter, leeres Feld springt nicht, Lösung zeigen sperrt die Bewertung | Prüfen bewertet, geht aber nie weiter |
+| Überprüfe die Barrierefreiheit | Beschriftungen und aria-Labels aller Knöpfe, Fokusreihenfolge, Bedienbarkeit ohne Maus, Titel der Dialoge | Knopf ohne Beschriftung, nur Symbol |
+| Überprüfe die Handybedienung | Bei 360–390 px mit Touch: Tippflächen mindestens 44 px, Abstand zwischen Knöpfen, Eingabefeld bleibt bei offener Bildschirmtastatur sichtbar, kein Zoom beim Antippen von Feldern (Schrift ≥ 16 px), Wischen/Scrollen in Listen | Bausteine zu klein; Eingabefeld unter der Tastatur |
+
+## Grammatikwerkzeuge
+
+Sammelbefehl: **Prüfe die Grammatikwerkzeuge**
+
+Diese Befehle vergleichen die Werkzeuge untereinander: Werkzeuge derselben Oberkategorie und Werkzeuge mit gleichem Aufbau (Tabelle ausfüllen, Form bilden, Wahl im Satz) sollen sich gleich bedienen lassen. Gemeldet wird eine Gegenüberstellung je Werkzeug mit Vorschlag; umgebaut wird erst nach Bestätigung.
+
+**Grundgerüst, gegen das geprüft wird:** Kopfzeile (Titel „Bereich · Werkzeug“, ⓘ, Fortschritt „X von Y gelernt“ über alle Richtungen, ⋯-Menü nur wo nötig: Neue Runde, Leeren, Erklärung zur Form) → Modus-Zeile, falls es Ansichten gibt (Üben/Liste, Partner/Wahl/Liste) → Einstellungen (auf schmalen Schirmen eingeklappt, mit Kurzfassung; Fall immer als Knopfgruppe, Hilfe-Schalter heißt „Hilfe“ und zeigt den Zustand gedrückt) → Aufgabe groß, rechts Wortauswahl „Verb: … ▾“ und Anhören → Eingabe oder Tabelle → Knopfleiste Prüfen ⏎ (Hauptknopf) · Lösung zeigen 3 · Weiter/Nächstes → Rückmeldung. Infotext startet zugeklappt, hat ein ×, sein Zustand wird je Werkzeug gemerkt. In Tabellen springt Enter ins nächste Feld; überall gilt: unveränderte Eingabe + nochmal Prüfen = weiter, Aufgedecktes zählt nicht als gewusst. Geschlechter heißen überall m · f · n · Pl. Modi heißen bei Auswahl-Werkzeugen „Fall wählen“ / „Form bilden“. In allen Grammatikwerkzeugen und im Satzbau gelten Tippfehler nur im Wortstamm (gramTypoOk): Wörter bis 3 Buchstaben, erster Buchstabe und Endung müssen stimmen. Auf Touch-Geräten sind Tippflächen mindestens 44 px, Eingaben mindestens 16 px; beim Antippen eines Felds rollt die Seite so, dass Aufgabe und Feld über der Tastatur stehen. Die Vokabelliste wird beim Schließen geleert. Das Werkzeug Geschlecht nimmt Substantive automatisch aus dem Wortschatz (großgeschriebene deutsche Übersetzung) und bestimmt das Geschlecht über die Endung; neue Wörter auf -ь ohne Faustregel, männliche Personen auf -а/-я, unveränderliche Fremdwörter und Wörter nur im Plural brauchen einen Eintrag in GENDER_LIST, sonst bleiben sie draußen. Alle Werkzeuge mit einem Eingabefeld (Aspektpaare, Bewegungsverben-Partner, Verben umformen, Zahl + Substantiv, Kasus bilden ×2, Pronomen umformen, Kurzform & Steigerung, Rektion „Form bilden“) laufen über den gemeinsamen **Aufgabenmotor** (gtCheck/gtReveal/gtNext); ein neues Einzelfeld-Werkzeug beschreibt nur seine Eigenheiten in einem Konfigurationsobjekt, statt Prüfen/Lösung/Weiter neu zu schreiben. Die Auswahl-Werkzeuge (Kasus-Drill „Kasus wählen“, Bewegungsverben „Wahl“, Rektion „Fall wählen“, Geschlecht) laufen über den **Wahlmotor** (gtChoose/gtChoiceReveal/gtChoiceNext): richtig → nach kurzer Pause automatisch weiter, falsch → Erklärung bleibt, weiter mit Enter oder „Weiter“, Taste 3 markiert die Lösung. Alle Werkzeug-Einstellungen stehen in einer Liste (TOOL_SETTINGS) – eine neue Einstellung wird nur dort eingetragen. In den fest geschriebenen Satzbau-Sätzen ist die Reihenfolge der Satzglieder frei (не, Präpositionen und давай bleiben am folgenden Wort, Fragewort vorn, ли-Fragen fest). Bei я/ты gilt in der Vergangenheit und bei должен/рад/готов auch die weibliche Form. Die Wortgruppen verbinden Adjektiv und Substantiv nur, wenn sie nach Bedeutungsklasse zusammenpassen (Person, Ort, Gegenstand, Fahrzeug, Essen, Zeit, Abstraktes, Körper, Wetter); Stoffwörter kommen nicht in die Mehrzahl.
+
+| Befehl | Was geprüft wird | Typischer Fund |
+| --- | --- | --- |
+| Überprüfe die Grammatikwerkzeuge auf Ungereimtheiten | Gleiche Dinge gleich benannt und gleich angeordnet: Knopfnamen und Symbole, Reihenfolge der Schalter, Fachbegriffe (Präpositiv/Präp., vollendet/perfektiv), Schreibweise der Fälle und Genera, Rückmeldetexte („Richtig wäre: …"), Zähleranzeige, Verhalten beim Wechsel von Schaltern (neue Aufgabe, Zähler bleibt/fällt), Anhören vor und nach dem Prüfen, Panel-Titel zum Knopf in der Navigation | Ein Werkzeug sagt „Lösung zeigen", das andere „Aufdecken"; Fallauswahl einmal als Liste, einmal als Knöpfe |
+| Überprüfe die Grammatikwerkzeuge auf fehlende Funktionen | Merkmalsliste je Werkzeug gegen die Grundausstattung: Lernstand (SRS) mit Fortschritt in der Kopfzeile, Infotext, versteckbare Hilfe, Taste 3, zweistufiges Prüfen, Anhören, Tippfehler-Toleranz und ё=е, Teilrückmeldung, Einstellungen bleiben nach Neuladen, Auswahl von Umfang oder Wörtern, Zurücksetzen erfasst das Werkzeug; dazu Lücken im Lernstoff (Fall, Zahl, Genus, Zeit oder Aufgabentyp, den kein Werkzeug abfragt) | Werkzeug ohne Anhören-Knopf; Einstellung geht beim Neuladen verloren; Instrumental Plural wird nirgends geübt |
+| Überprüfe die Grammatikwerkzeuge auf Redundanzen | Werkzeuge oder Aufgabentypen, die denselben Stoff auf dieselbe Weise abfragen; doppelte Schalter innerhalb eines Werkzeugs; Funktionen, die nichts bewirken oder nie erreichbar sind; doppelt gepflegte Formdaten statt einer gemeinsamen Tabelle; Code, der für jedes Werkzeug kopiert statt geteilt ist | Pronomen und Pronomen umformen fragen dieselben Formen gleich ab; zwei Schalter für dieselbe Einstellung |
+| Überprüfe die Oberkategorien | Jedes Werkzeug genau einer Oberkategorie zugeordnet (Navigation, GRAMMAR_CATS, Panel-Liste, Öffner, Taste 3, Fortschritt, Einstellungen), Werkzeugnamen innerhalb einer Kategorie eindeutig, gemerktes Werkzeug je Kategorie, Start auf dem zuletzt benutzten Werkzeug, Kategorie mit nur einem Werkzeug ohne zweite Zeile | Neues Werkzeug fehlt in der Navigation; zwei Knöpfe „Deklination" in derselben Kategorie |
+| Prüfe den Lernstoff gegen die Niveaustufen | Stufen der Werkzeuge und Modi (GRAMMAR_TOOL_LEVEL, GRAMMAR_PART_LEVEL) noch stimmig; abgedeckter Grammatikstoff gegen eine A1–B1-Liste (Fälle in Singular und Plural, Aspekt, Bewegungsverben mit Präfixen, Imperativ, Konditional, Relativsätze, Zahlen und Ordnungszahlen, Datum und Uhrzeit, Steigerung, Partizipien als B1-Ausblick); Ausgabe: was fehlt, auf welcher Stufe, wo es hingehört | Relativsätze mit который, Konditional mit бы, Ordnungszahlen fehlen |
+
+## Speicher und Lernniveau
+
+Sammelbefehl: **Prüfe Speicher und Lernniveau**
+
+**Aufbau, gegen den geprüft wird:** Der *Übungsstand* (vokabeltrainer-scores für RU → DE, vokabeltrainer-scores-de-ru für DE → RU, vokabeltrainer-grammar-srs) kennt nur offen und erledigt: einmal richtig = erledigt bis zum nächsten Zurücksetzen, ohne Zeitabstände. Zurücksetzen leert mit einem Klick beide Richtungen und die Grammatik und startet einen neuen Durchgang. Der *Gesamtstand* (vokabeltrainer-lifetime, Version 3) wird nie zurückgesetzt: je Wort und Aufgabe richtig, falsch, höchster Kasten, „gelernt seit“, Durchgänge (höchstens einer je Durchgang, bis 5 = sicher, Datum des letzten), dazu bestandene Stufen (lv). Gelöscht wird er nur über Einstellungen → „Gesamtstand löschen“. Sicherung einlesen führt zusammen statt zu ersetzen. Stufen: Wörter nach WORD_LEVEL_LISTS (A1 nach FIPI, sonst Häufigkeitsrang), Sätze nach dem schwersten Wort (SENT_FORM_LISTS), Grammatik nach GRAMMAR_TOOL_LEVEL/GRAMMAR_PART_LEVEL. Bänder: Rang ≤ 1000 A1, ≤ 2500 A2, ≤ 5000 B1, ≤ 12000 B2, sonst C1.
+
+| Befehl | Was geprüft wird | Typischer Fund |
+| --- | --- | --- |
+| Überprüfe den Übungsstand | Zurücksetzen auch mit Taste + (auch Ziffernblock und im Antwortfeld, nicht bei offenem Dialog, nicht mit Strg/⌘); einmal richtig = erledigt, falsch bleibt offen und kommt wieder; keine Fälligkeit mehr gespeichert; jede Richtung mit eigenem Stand (Wechsel, Neuladen, Zähler, Wortdetails nennen die Richtung); „Alles gelernt!“ erscheint genau dann, wenn nichts offen ist, und bleibt unabhängig von der Zeit; Zurücksetzen leert beide Richtungen und die Grammatik ohne Rückfrage; alte Daten mit Fälligkeit werden richtig gelesen | Wort kommt nach richtiger Antwort trotzdem wieder; DE → RU zeigt den Stand von RU → DE |
+| Überprüfe den Gesamtstand | Läuft bei jeder Antwort in Vokabeln, Grammatik, Satzbau und Hörquiz mit; Übernahme älterer Stände (Version 1–3) ohne Verlust; Durchgänge höchstens einer je Durchgang, Obergrenze 5, Datum des letzten; „Bewertung zurücknehmen“ nimmt auch Gesamtstand, Durchgang und Erstversuch im Abschluss zurück; „Gesamtstand löschen“ fragt nach und baut sich danach nicht aus dem Übungsstand neu auf; Anzeigen stimmen überein (✓ x/5 in der Liste, Wortdetails, Stufen, Kopfzeilen-Hinweis) | Zwei Durchgänge in einem gezählt; nach dem Löschen steht der alte Stand wieder da |
+| Überprüfe Sicherung und Zusammenführen | Sicherung enthält jeden Lernstand- und Einstellungsschlüssel; Einlesen führt zusammen (Zähler und Kasten das Höhere, „gelernt seit“ das Frühere, Durchgänge das Höhere, bestandene Stufen das frühere Datum, Merkliste vereinigt, lokale Einstellungen bleiben, fehlende werden ergänzt); zweimal dieselbe Sicherung ändert nichts; alte Sicherungen (ohne DE → RU, mit Fälligkeit) werden richtig übernommen; fremde oder kaputte Dateien werden abgewiesen | Neuer Schlüssel fehlt in BACKUP_KEYS; doppeltes Einlesen verdoppelt die Zähler |
+| Überprüfe die Speicherschlüssel | Alle localStorage-Schlüssel der App gegen BACKUP_KEYS und die Regeln in mergeBackupValue; verwaiste Schlüssel nicht mehr benutzter Einstellungen; Platzbedarf von Übungs- und Gesamtstand bei allen Wörtern und Aufgaben hochgerechnet gegen die Browsergrenze (rund 5 MB) | Alter Schlüssel der entfernten „Strikten Reihenfolge“ wird weiter gesichert |
+| Überprüfe die Speicherfestigkeit | Start mit leerem, kaputtem oder gesperrtem Speicher (Privatfenster), voller Speicher beim Schreiben, unbekannte Felder in alten Einträgen, zwei offene Tabs gleichzeitig (überschreibt einer den anderen?) | App startet nicht, wenn ein Eintrag kein gültiges JSON ist; zweiter Tab löscht den Fortschritt des ersten |
+| Überprüfe die Wortstufen | Jedes Wort hat eine Stufe, die zur Quelle passt (A1 nach FIPI „Уровень 1“, sonst Häufigkeitsrang), Karten mit zwei Wörtern, neue Wörter ohne Eintrag, Verteilung je Stufe und je Kategorie, Abzeichen auf Karte, Liste und Wortdetails | Neues Wort ohne Stufe rutscht durch jeden Stufenfilter |
+| Überprüfe die Satzstufen | Jeder Übungs- und Diktatsatz hat eine Stufe; Wortformen ohne Eintrag in SENT_FORM_LISTS (Liste der unbekannten Formen); nach neuen Sätzen neu berechnet; Stichproben auf Plausibilität (mehrdeutige Formen, Eigennamen, ё = е) | Neuer Satz mit seltenem Wort gilt als A1 |
+| Überprüfe die Stufenfilter | „Wörter bis Stufe“ in Vokabeln, Hörtrainer, Hörquiz und Diktat; ist nach dem Filtern nichts übrig, wird ungefiltert geübt; „Neue Wörter nach Stufe“; „Mein Niveau“ markiert höhere Grammatik als Ausblick; Umstellen wirkt sofort, auch in laufenden Hörübungen | Hörquiz behält nach dem Umstellen die alte Wortauswahl |
+| Überprüfe Stufenplan und Abschluss | Checkliste je Stufe: Zahlen gegen den Gesamtstand, automatischer Haken ab 90 %, von Hand gesetzte Haken bleiben gespeichert, Werkzeug-Links öffnen das richtige Werkzeug, Hinweis bei Stufen ohne Grammatik. Abschluss: nur Wörter der Stufe, auch schon erledigte, nur der Erstversuch zählt, Fortsetzen nach Neuladen, Abbrechen, Zähler zeigen den Abschluss, bestanden ab 90 % mit Datum und Pokal, nicht bestanden ohne Eintrag | Abschluss geht beim Neuladen verloren; Wiederholung eines Worts zählt als neuer Versuch |
+| Überprüfe den Einstufungstest | 10 Wörter je Stufe aus der richtigen Stufe; vier verschiedene Antworten, die richtige ist dabei, keine Ablenker mit gleicher Bedeutung (Synonyme); ab 7 richtigen weiter; Vorschlag = höchste geschaffte Stufe, sonst A1 als Einstieg; Tasten 1–5; Übernehmen setzt „Mein Niveau“; Übungs- und Gesamtstand bleiben unverändert | Ablenker „Stunde“ neben richtigem „Uhr“ bei час; Test schreibt in den Lernstand |
+
+## Wann welcher Befehl
+
+- Nach neuen Wörtern oder Kategorien: Transliterationen + Beispielsätze + Kategoriezuordnung + neue Wörter für die Grammatikwerkzeuge.
+- Nach neuen Formen oder Verben: Grammatiktabellen + Konjugationsklassen.
+- Nach Änderungen an der Oberfläche: alle Funktionen + Schmalansicht + Dunkelansicht + Handybedienung.
+- Nach einem neuen oder umgebauten Werkzeug: Prüfe Bedienung und Lernführung (enthält die Infotexte) + Prüfe die Grammatikwerkzeuge.
+- Bevor ein neues Grammatikwerkzeug geplant wird: Lernstoff gegen die Niveaustufen + Grammatikwerkzeuge auf fehlende Funktionen und auf Redundanzen — zeigt, was fehlt und ob der Stoff schon abgedeckt ist.
+- Nach neuen Schaltern, Modi oder Aufgabentypen: Infotexte.
+- Nach Umbauten im Code: Code auf Fehler, Vergleich mit der letzten Sicherung, danach alle Funktionen — oder gleich Prüfe Code und Oberfläche.
+- Nach jedem Umbau: Vergleich mit der letzten Sicherung + Prüfskripte.
+- Nach neuen oder geänderten Übungssätzen: Antwortvarianten + deutsche Übungssätze + Querbezüge + Satzstufen.
+- Nach neuen Wörtern zusätzlich: Wortstufen; nach einer FIPI-Runde auch Stufenplan und Abschluss.
+- Nach Änderungen an Lernlogik, Zurücksetzen oder Gesamtstand: Übungsstand + Gesamtstand + Sicherung und Zusammenführen.
+- Nach einem neuen Speicherschlüssel oder einer neuen Einstellung: Speicherschlüssel + Sicherung und Zusammenführen.
+- Nach Änderungen an Stufen, Filtern oder Hörwerkzeugen: Stufenfilter + Stufenplan und Abschluss + Einstufungstest.
+- Nach einer größeren Wortschatzrunde: Prüfe Lerndaten.
+- Alle paar Monate oder vor dem Weitergeben: Mach eine Gesamtprüfung.
+
+## Feste Regeln
+
+- Vorschläge erst bestätigen lassen, dann einbauen.
+- Pro Runde höchstens 5 neue Wörter, außer es wird ausdrücklich mehr verlangt.
+- Nur die bestätigten Übersetzungen eintragen, nichts dazuerfinden — zu viele Übersetzungen machen das Lernen schwerer.
+- Wörter mit verschiedener Bedeutung nicht zusammenlegen; gleiche Übersetzung bei verschiedenen Wörtern ist in Ordnung. Echte Synonyme, Aspektpaare und Einzahl/Mehrzahl können eine Karte „A / B“ bilden: Eintrag in MERGED_CARDS (übernimmt den Lernstand), ruAlt mit beiden Wörtern, im Werkzeug Geschlecht zählen beide einzeln.
+- Vor jedem Umbau eine Sicherungskopie der Datei, nach jedem Umbau Ladetest, Funktionsprüfung und Schmalansicht.
+- Nach jedem Umbau die Funktionsliste und die Knopf-Handler mit der Sicherung vergleichen (Kurzform von „Vergleiche mit der letzten Sicherung“).
+- Ein neues Werkzeug wird sofort in alle Prüfskripte eingetragen.
+- Selbst verursachte Fehler werden im Bericht genannt, auch wenn sie vor der Auslieferung behoben wurden.
