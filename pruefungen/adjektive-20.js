@@ -1,17 +1,21 @@
 const APP_PATH = require('path').resolve(__dirname, '..', 'index.html');
-// Wortschatzrunde 24.10.2026: alle Adjektivkategorien mit mindestens 15 Wörtern,
+// Wortschatzrunden 24.10.2026: alle Adjektivkategorien mit mindestens 20 Wörtern,
 // jedes neue Wort mit Transliteration, Stufe und Beispielsatz
 const { chromium } = require('playwright');
 const NEU = ['шёлковый', 'хлопковый', 'стальной', 'кирпичный', 'фарфоровый', 'ясный', 'пасмурный', 'речной', 'полевой', 'природный',
   'культурный', 'международный', 'гражданский', 'демократический', 'религиозный', 'мужской', 'женский', 'иностранный', 'российский',
-  'спортивный', 'южный', 'восточный', 'западный', 'дальний', 'следующий', 'вечный'];
+  'спортивный', 'южный', 'восточный', 'западный', 'дальний', 'следующий', 'вечный',
+  'центральный', 'боковой', 'крайний', 'горизонтальный', 'вертикальный', 'утренний', 'вечерний', 'летний', 'зимний', 'сегодняшний',
+  'медный', 'бетонный', 'льняной', 'меховой', 'глиняный', 'небольшой', 'основной', 'минимальный', 'максимальный', 'бесконечный',
+  'жаркий', 'прохладный', 'влажный', 'ледяной', 'звёздный', 'мировой', 'правовой', 'революционный', 'партийный', 'независимый',
+  'деловой', 'медицинский', 'студенческий', 'музыкальный', 'компьютерный'];
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage();
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   await p.goto('file://' + APP_PATH); await p.waitForTimeout(300);
   const R = []; const check = async (n, f) => { try { const r = await f(); const ok = typeof r === 'object' ? r.ok : r; R.push([ok ? 'OK ' : 'XX ', n, r && r.info || '']); } catch (e) { R.push(['XX ', n, e.message]); } };
-  await check('jede Adjektivkategorie hat mindestens 15 Wörter', () => p.evaluate(() => {
-    const klein = WORTART_GROUPS['Adjektive'].map(c => [c, getAllWordsOfCat(c).length]).filter(([, n]) => n < 15);
+  await check('jede Adjektivkategorie hat mindestens 20 Wörter', () => p.evaluate(() => {
+    const klein = WORTART_GROUPS['Adjektive'].map(c => [c, getAllWordsOfCat(c).length]).filter(([, n]) => n < 20);
     return { ok: klein.length === 0, info: klein.map(x => x.join(' ')).join(', ') };
   }));
   await check('neue Wörter: Transliteration, Stufe, Satz, keine Dublette', () => p.evaluate(NEU => {

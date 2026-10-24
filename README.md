@@ -4,7 +4,7 @@ Ein Russisch-Trainer in einer einzigen Datei: **`index.html`** im Browser öffne
 
 **Online:** https://srlt191.github.io/Russisch-Tool/
 
-- **Vokabeln:** 3015 Karten (3032 Wörter) in 79 Kategorien, RU → DE und DE → RU, Freitext, Auswahl und Aufdecken
+- **Vokabeln:** 3050 Karten (3067 Wörter) in 79 Kategorien, RU → DE und DE → RU, Freitext, Auswahl und Aufdecken
 - **Grammatik:** 17 Werkzeuge (Verben, Substantive, Adjektive, Pronomen, Präpositionen, Sätze)
 - **Hörverstehen:** Hörtrainer, Hörquiz, Satzdiktat
 - **Sprachniveau:** jedes Wort und jeder Satz mit Stufe (A1–C1), Stufenplan, Einstufungstest, Stufe abschließen
