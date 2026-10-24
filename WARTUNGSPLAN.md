@@ -2,6 +2,8 @@
 
 Stand: 2026-10-24. Jeder Befehl löst eine vollständige Prüfroutine aus: Der Befehl wird gegeben, Claude arbeitet ihn ab und meldet Funde mit Korrekturvorschlag. Einbau erst nach Bestätigung.
 
+**Ort:** Repository `srlt191/Russisch-Tool` (öffentlich), App als `index.html` im Zweig `main`, Seite unter https://srlt191.github.io/Russisch-Tool/ (GitHub Pages aus `main`, Ordner `/`). Prüfskripte im Repository unter `pruefungen/` (Sammellauf `alle.sh`, läuft bei jedem Push und Pull Request als GitHub Action „pruefen“).
+
 **Umfang heute:** 2989 Karten mit 3006 russischen Wörtern in 79 Kategorien (17 Karten mit zwei gleichbedeutenden Wörtern, MERGED_CARDS), 17 Grammatikwerkzeuge in 6 Oberkategorien (Verben 5, Substantive 4, Adjektive 3, Pronomen 2, Präpositionen 1, Sätze 2) und 3 Hörwerkzeuge, 146 Konjugationstabellen für 483 Verben, 84 Substantiv- und 91 Adjektivtabellen, Kurzform und Steigerung für 60 Adjektive, Pronomen-Deklination für 19 Pronomen (inkl. кто, что, себя, весь, этот, тот), Rektion für 40 Verben, Geschlecht für 1785 Substantive aus dem Wortschatz, Satzbau mit 8 Satzarten und 188 Sätzen. Jedes Wort und jeder Übungssatz hat ein Sprachniveau (Karten: A1 760 · A2 422 · B1 487 · B2 649 · C1 671; Richtwert: A1 nach FIPI „Уровень 1“ 2023, sonst nach Häufigkeit in OpenSubtitles mit Formen aus OpenRussian.org), jedes Grammatikwerkzeug eine Stufe.
 
 ## Sammelbefehle
@@ -13,7 +15,8 @@ Stand: 2026-10-24. Jeder Befehl löst eine vollständige Prüfroutine aus: Der B
 | Prüfe Bedienung und Lernführung | Alle neun Befehle der Tabelle *Bedienung und Lernführung* nacheinander |
 | Prüfe die Grammatikwerkzeuge | Alle fünf Befehle der Tabelle *Grammatikwerkzeuge* nacheinander |
 | Prüfe Speicher und Lernniveau | Alle zehn Befehle der Tabelle *Speicher und Lernniveau* nacheinander |
-| Mach eine Gesamtprüfung | Alle fünf Tabellen, also jeden Befehl dieses Plans (47 Befehle) |
+| Prüfe GitHub und Seite | Alle sechs Befehle der Tabelle *GitHub und Seite* nacheinander |
+| Mach eine Gesamtprüfung | Alle sechs Tabellen, also jeden Befehl dieses Plans (53 Befehle) |
 
 Bei einem Sammelbefehl wird jeder Einzelbefehl vollständig abgearbeitet; gemeldet wird am Ende eine Liste der Funde, nach Befehl gruppiert, mit je einem Korrekturvorschlag. „Überprüfe alle Übersetzungen" ist die einzige Prüfung, die Wort für Wort gelesen wird und entsprechend lange dauert.
 
@@ -105,6 +108,21 @@ Sammelbefehl: **Prüfe Speicher und Lernniveau**
 | Überprüfe Stufenplan und Abschluss | Checkliste je Stufe: Zahlen gegen den Gesamtstand, automatischer Haken ab 90 %, von Hand gesetzte Haken bleiben gespeichert, Werkzeug-Links öffnen das richtige Werkzeug, Hinweis bei Stufen ohne Grammatik. Abschluss: nur Wörter der Stufe, auch schon erledigte, nur der Erstversuch zählt, Fortsetzen nach Neuladen, Abbrechen, Zähler zeigen den Abschluss, bestanden ab 90 % mit Datum und Pokal, nicht bestanden ohne Eintrag | Abschluss geht beim Neuladen verloren; Wiederholung eines Worts zählt als neuer Versuch |
 | Überprüfe den Einstufungstest | 10 Wörter je Stufe aus der richtigen Stufe; vier verschiedene Antworten, die richtige ist dabei, keine Ablenker mit gleicher Bedeutung (Synonyme); ab 7 richtigen weiter; Vorschlag = höchste geschaffte Stufe, sonst A1 als Einstieg; Tasten 1–5; Übernehmen setzt „Mein Niveau“; Übungs- und Gesamtstand bleiben unverändert | Ablenker „Stunde“ neben richtigem „Uhr“ bei час; Test schreibt in den Lernstand |
 
+## GitHub und Seite
+
+Sammelbefehl: **Prüfe GitHub und Seite**
+
+**Aufbau, gegen den geprüft wird:** Jede Änderung läuft über einen eigenen Zweig und einen Pull Request; gemergt wird nur vom Besitzer. Die Schutzregel für `main` verlangt einen Pull Request mit grüner Prüfung „pruefen“ (0 Freigaben, weil Pull Requests unter dem eigenen Konto laufen), sperrt Force-Push und Löschen und hat keine Ausnahmen. Die Action läuft mit Leserechten, ohne Geheimnisse, mit auf Prüfsummen gepinnten Actions. Die App hat eine Content-Security-Policy (nichts nach außen). Lernstand, Sicherungen und persönliche Daten (Name, private E-Mail) gehören nie ins Repository – auch nicht in Commit-Autoren. Einstellungen des Kontos und des Repositorys kann Claude nicht auslesen; dafür gibt Claude eine Checkliste aus.
+
+| Befehl | Was geprüft wird | Typischer Fund |
+| --- | --- | --- |
+| Überprüfe das Repository | `index.html` in `main` gleich der Arbeitskopie und der ausgelieferten Datei; alle Prüfskripte in `pruefungen/` und in `alle.sh` erfasst; `.gitignore` hält Sicherungen fern; keine Namen, privaten E-Mails, Zugangsdaten oder Lernstände in Dateien und Commits (Autor und Committer aller Commits); verwaiste Zweige; offene Pull Requests | Zweig mit altem Stand liegt noch herum; Merge über die Website trägt die private E-Mail-Adresse |
+| Überprüfe die Schutzregeln | Angriffstest mit den eigenen Rechten: leerer Commit direkt nach `main` und Force-Push auf einen älteren Stand müssen abgewiesen werden („Changes must be made through a pull request“, „Cannot force-push“); Pull Request mit roter Prüfung lässt sich nicht mergen; `main` bleibt unverändert | Regel steht auf „Disabled“; Prüfung „pruefen“ nicht als Pflicht eingetragen |
+| Überprüfe die automatischen Prüfungen | Letzter Lauf auf `main` und auf offenen Pull Requests grün; Workflow mit `permissions: contents: read`; Actions auf Prüfsummen gepinnt und noch aktuell (neue v4-Versionen?); Playwright-Version in `pruefungen/package.json`; Gegenprobe, dass `alle.sh` eine kaputte Prüfung als Fehler meldet | Neue Prüfung liegt nur lokal und fehlt im Repository; Action seit Wochen rot |
+| Überprüfe die Seite | Seite über HTTPS erreichbar und zeigt den Stand von `main`; Content-Security-Policy vorhanden, keine fremden Inhalte; Angriffe von außen gegen die ausgelieferte Datei: Schadcode über Adresse (`?…`, `#…`), präparierte Sicherungsdatei, Daten nach außen senden, Einbetten in fremde Seiten (Clickjacking; in aktuellen Browsern mit getrenntem Speicher) | Seite nach „Unpublish“ offline; ausgelieferte Fassung älter als `main` |
+| Überprüfe Konto und Einstellungen | Checkliste für den Besitzer (Claude kann sie nicht auslesen): Zwei-Faktor-Anmeldung an; aktive Sitzungen nur bekannte Geräte; Collaborators nur der Besitzer; Deploy keys und Secrets leer; Actions: Freigabe für Pull Requests von Fremden nötig, Workflow-Rechte „Read“, Actions dürfen keine Pull Requests freigeben; E-Mail privat und „Block command line pushes that expose my email“ an | Zwei-Faktor-Anmeldung aus; alter Deploy-Key mit Schreibrecht |
+| Überprüfe Adressen und Namen | README, Wartungsplan und Lesezeichen nennen die aktuelle Adresse; keine Links auf alte Benutzernamen (alter Name „Sebi191“ ist frei und könnte von Fremden übernommen werden – samt `sebi191.github.io`); nach einer Umbenennung: Lernstand vorher sichern, unter der neuen Adresse einlesen, Repository in der Claude-Sitzung neu anhängen | Lesezeichen zeigt auf die alte Adresse; Lernstand unter neuer Adresse leer |
+
 ## Wann welcher Befehl
 
 - Nach neuen Wörtern oder Kategorien: Transliterationen + Beispielsätze + Kategoriezuordnung + neue Wörter für die Grammatikwerkzeuge.
@@ -121,6 +139,11 @@ Sammelbefehl: **Prüfe Speicher und Lernniveau**
 - Nach einem neuen Speicherschlüssel oder einer neuen Einstellung: Speicherschlüssel + Sicherung und Zusammenführen.
 - Nach Änderungen an Stufen, Filtern oder Hörwerkzeugen: Stufenfilter + Stufenplan und Abschluss + Einstufungstest.
 - Nach einer größeren Wortschatzrunde: Prüfe Lerndaten.
+- Nach jedem Merge: Überprüfe die Seite (Kurzform: erreichbar, Stand von `main`).
+- Nach Änderungen am Workflow oder an den Prüfskripten: Überprüfe die automatischen Prüfungen.
+- Nach Änderungen an Schutzregeln oder Repository-Einstellungen: Überprüfe die Schutzregeln.
+- Nach einer Umbenennung von Konto oder Repository: Überprüfe Adressen und Namen.
+- Alle paar Monate: Überprüfe Konto und Einstellungen.
 - Alle paar Monate oder vor dem Weitergeben: Mach eine Gesamtprüfung.
 
 ## Feste Regeln
@@ -133,3 +156,6 @@ Sammelbefehl: **Prüfe Speicher und Lernniveau**
 - Nach jedem Umbau die Funktionsliste und die Knopf-Handler mit der Sicherung vergleichen (Kurzform von „Vergleiche mit der letzten Sicherung“).
 - Ein neues Werkzeug wird sofort in alle Prüfskripte eingetragen.
 - Selbst verursachte Fehler werden im Bericht genannt, auch wenn sie vor der Auslieferung behoben wurden.
+- Änderungen am Repository nur über einen eigenen Zweig und einen Pull Request; gemergt wird nur vom Besitzer. Kein Force-Push auf `main`.
+- Arbeitskopie, ausgelieferte Datei und `index.html` in `main` bleiben gleich; eine neue Prüfung kommt auch nach `pruefungen/`.
+- Lernstand, Sicherungsdateien und persönliche Daten nie ins Repository.
