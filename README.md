@@ -11,7 +11,7 @@ Ein Russisch-Trainer in einer einzigen Datei: **`index.html`** im Browser öffne
 
 ## Lernstand
 
-Der Lernstand liegt **nur im Browser** (localStorage) – nicht in diesem Repository. Unter *Einstellungen → Sicherung* lässt er sich als Datei sichern und wieder einlesen; beim Einlesen wird zusammengeführt, nichts geht verloren. Sicherungsdateien gehören nicht ins Repository (siehe `.gitignore`).
+Der Lernstand liegt **nur im Browser** (localStorage) – nicht in diesem Repository. Unter *Einstellungen → Sicherung* lässt er sich als Datei sichern und wieder einlesen; beim Einlesen wird zusammengeführt, nichts geht verloren. Sicherungsdateien gehören nicht ins Repository (siehe `.gitignore`). Wahlweise speichert *Einstellungen → GitHub-Speicher* den Lernstand in einem **eigenen privaten Repo** (Datei `lernstand.json`, Zugang über einen fein eingeschränkten Token nur für dieses Repo); der Token bleibt im Browser des Geräts.
 
 ## Prüfungen
 

@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
   await p.goto('file://' + APP_PATH); await p.waitForTimeout(400);
   const R = []; const check = async (n, f) => { try { const r = await f(); const ok = typeof r === 'object' ? r.ok : r; R.push([ok ? 'OK ' : 'XX ', n, r && r.info || '']); } catch (e) { R.push(['XX ', n, e.message]); } };
   const ev = f => p.evaluate(f);
-  await check('Richtlinie vorhanden', () => ev(() => { const m = document.querySelector('meta[http-equiv="Content-Security-Policy"]'); return { ok: !!m && /default-src 'none'/.test(m.content) && /connect-src 'none'/.test(m.content), info: m && m.content.slice(0, 60) }; }));
+  await check('Richtlinie vorhanden', () => ev(() => { const m = document.querySelector('meta[http-equiv="Content-Security-Policy"]'); return { ok: !!m && /default-src 'none'/.test(m.content) && /connect-src https:\/\/api\.github\.com;/.test(m.content) && !/connect-src[^;]*\*/.test(m.content), info: m && m.content.slice(0, 60) }; }));
   await check('Anfragen nach außen blockiert', () => ev(async () => { let f = 'erlaubt'; try { await fetch('https://example.com'); } catch (e) { f = 'blockiert'; } const img = new Image(); img.src = 'https://example.com/x.png'; await new Promise(r => { img.onerror = r; img.onload = r; setTimeout(r, 800); }); return { ok: f === 'blockiert' && !img.naturalWidth, info: 'fetch ' + f }; }));
   await check('Symbolschrift geladen', () => ev(() => document.fonts.check('16px tabler-icons')));
   await check('Sicherung herunterladen geht', async () => { const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 5000 }).catch(() => null), ev(() => exportBackup())]); return !!dl; });
