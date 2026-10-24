@@ -1,0 +1,7 @@
+{
+  "name": "russisch-tool-pruefungen",
+  "private": true,
+  "description": "Browser-Prüfungen für das Russisch-Sprachtool (index.html)",
+  "scripts": { "test": "bash alle.sh" },
+  "devDependencies": { "playwright": "1.56.0" }
+}
