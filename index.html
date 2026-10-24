@@ -2238,7 +2238,7 @@
     <div class="overlay-body">
       <div class="set-row" id="autoplay-settings-item">
         <i class="ti ti-volume" aria-hidden="true"></i>
-        <div class="set-text"><strong>Auto-Vorlesen</strong><span>Russisches Wort automatisch anhören</span></div>
+        <div class="set-text"><strong>Auto-Vorlesen</strong><span>Russisches Wort automatisch anhören – bei DE → RU nach der Antwort</span></div>
         <label class="toggle-switch" id="autoplay-toggle-wrap">
           <input type="checkbox" id="autoplay-toggle" checked onchange="toggleAutoplay()">
           <span class="toggle-track"></span>
@@ -12142,6 +12142,11 @@ function nextWord(forceWord) {
 }
 
 // ── Aufdecken-Modus (Karteikarte) ────────────────────────────
+// DE → RU: Auto-Vorlesen spricht das russische Wort erst, wenn die Antwort feststeht
+// (Prüfen, Auswahl, Aufdecken, Auflösen) – vorher würde es die Lösung verraten.
+function speakAnswerAuto() {
+  if (autoplayAudio && quizDirection === 'de-ru' && currentWord) speak(currentWord.ru);
+}
 function flipReveal() {
   if (!currentWord || answered) return;
   const useRu = quizDirection === 'de-ru';
@@ -12150,6 +12155,7 @@ function flipReveal() {
   document.getElementById('correct-reveal').style.display = 'block';
   renderTranscription(true);
   document.getElementById('speak-btn').style.display = '';
+  speakAnswerAuto();
   document.getElementById('flip-show-btn').style.display = 'none';
   document.getElementById('flip-judge').classList.add('visible');
 }
@@ -12630,6 +12636,7 @@ function checkMC(idx) {
   });
   renderTranscription(true);
   document.getElementById('speak-btn').style.display = '';
+  speakAnswerAuto();
   const summaryText = useRu ? getDeDisplay(currentWord) + ' = ' + currentWord.ru : currentWord.ru + ' = ' + getDeDisplay(currentWord);
   if (isCorrect) {
     correct++; streak++;
@@ -12659,6 +12666,7 @@ function revealCurrentWord() {
   wrong++; streak = 0; noteSessionWrong(currentWord);
   renderTranscription(true);
   document.getElementById('speak-btn').style.display = '';
+  speakAnswerAuto();
   document.getElementById('word-card').className = 'wrong';
   document.getElementById('banner-icon').className = 'ti ti-eye';
   document.getElementById('banner-text').textContent = 'Aufgelöst — zählt als nicht gewusst';
@@ -12825,6 +12833,7 @@ async function checkAnswer() {
   const bannerText = document.getElementById('banner-text');
   renderTranscription(true);
   document.getElementById('speak-btn').style.display = '';
+  speakAnswerAuto();
   if (isCorrect) {
     correct++; streak++; updateSessionButton();
     card.className = 'correct'; input.className = 'correct';
