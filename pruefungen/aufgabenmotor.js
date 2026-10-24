@@ -13,8 +13,11 @@ const r=await p.evaluate(()=>{
   const d0=st.done||0; inp.value='qqq'; gtCheck(c); o.push(st.done===d0+1&&!st.lastCorrect?'falsch ok':'falsch XX');
   inp.value='qqq'; gtCheck(c); o.push(c.task()!==t0?'2.Druck ok':'2.Druck XX');
   const t1=c.task(); inp.value=gtAnswers(c,t1)[0]; gtCheck(c); const c1=st.correct; gtCheck(c); o.push(c.task()!==t1&&c1>=1?'richtig ok':'richtig XX');
-  const t2=c.task(); gtReveal(c); const d2=st.done; inp.value=inp.value; gtCheck(c); o.push(c.task()!==t2&&st.done===d2?'Lösung ok':'Lösung XX');
+  const t2=c.task(); const k2=st.correct; gtReveal(c); const d2=st.done; inp.value=inp.value; gtCheck(c); o.push(c.task()!==t2&&st.done===d2&&st.correct===k2?'Lösung ok':'Lösung XX');
   const t3=c.task(); const key=c.srs(t3), id=c.id(t3); gtNext(c); const e=(loadGrammarSrs()[key]||{})[id]; o.push(e?'Überspringen vermerkt':'Überspringen XX');
   if(name==='Rektion Form') setRektionMode('choose');
   return name+': '+o.join(' | ');}catch(err){return name+': FEHLER '+err.message;} });});
-console.log(r.join('\n'),errs);await b.close();})();
+console.log(r.join('\n'),errs);
+// Fehlschlag als Exit-Code melden, damit alle.sh und die Action ihn sehen
+if(r.some(l=>/XX|FEHLER/.test(l))||errs.length) process.exitCode=1;
+await b.close();})();

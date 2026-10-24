@@ -26,6 +26,9 @@ const { chromium } = require('playwright');
     return 'ok';
   });
   await p.waitForTimeout(300);
-  console.log('Bedienung:', r, '| Skript ausgeführt:', await p.evaluate(() => window.__x || 0), '| JS-Fehler:', errs.join(' ; ') || 'keine');
+  const ausgefuehrt = await p.evaluate(() => window.__x || 0);
+  console.log('Bedienung:', r, '| Skript ausgeführt:', ausgefuehrt, '| JS-Fehler:', errs.join(' ; ') || 'keine');
+  // Fehlschlag als Exit-Code melden: Bedienung kaputt, eingeschleustes Skript lief oder JS-Fehler
+  if (r !== 'ok' || ausgefuehrt > 0 || errs.length) process.exitCode = 1;
   await b.close();
 })();
