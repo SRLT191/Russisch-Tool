@@ -32,7 +32,8 @@ const fs = require('fs');
     const byRight = {}; let bad = [];
     for (let r = 0; r < 40; r++) LEVELS.forEach(l => placeLevelItems(l).forEach(it => {
       const mine = placeMeanings(it.w);
-      it.opts.filter(o => o !== it.right).forEach(o => { const x = allVocabWords().find(v => wordLevel(v) === l && stripClarification(v.de[0]) === o && [...placeMeanings(v)].some(d => mine.has(d))); if (x) bad.push(it.w.ru + '←' + o); });
+      // falsch wäre ein Ablenker, dessen Text selbst eine Bedeutung des Zielworts ist
+      it.opts.filter(o => o !== it.right).forEach(o => { if (mine.has(stripClarification(o).toLowerCase().trim())) bad.push(it.w.ru + '←' + o); });
       if (it.opts.length !== 4 || new Set(it.opts).size !== 4) bad.push('Optionen ' + it.w.ru);
     }));
     return { ok: bad.length === 0, info: bad.slice(0, 5).join(', ') };
