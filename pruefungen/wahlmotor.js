@@ -25,5 +25,6 @@ for (const [n,open,c] of tools){
  r.wartetNachWechsel=await p.evaluate(c=>eval(c).answered,c);
  await p.evaluate(()=>setAppView('grammar'));
  console.log(n, JSON.stringify(r));
+ if(Object.values(r).some(v=>v!==true)) process.exitCode=1;   // jeder Einzelwert muss true sein
 }
-console.log(errs);await b.close();})();
+console.log(errs);if(errs.length) process.exitCode=1;await b.close();})();

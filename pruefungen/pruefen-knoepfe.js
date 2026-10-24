@@ -60,11 +60,14 @@ const r = await p.evaluate(() => {
     const motor = [...src.matchAll(/const ([A-Z_]+_DRILL) = \{\s*p: '([a-z-]+)'/g)].map(m => m[2]);
     if (/function cfDrill\(/.test(src)) motor.push(cfDrill('noun').p, cfDrill('adj').p);
     const wahl = GT_CHOICES.map(c => c.panel.replace('overlay-', ''));
-    const tabellen = ['conjugate', 'decline', 'noun', 'pronoun'];   // tablebtn.js
+    const tabellen = ['conjugate', 'decline', 'noun', 'pronoun'];   // funktionen.js (gtool)
     const hier = ['wordgroup', 'sentencebuild', 'casedrill'];       // diese Datei
     const ids = { 'motion-pair': 'motion', cf: 'caseform', ca: 'caseadj' };
     const alle = new Set([...motor.map(x => ids[x] || x), ...wahl, ...tabellen, ...hier]);
     return GRAMMAR_PANELS.filter(n => !alle.has(n));
   });
   console.log('Werkzeuge ohne Prüfen-Prüfung:', cover.length ? cover.join(', ') : 'keine');
-  console.log(r, errs); await b.close(); })();
+  console.log(r, errs);
+  // Fehlschlag als Exit-Code melden (die Zeilen enthalten dann ÄNDERT, ?, BLEIBT, ERNEUT, ZÄHLT ALS RICHTIG, XX …)
+  if (/ÄNDERT|: \?|BLEIBT|ERNEUT|ZÄHLT ALS RICHTIG|XX|FEHLER/.test(r) || cover.length || errs.length) process.exitCode = 1;
+  await b.close(); })();

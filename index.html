@@ -365,11 +365,18 @@
     .sentence-word-btn, #dir-btn-ru-de, #dir-btn-de-ru { min-height: 44px; }
     .gt-more-btn { min-width: 44px; min-height: 44px; }
     /* kleine Symbolknöpfe: unsichtbar vergrößerte Tippfläche, Layout bleibt */
-    .conj-info-btn, .tile-fav-btn, .cat-group-toggle, .gt-info-close, .gt-icon-btn { position: relative; }
-    .conj-info-btn::after, .tile-fav-btn::after, .cat-group-toggle::after, .gt-info-close::after, .gt-icon-btn::after {
+    .conj-info-btn, .tile-fav-btn, .cat-group-toggle, .gt-info-close, .gt-icon-btn, .conj-reveal-one-btn,
+    #speak-btn, #bookmark-btn, #detail-btn { position: relative; }
+    .conj-info-btn::after, .tile-fav-btn::after, .cat-group-toggle::after, .gt-info-close::after, .gt-icon-btn::after,
+    .conj-reveal-one-btn::after, #speak-btn::after, #bookmark-btn::after, #detail-btn::after {
       content: ''; position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); }
+    /* schmale Text- und Symbolknöpfe mindestens 44 px breit, Auswahl-Leiste und Links 44 px hoch */
+    .tool-btn, .mode-btn { min-width: 44px; }
+    #sidebar-mobile-toggle { min-height: 44px; }
+    .picker-quick a { display: inline-flex; align-items: center; min-height: 44px; }
+    .hoertrainer-loop-row { min-height: 44px; }
     .cat-group-check, input[type="checkbox"], .cat-check-row input[type="checkbox"], .hoertrainer-loop-row input[type="checkbox"] { width: 22px !important; height: 22px !important; }
-    input[type="range"] { min-height: 32px; }
+    input[type="range"] { min-height: 44px; }
     body.kb-offen { padding-bottom: 60vh; }
     .lvl-link { display: inline-flex; align-items: center; min-height: 44px; }
     .lvl-manual { min-height: 44px; align-items: center; }
@@ -1053,7 +1060,7 @@
 <tr><td>-ь</td><td>männlich oder weiblich</td><td>день, ночь</td></tr>
 </table>
 <p><strong>Faustregeln für -ь:</strong> -тель und -арь → männlich (учитель, словарь); Monatsnamen → männlich (июнь, декабрь); -ость/-есть → weiblich (скорость); nach ж, ш, ч, щ → immer weiblich (ночь, вещь, мышь). Alle übrigen Wörter auf -ь muss man mit dem Geschlecht lernen (день m, дверь f).</p>
-<p><strong>Ausnahmen:</strong> Männliche Personen auf -а/-я sind männlich (папа, дедушка, дядя, мужчина). кофе ist männlich. Unveränderliche Fremdwörter sind meist sächlich (метро, кино, меню, такси). Ausnahmen innerhalb der Faustregeln: гость m, метель f.</p>
+<p><strong>Ausnahmen:</strong> Männliche Personen auf -а/-я sind männlich (папа, дедушка, дядя, мужчина). кофе ist männlich. Unveränderliche Fremdwörter sind meist sächlich (метро, кино, меню, такси). Ausnahmen innerhalb der Faustregeln: гость m, тесть m, метель f.</p>
 <p><strong>Nur Plural:</strong> Manche Wörter haben keine Einzahl: деньги, часы (Uhr), очки, брюки, ножницы, каникулы. Begleiter und Adjektive stehen dann immer im Plural: эти часы, новые часы.</p>
 <p><strong>Bedienung:</strong> Antippen bewertet sofort und markiert die richtige Option. Ist die Antwort richtig, geht es nach einer kurzen Pause von selbst weiter; ist sie falsch, bleibt die Regel stehen, bis du Enter oder <em>Weiter</em> drückst. <em>Lösung zeigen</em> (Taste 3) markiert die Lösung, das zählt als nicht gewusst. Eine Runde hat 20 Wörter; <em>Regelfälle</em> fragt nur Wörter ab, deren Endung eindeutig ist, <em>Schwierige</em> nur -ь, Ausnahmen und Plural-Wörter. Im ⋯-Menü startet <em>Neue Runde</em>.</p>
 </div>
@@ -1434,7 +1441,7 @@
 <p><strong>Wann?</strong> Immer wenn Deutsch „haben“ im Sinn von besitzen sagt: <em>Ich habe ein Auto. Er hat eine Schwester.</em> Russisch sagt dafür „bei mir ist …“.</p>
 <p><strong>Bauplan:</strong> у + Person im Genitiv + (есть) + Sache im <strong>Nominativ</strong>. Die Personen: у меня, у тебя, у него, у неё, у нас, у вас, у них – nach у mit н.</p>
 <p>• Geht es darum, <em>ob</em> man etwas hat, steht есть: У меня есть машина.</p>
-<p>• Geht es um eine Eigenschaft (mit Adjektiv), fällt есть weg: У меня нов<b>ая</b> машина. So sind die Aufgaben hier gebaut.</p>
+<p>• Geht es um eine Eigenschaft (mit Adjektiv), fällt есть weg: У меня нов<b>ая</b> машина. So sind die Aufgaben hier gebaut; mit есть (У меня есть новая машина) zählt die Antwort aber auch.</p>
 <p><strong>Vergangenheit:</strong> был/была/было/были richtet sich nach der <strong>Sache</strong>, nicht nach der Person: У него была машина.</p>
 <p><strong>Zukunft:</strong> будет, bei einer Sache im Plural будут: У меня будет машина.</p>
 </div>
@@ -1453,7 +1460,7 @@
 <p><strong>Dativformen:</strong> мне, тебе, ему, ей, нам, вам, им; Substantive: маме, брату, детям.</p>
 <p>• Dativ + нравиться + Sache im Nominativ: Мне нравится этот город. Das Verb richtet sich nach der Sache: Мне нравятся эти книги.</p>
 <p>• Dativ + Zustandswort auf -о (холодно, жарко, тепло, скучно, интересно, трудно, грустно): Мне холодно – nicht „Я холодный“.</p>
-<p>• Dativ + нужно/надо/можно + Infinitiv: Мне нужно работать (ich muss arbeiten), Ему можно идти (er darf gehen).</p>
+<p>• Dativ + нужно/надо/можно + Infinitiv: Мне нужно работать (ich muss arbeiten), Ему можно идти (er darf gehen). нужно und надо bedeuten dasselbe – beide zählen.</p>
 <p>• Braucht man eine Sache, richtet sich нужен/нужна/нужно/нужны nach ihr: Нам нуж<b>ен</b> дом, Мне нуж<b>на</b> помощь.</p>
 </div>
 <div class="sb-type-info" data-sbtype="question">
@@ -1745,7 +1752,7 @@
 <div class="grammar-panel-header">
 <span class="overlay-title-group">
 <span class="overlay-title"><i class="ti ti-target-arrow"></i> Präpositionen · Kasus-Drill</span>
-<button aria-label="Übersicht anzeigen" class="conj-info-btn" onclick="toggleCaseInfo()" title="Übersicht aller Präpositionen und ihrer Kasus"><i class="ti ti-info-circle"></i></button>
+<button aria-label="Erklärung anzeigen" class="conj-info-btn" onclick="toggleCaseInfo()" title="Übersicht aller Präpositionen und ihrer Kasus"><i class="ti ti-info-circle"></i></button>
 </span>
 <span class="grammar-panel-progress" id="gtp-case" title="Mindestens einmal richtig beantwortet"></span>
 <div class="gt-more"><button aria-expanded="false" aria-haspopup="menu" aria-label="Weitere Aktionen" class="gt-more-btn" onclick="toggleGtMore(this)" title="Weitere Aktionen" type="button"><i class="ti ti-dots"></i></button><div class="gt-more-menu" role="menu"><button class="gt-more-item" onclick="closeGtMore(); restartCaseDrill()" role="menuitem" type="button"><i class="ti ti-arrows-shuffle"></i> <span>Neue Runde</span></button></div></div></div>
@@ -2732,7 +2739,7 @@ const vocab = {
         {ru:"фунт", tr:"funt", de:["Pfund"]},
         {ru:"сотня", tr:"sotnja", de:["Hundert","hundert Stück"]},
         {ru:"объём", tr:"objom", de:["Volumen"]},
-        {ru:"площадь", tr:"ploschtschad'", de:["Fläche"]},
+        {ru:"площадь", tr:"ploschtschad'", de:["Fläche", "Platz"]},
         {ru:"вес", tr:"wes", de:["Gewicht"]},
         {ru:"расстояние", tr:"rasstojanije", de:["Entfernung","Distanz"]},
         {ru:"скорость", tr:"skorost'", de:["Geschwindigkeit"]},
@@ -4249,7 +4256,7 @@ const vocab = {
         {ru:"плохой", tr:"plochoj", de:["schlecht","böse"]},
         {ru:"красивый", tr:"krassiwyj", de:["schön"]},
         {ru:"интересный", tr:"interesnyj", de:["interessant"]},
-        {ru:"скучный", tr:"skuschnyj", de:["langweilig"]},
+        {ru:"скучный", tr:"skutschnyj", de:["langweilig"]},
         {ru:"важный", tr:"waschnyj", de:["wichtig"]},
         {ru:"дорогой", tr:"dorogoj", de:["teuer","lieb"]},
         {ru:"дешёвый", tr:"deschjowyj", de:["billig","günstig"]},
@@ -5398,7 +5405,7 @@ const vocab = {
         {ru:"душа", tr:"duscha", de:["Seele"]},
         {ru:"грех", tr:"grech", de:["Sünde"]},
         {ru:"икона", tr:"ikona", de:["Ikone"]},
-        {ru:"храм", tr:"chram", de:["Tempel"]},
+        {ru:"храм", tr:"chram", de:["Gotteshaus", "Tempel"]},
         {ru:"священник", tr:"swjaschtschennik", de:["Priester"]},
         {ru:"монастырь", tr:"monastyr'", de:["Kloster"]},
         {ru:"крест", tr:"krest", de:["Kreuz"]},
@@ -7091,8 +7098,6 @@ function loadSelection() {
   if (fb) fb.classList.toggle('active', quizMode === 'flip');
   selectionReady = true;
 }
-let sentenceInputMode = 'type'; // 'type' | 'click' — wie der Satz produziert wird
-let currentSentenceRandWord = null; // zufälliges Zweitwort für %rand% in Vorlagen
 // Kuratierte Beispielsätze je Wort (eine Lücke ___ pro Satz).
 // SENTENCE_OVERRIDES: ein Zielwort pro Satz. Notwendig für Wörter, bei denen
 // die Grundform allein keinen korrekten Satz ergibt (Personalpronomen brauchen
@@ -7250,10 +7255,10 @@ const SENTENCE_OVERRIDES = {
   "выбирать":      [ { ru: 'Трудно ___ подарок.',        de: 'Ein Geschenk ist schwer zu ___.', isAI: true } ],
   "собирать":      [ { ru: 'Он любит ___ марки.',         de: 'Er mag es, Briefmarken zu ___.', isAI: true } ],
   "замечать":      [ { ru: 'Он умеет ___ детали.',        de: 'Er kann Details ___.', isAI: true } ],
-  "представлять":  [ { ru: 'Можно легко ___ себе это.',            de: 'Leicht kann man ___, wie das ist.', isAI: true } ],
+  "представлять":  [ { ru: 'Он любит ___ себе море.',            de: 'Er stellt sich gern das Meer vor.', isAI: true } ],
   "сравнивать":    [ { ru: 'Не надо ___ людей.',          de: 'Man soll Menschen nicht ___.', isAI: true } ],
   "размышлять":    [ { ru: 'Он хочет ___ о жизни.',       de: 'Er will über das Leben ___.', isAI: true } ],
-  "догадываться":  [ { ru: 'Легко ___ об этом.',          de: 'Das ist leicht zu ___.', isAI: true } ],
+  "догадываться":  [ { ru: 'Ей не нужно ___: я всё скажу.',          de: 'Sie muss nichts erraten: Ich sage alles.', isAI: true } ],
   "верить":      [ { ru: 'Надо ___ в себя.',             de: 'Man muss an sich ___.', isAI: true } ],
   "надеяться":   [ { ru: 'Мы хотим ___ на лучшее.',      de: 'Wir wollen auf das Beste ___.', isAI: true } ],
   "мечтать":     [ { ru: 'Он любит ___ о море.',         de: 'Er mag es, vom Meer zu ___.', isAI: true } ],
@@ -7374,7 +7379,7 @@ const SENTENCE_OVERRIDES = {
   "хлеб":      [ { ru: 'Я хочу ___ утром.',                de: 'Ich möchte morgens ___.', isAI: true } ],
   "учитель":   [ { ru: '___ работает в школе.', de: 'Der ___ arbeitet in der Schule.', isAI: true } ],
   "больница":  [ { ru: '___ работает круглые сутки.',             de: 'Das ___ ist rund um die Uhr geöffnet.', isAI: true } ],
-  "ветер":     [ { ru: 'Сегодня ___.',                     de: 'Heute ist es windig.', isAI: true } ],
+  "ветер":     [ { ru: 'Сегодня сильный ___.',                     de: 'Heute weht ein starker ___.', isAI: true } ],
   "цветок":    [ { ru: 'Это очень красивый ___.',          de: 'Das ist eine sehr schöne ___.', isAI: true } ],
   "революция": [ { ru: '___ началась в октябре.', de: 'Die ___ begann im Oktober.', isAI: true } ],
   "президент": [ { ru: '___ работает в офисе.', de: 'Der ___ arbeitet im Büro.', isAI: true } ],
@@ -7393,7 +7398,7 @@ const SENTENCE_OVERRIDES = {
   "апрель":       [ { ru: '___ — весенний месяц.',                    de: '___ ist ein Frühlingsmonat.', isAI: true } ],
   "декабрь":      [ { ru: '___ — зимний месяц.',                     de: '___ ist ein Wintermonat.', isAI: true } ],
   "пятница":      [ { ru: '___ — последний рабочий день.',                 de: '___ ist der letzte Arbeitstag.', isAI: true } ],
-  "туман":        [ { ru: 'Сегодня утром ___.',                   de: 'Heute Morgen ist ___.', isAI: true } ],
+  "туман":        [ { ru: 'Сегодня утром ___.',                   de: 'Heute Morgen gibt es ___.', isAI: true } ],
   "гроза":        [ { ru: 'Вечером будет ___.',                   de: 'Am Abend gibt es ___.', isAI: true } ],
   "тропа":        [ { ru: '___ ведёт в лес.',                      de: 'Der ___ führt in den Wald.', isAI: true } ],
   "ледник":       [ { ru: 'Там большой ___.',                     de: 'Dort ist ein großer ___.', isAI: true } ],
@@ -7680,7 +7685,7 @@ const SENTENCE_OVERRIDES = {
   "контрольная":[ { ru: '___ была трудной.',              de: 'Die ___ war schwer.', isAI: true } ],
   // Wetter
   "град":       [ { ru: 'Сегодня идёт ___.',              de: 'Heute hagelt es.', isAI: true } ],
-  "метель":     [ { ru: '___ была сильной ночью.',        de: 'Der ___ war stark in der Nacht.', isAI: true } ],
+  "метель":     [ { ru: '___ была сильной ночью.',        de: 'In der Nacht war der ___ stark.', isAI: true } ],
   "пасмурно":   [ { ru: 'Сегодня ___ и холодно.',         de: 'Heute ist es ___ und kalt.', isAI: true } ],
   // Tiere
   // Körperteile
@@ -8030,7 +8035,7 @@ const SENTENCE_OVERRIDES = {
   "обида":      [ { ru: '___ прошла через неделю.',       de: 'Die ___ verging nach einer Woche.', isAI: true } ],
   "ревность":   [ { ru: '___ разрушила их отношения.',    de: 'Die ___ zerstörte ihre Beziehung.', isAI: true } ],
   "одиночество": [ { ru: '___ иногда бывает тяжёлым.',    de: 'Die ___ ist manchmal schwer.', isAI: true } ],
-  "забота":     [ { ru: '___ о детях — это важно.',       de: 'Die ___ um die Kinder ist wichtig.', isAI: true } ],
+  "забота":     [ { ru: '___ о детях — это важно.',       de: 'Die ___ für die Kinder ist wichtig.', isAI: true } ],
   "поддержка":  [ { ru: '___ семьи была огромной.',       de: 'Die ___ der Familie war riesig.', isAI: true } ],
   "прощение":   [ { ru: '___ трудно, но необходимо.',     de: 'Die ___ ist schwer, aber notwendig.', isAI: true } ],
   "измена":     [ { ru: '___ разрушила брак.',            de: 'Die ___ zerstörte die Ehe.', isAI: true } ],
@@ -8053,7 +8058,7 @@ const SENTENCE_OVERRIDES = {
   "забывать":   [ { ru: 'Я не хочу ___ этот день.',       de: 'Ich möchte diesen Tag nicht ___.', isAI: true } ],
   "помнить":    [ { ru: 'Этот день он будет ___.',          de: 'An diesen Tag wird er ___.', isAI: true } ],
   "лететь":     [ { ru: 'Самолёт должен ___ в Москву.',    de: 'Das Flugzeug soll nach Moskau ___.', isAI: true } ],
-  "волноваться": [ { ru: 'За детей родители будут ___.',      de: 'Um die Kinder werden die Eltern ___.', isAI: true } ],
+  "волноваться": [ { ru: 'За детей родители будут ___.',      de: 'Die Eltern werden sich um die Kinder sorgen.', isAI: true } ],
   "смеяться":   [ { ru: 'Все начали ___.',                de: 'Alle begannen zu ___.', isAI: true } ],
   "обнимать":   [ { ru: 'Бабушка всегда хочет ___ внуков.',           de: 'Oma will die Enkel immer ___.', isAI: true } ],
   "удивляться": [ { ru: 'Этой новости он будет ___.',              de: 'Über diese Nachricht wird er ___.', isAI: true } ],
@@ -8081,7 +8086,7 @@ const SENTENCE_OVERRIDES = {
   "ходить":     [ { ru: 'Он любит ___ по городу.',        de: 'Er mag es, durch die Stadt zu ___.', isAI: true } ],
   "ездить":     [ { ru: 'Летом мы любим ___ на море.',    de: 'Im Sommer mögen wir es, ans Meer zu ___.', isAI: true } ],
   "летать":     [ { ru: 'Птицы умеют ___.',               de: 'Vögel können ___.', isAI: true } ],
-  "плыть":      [ { ru: 'Лодка начала ___ к берегу.',     de: 'Das Boot begann, zum Ufer zu ___.', isAI: true } ],
+  "плыть":      [ { ru: 'Утка начала ___ к берегу.',     de: 'Die Ente begann, zum Ufer zu ___.', isAI: true } ],
   "плавать":    [ { ru: 'Она хорошо умеет ___.',          de: 'Sie kann gut ___.', isAI: true } ],
   "носить":     [ { ru: 'Он любит ___ очки.',             de: 'Er mag es, eine Brille zu ___.', isAI: true } ],
   "водить":     [ { ru: 'Каждое утро он должен ___ детей в школу.',    de: 'Jeden Morgen muss er die Kinder zur Schule bringen.', isAI: true } ],
@@ -8193,16 +8198,16 @@ const SENTENCE_OVERRIDES = {
   "убеждать": [ { ru: 'Он должен ___ начальника.', de: 'Er muss den Chef ___.', isAI: true } ],
   "наблюдать": [ { ru: 'Дети любят ___ за птицами.', de: 'Kinder mögen es, Vögel zu ___.', isAI: true } ],
   "ощущать": [ { ru: 'Можно ___ холод.', de: 'Man kann die Kälte ___.', isAI: true } ],
-  "влюбляться": [ { ru: 'Молодые люди могут быстро ___.', de: 'Schnell können junge Leute ___.', isAI: true } ],
+  "влюбляться": [ { ru: 'Молодые люди могут быстро ___.', de: 'Junge Leute können sich schnell verlieben.', isAI: true } ],
   "восхищаться": [ { ru: 'Можно ___ этим городом.', de: 'Man kann diese Stadt ___.', isAI: true } ],
-  "встречаться": [ { ru: 'Друзья хотят ___ в кафе.', de: 'Im Café wollen die Freunde ___.', isAI: true } ],
+  "встречаться": [ { ru: 'Друзья хотят ___ в кафе.', de: 'Im Café wollen sich die Freunde treffen.', isAI: true } ],
   "обманывать": [ { ru: 'Нельзя ___ людей.', de: 'Man darf Menschen nicht ___.', isAI: true } ],
   "ревновать": [ { ru: 'Он не должен ___.', de: 'Er soll nicht ___.', isAI: true } ],
   "жениться": [ { ru: 'Он хочет ___ весной.', de: 'Er will im Frühling ___.', isAI: true } ],
   "дешеветь": [ { ru: 'Бензин может ___.', de: 'Benzin kann ___.', isAI: true } ],
   "рекламировать": [ { ru: 'Фирма хочет ___ новый продукт.', de: 'Die Firma will für ein neues Produkt ___.', isAI: true } ],
   "производить": [ { ru: 'Завод будет ___ машины.', de: 'Die Fabrik wird Autos ___.', isAI: true } ],
-  "придумывать": [ { ru: 'Новые игры он должен ___ каждый день.', de: 'Neue Spiele muss er ___ – jeden Tag.', isAI: true } ],
+  "придумывать": [ { ru: 'Новые игры он должен ___ каждый день.', de: 'Er muss sich jeden Tag neue Spiele ausdenken.', isAI: true } ],
   "ожидать": [ { ru: 'Можно ___ хорошую погоду.', de: 'Man kann gutes Wetter ___.', isAI: true } ],
   "вспоминать": [ { ru: 'Детство он хочет ___.', de: 'An die Kindheit will er ___.', isAI: true } ],
   "краснеть": [ { ru: 'От стыда можно ___.', de: 'Vor Scham kann man ___.', isAI: true } ],
@@ -8257,7 +8262,7 @@ const SENTENCE_OVERRIDES = {
   "рыбачить": [ { ru: 'Дедушка любит ___.', de: 'Opa mag es zu ___.', isAI: true } ],
   "загорать": [ { ru: 'На пляже можно ___.', de: 'Am Strand kann man ___.', isAI: true } ],
   "забивать": [ { ru: 'Нападающий должен ___ гол.', de: 'Der Stürmer muss ___.', isAI: true } ],
-  "заниматься": [ { ru: 'Дети хотят ___ музыкой.', de: 'Mit Musik wollen die Kinder ___.', isAI: true } ],
+  "заниматься": [ { ru: 'Дети хотят ___ музыкой.', de: 'Die Kinder wollen sich mit Musik beschäftigen.', isAI: true } ],
   "теплеть": [ { ru: 'Весной может ___.', de: 'Im Frühling kann es ___.', isAI: true } ],
   "холодать": [ { ru: 'В ноябре может ___.', de: 'Im November kann es ___.', isAI: true } ],
   "падать": [ { ru: 'Осенью листья начинают ___.', de: 'Im Herbst beginnen die Blätter zu ___.', isAI: true } ],
@@ -8270,7 +8275,7 @@ const SENTENCE_OVERRIDES = {
   "бывать": [ { ru: 'Ошибки могут ___.', de: 'Fehler können ___.', isAI: true } ],
   "оставлять": [ { ru: 'Можно ___ вещи здесь.', de: 'Man kann die Sachen hier ___.', isAI: true } ],
   "удаваться": [ { ru: 'Не всё может ___.', de: 'Nicht alles kann ___.', isAI: true } ],
-  "хотеться": [ { ru: 'Летом может ___ мороженого.', de: 'Im Sommer kann man auf Eis ___.', isAI: true } ],
+  "хотеться": [ { ru: 'Летом может ___ мороженого.', de: 'Im Sommer kann man Lust auf Eis haben.', isAI: true } ],
   "желать": [ { ru: 'Можно ___ удачи.', de: 'Man kann Glück ___.', isAI: true } ],
   "продолжать": [ { ru: 'Нужно ___ работу.', de: 'Man muss die Arbeit ___.', isAI: true } ],
   "выполнять": [ { ru: 'Домашние задания нужно ___ каждый день.', de: 'Die Hausaufgaben muss man jeden Tag ___.', isAI: true } ],
@@ -8446,7 +8451,7 @@ const SENTENCE_OVERRIDES = {
   // Wissenschaft & Forschung (Lückenschluss)
   "эксперимент": [ { ru: '___ прошёл успешно.',           de: 'Das ___ verlief erfolgreich.', isAI: true } ],
   "теория":     [ { ru: '___ была доказана.',             de: 'Die ___ wurde bewiesen.', isAI: true } ],
-  "лаборатория": [ { ru: '___ находится на втором этаже.', de: 'Das ___ befindet sich im zweiten Stock.', isAI: true } ],
+  "лаборатория": [ { ru: '___ находится на втором этаже.', de: 'Das ___ befindet sich im ersten Stock.', isAI: true } ],
   "открытие":   [ { ru: '___ изменило науку.',            de: 'Die ___ veränderte die Wissenschaft.', isAI: true } ],
   "изобретение": [ { ru: '___ было гениальным.',          de: 'Die ___ war genial.', isAI: true } ],
 
@@ -8577,7 +8582,7 @@ const SENTENCE_OVERRIDES = {
   // Büro (Lückenschluss)
   "экран":      [ { ru: '___ компьютера сломан.',         de: 'Der ___ des Computers ist kaputt.', isAI: true } ],
   "сотрудник":  [ { ru: '___ работает эффективно.',       de: 'Der ___ arbeitet effizient.', isAI: true } ],
-  "отдел":      [ { ru: '___ находится на третьем этаже.', de: 'Die ___ befindet sich im dritten Stock.', isAI: true } ],
+  "отдел":      [ { ru: '___ находится на третьем этаже.', de: 'Die ___ befindet sich im zweiten Stock.', isAI: true } ],
   "подпись":    [ { ru: '___ стоит внизу документа.',     de: 'Die ___ steht unten auf dem Dokument.', isAI: true } ],
   "приложение": [ { ru: '___ работает медленно.',         de: 'Die ___ funktioniert langsam.', isAI: true } ],
   "факс":       [ { ru: '___ не работает.',               de: 'Das ___ funktioniert nicht.', isAI: true } ],
@@ -8608,7 +8613,7 @@ const SENTENCE_OVERRIDES = {
   "манускрипт": [ { ru: '___ хранится в библиотеке.',     de: 'Das ___ wird in der Bibliothek aufbewahrt.', isAI: true } ],
 
   // Landwirtschaft (Lückenschluss)
-  "семена":     [ { ru: '___ посадили в землю.',          de: 'Das ___ wurde in die Erde gesät.', isAI: true } ],
+  "семена":     [ { ru: '___ посадили в землю.',          de: 'Die Samen wurden in die Erde gesät.', isAI: true } ],
   "удобрение":  [ { ru: '___ помогает растениям расти.',  de: 'Der ___ hilft den Pflanzen zu wachsen.', isAI: true } ],
   "мотыга":     [ { ru: '___ лежит в сарае.',             de: 'Die ___ liegt im Schuppen.', isAI: true } ],
   "полив":      [ { ru: '___ важен летом.',               de: 'Die ___ ist im Sommer wichtig.', isAI: true } ],
@@ -8781,7 +8786,7 @@ const SENTENCE_OVERRIDES = {
   "фут":        [ { ru: '___ используется в Америке.',    de: 'Der ___ wird in Amerika verwendet.', isAI: true } ],
   "миля":       [ { ru: '___ длиннее километра.',         de: 'Eine ___ ist länger als ein Kilometer.', isAI: true } ],
   "фунт":       [ { ru: 'Мешок весит один ___.',          de: 'Der Sack wiegt ein ___.', isAI: true } ],
-  "сотня":      [ { ru: 'Это целая ___ людей.',           de: 'Das sind ganze ___ Menschen.', isAI: true } ],
+  "сотня":      [ { ru: 'Это целая ___ людей.',           de: 'Das sind ganze hundert Menschen.', isAI: true } ],
   "объём":      [ { ru: '___ бассейна большой.',          de: 'Das ___ des Beckens ist groß.', isAI: true } ],
   "площадь":    [ { ru: '___ комнаты небольшая.',         de: 'Die ___ des Zimmers ist klein.', isAI: true } ],
   "вес":        [ { ru: '___ посылки был большим.',       de: 'Das ___ des Pakets war hoch.', isAI: true } ],
@@ -9008,7 +9013,7 @@ const SENTENCE_OVERRIDES = {
   "вставать":   [ { ru: 'Рано ___ полезно.',              de: 'Früh ___ ist gesund.', isAI: true } ],
   "ложиться":   [ { ru: 'Каждый вечер в десять он хочет ___.',              de: 'Jeden Abend um zehn will er ___.', isAI: true } ],
   "засыпать":   [ { ru: 'Мне трудно ___.',                de: 'Ich kann schwer ___.', isAI: true } ],
-  "одеваться":  [ { ru: 'Дети должны быстро ___.',          de: 'Schnell müssen die Kinder ___.', isAI: true } ],
+  "одеваться":  [ { ru: 'Дети должны быстро ___.',          de: 'Die Kinder müssen sich schnell anziehen.', isAI: true } ],
   "простой":    [ { ru: 'Этот вопрос ___.',               de: 'Diese Frage ist ___.', isAI: true } ],
   "сложный":    [ { ru: 'Этот вопрос очень ___.',         de: 'Diese Frage ist sehr ___.', isAI: true } ],
   "правильный": [ { ru: 'Этот ответ ___.',                de: 'Diese Antwort ist ___.', isAI: true } ],
@@ -9134,7 +9139,7 @@ const SENTENCE_OVERRIDES = {
   "циклон":     [ { ru: '___ принёс сильный дождь.',      de: 'Der ___ brachte starken Regen.', isAI: true } ],
   "шквал":      [ { ru: '___ повалил деревья.',            de: 'Die ___ fällte Bäume.', isAI: true } ],
   "наводнение": [ { ru: '___ затопило деревню.',           de: 'Die ___ überflutete das Dorf.', isAI: true } ],
-  "смерч":      [ { ru: '___ разрушил несколько домов.',   de: 'Die ___ zerstörte mehrere Häuser.', isAI: true } ],
+  "смерч":      [ { ru: '___ разрушил несколько домов.',   de: 'Der ___ zerstörte mehrere Häuser.', isAI: true } ],
   "слякоть":    [ { ru: 'На улице ___, и идти неприятно.', de: 'Draußen ist ___, und es ist unangenehm zu gehen.', isAI: true } ],
   "суховей":    [ { ru: '___ дует из степи.',              de: 'Der ___ weht aus der Steppe.', isAI: true } ],
   "атмосферное давление": [ { ru: '___ влияет на самочувствие.', de: 'Der ___ beeinflusst das Wohlbefinden.', isAI: true } ],
@@ -9213,7 +9218,7 @@ const SENTENCE_OVERRIDES = {
   "пятый":         [ { ru: '___ месяц года — май.',           de: 'Der fünfte Monat des Jahres ist der Mai.' } ],
   "шестой":        [ { ru: '___ стул сломался.',              de: 'Der sechste Stuhl ist kaputtgegangen.' } ],
   "седьмой":       [ { ru: 'Это ___ раз.',                    de: 'Das ist das siebte Mal.' } ],
-  "восьмой":       [ { ru: '___ час уже прошёл.',             de: 'Die achte Stunde ist schon vorbei.' } ],
+  "восьмой":       [ { ru: '___ урок самый последний.',             de: 'Die achte Stunde ist die letzte.' } ],
   "девятый":       [ { ru: '___ вопрос самый трудный.',       de: 'Die neunte Frage ist die schwierigste.' } ],
   "десятый":       [ { ru: '___ дом стоит на углу.',          de: 'Das zehnte Haus steht an der Ecke.' } ],
   "одиннадцатый":  [ { ru: '___ билет уже продан.',           de: 'Das elfte Ticket ist schon verkauft.' } ],
@@ -9228,17 +9233,17 @@ const SENTENCE_OVERRIDES = {
   "правый": [ { ru: '___ ботинок слишком узкий.', de: 'Der ___ Schuh ist zu eng.' } ],
   "внутренний": [ { ru: '___ двор очень тихий.', de: 'Der ___ Hof ist sehr ruhig.' } ],
   "внешний": [ { ru: '___ вид дома очень старый.', de: 'Das Äußere des Hauses ist sehr alt.' } ],
-  "соседний": [ { ru: 'Этот дом ___.', de: 'Dieses Haus ist ___.' } ],
-  "северный": [ { ru: 'Этот берег ___.', de: 'Dieses Ufer ist ___.' } ],
+  "соседний": [ { ru: '___ дом очень старый.', de: 'Das benachbarte Haus ist sehr alt.' } ],
+  "северный": [ { ru: '___ берег очень крутой.', de: 'Das nördliche Ufer ist sehr steil.' } ],
   "ранний": [ { ru: 'Поезд был ___.', de: 'Der Zug war ___.' } ],
   "поздний": [ { ru: 'Ужин был ___.', de: 'Das Abendessen war ___.' } ],
   "частый": [ { ru: 'Такой случай ___.', de: 'So ein Fall ist ___.' } ],
   "редкий": [ { ru: 'Этот цветок ___.', de: 'Diese Blume ist ___.' } ],
-  "постоянный": [ { ru: 'Шум в доме ___.', de: 'Der Lärm im Haus ist ___.' } ],
+  "постоянный": [ { ru: 'Шум в доме ___.', de: 'Im Haus ist ständig Lärm.' } ],
   "временный": [ { ru: 'Этот запрет ___.', de: 'Dieses Verbot ist ___.' } ],
   "прошлый": [ { ru: '___ год был очень трудным.', de: 'Das ___e Jahr war sehr schwer.' } ],
   "будущий": [ { ru: '___ год будет лучше.', de: 'Das kommende Jahr wird besser.' } ],
-  "ежедневный": [ { ru: 'Этот ритуал ___.', de: 'Dieses Ritual ist ___.' } ],
+  "ежедневный": [ { ru: 'Это мой ___ ритуал.', de: 'Das ist mein tägliches Ritual.' } ],
   "долгий": [ { ru: 'Разговор был ___.', de: 'Das Gespräch war ___.' } ],
   "деревянный": [ { ru: 'Этот стол ___.', de: 'Dieser Tisch ist aus Holz.' } ],
   "железный": [ { ru: '___ ключ очень тяжёлый.', de: 'Der ___e Schlüssel ist sehr schwer.' } ],
@@ -9248,7 +9253,7 @@ const SENTENCE_OVERRIDES = {
   "каменный": [ { ru: '___ мост очень старый.', de: 'Die ___e Brücke ist sehr alt.' } ],
   "металлический": [ { ru: 'Этот корпус ___.', de: 'Dieses Gehäuse ist ___.' } ],
   "единственный": [ { ru: 'Это ___ выход.', de: 'Das ist der ___e Ausweg.' } ],
-  "одинаковый": [ { ru: 'Наш ответ ___.', de: 'Unsere Antwort ist ___.' } ],
+  "одинаковый": [ { ru: 'У нас ___ размер.', de: 'Wir haben die gleiche Größe.' } ],
   "различный": [ { ru: 'Их подход ___.', de: 'Ihr Ansatz ist ___.' } ],
   "двойной": [ { ru: 'Это ___ удар.', de: 'Das ist ein ___er Schlag.' } ],
   "лишний": [ { ru: 'Этот стул ___.', de: 'Dieser Stuhl ist ___.' } ],
@@ -9256,28 +9261,28 @@ const SENTENCE_OVERRIDES = {
   "общий": [ { ru: 'У нас ___ план.', de: 'Wir haben einen ___en Plan.' } ],
   "отдельный": [ { ru: 'Это ___ вопрос.', de: 'Das ist eine ___e Frage.' } ],
   "равный": [ { ru: 'Это ___ соперник.', de: 'Das ist ein ___er Gegner.' } ],
-  "солнечный": [ { ru: 'Сегодня день ___.', de: 'Heute ist der Tag ___.' } ],
+  "солнечный": [ { ru: 'Сегодня ___ день.', de: 'Heute ist ein sonniger Tag.' } ],
   "облачный": [ { ru: 'Вечер был ___.', de: 'Der Abend war ___.' } ],
   "ветреный": [ { ru: 'Берег очень ___.', de: 'Die Küste ist sehr ___.' } ],
   "дождливый": [ { ru: 'Весь месяц был ___.', de: 'Der ganze Monat war ___.' } ],
   "снежный": [ { ru: 'Этот год очень ___.', de: 'Dieses Jahr ist sehr ___.' } ],
   "морозный": [ { ru: 'Воздух утром ___.', de: 'Die Luft ist morgens ___.' } ],
-  "туманный": [ { ru: 'Путь к морю был ___.', de: 'Der Weg zum Meer war ___.' } ],
-  "политический": [ { ru: 'Этот спор ___.', de: 'Dieser Streit ist ___.' } ],
-  "экономический": [ { ru: 'Этот кризис ___.', de: 'Diese Krise ist ___.' } ],
-  "социальный": [ { ru: 'Этот вопрос ___.', de: 'Diese Frage ist ___.' } ],
+  "туманный": [ { ru: 'Это был ___ вечер.', de: 'Das war ein nebliger Abend.' } ],
+  "политический": [ { ru: 'Это ___ спор.', de: 'Das ist ein politischer Streit.' } ],
+  "экономический": [ { ru: 'Это ___ кризис.', de: 'Das ist eine wirtschaftliche Krise.' } ],
+  "социальный": [ { ru: 'Это ___ вопрос.', de: 'Das ist eine soziale Frage.' } ],
   "исторический": [ { ru: 'Этот момент ___.', de: 'Dieser Moment ist ___.' } ],
   "научный": [ { ru: 'Его доклад ___.', de: 'Sein Vortrag ist ___.' } ],
-  "государственный": [ { ru: 'Этот праздник ___.', de: 'Dieser Feiertag ist ___.' } ],
-  "народный": [ { ru: 'Этот танец ___.', de: 'Dieser Tanz ist ___.' } ],
+  "государственный": [ { ru: 'Это ___ праздник.', de: 'Das ist ein staatlicher Feiertag.' } ],
+  "народный": [ { ru: 'Это ___ танец.', de: 'Das ist ein volkstümlicher Tanz.' } ],
   "официальный": [ { ru: 'Этот ответ ___.', de: 'Diese Antwort ist ___.' } ],
-  "национальный": [ { ru: 'Этот символ ___.', de: 'Dieses Symbol ist ___.' } ],
-  "общественный": [ { ru: 'Этот транспорт ___.', de: 'Dieser Verkehr ist ___.' } ],
-  "городской": [ { ru: 'Этот парк ___.', de: 'Dieser Park ist ___.' } ],
-  "домашний": [ { ru: 'Его быт ___.', de: 'Sein Alltag ist ___.' } ],
+  "национальный": [ { ru: 'Это ___ символ.', de: 'Das ist ein nationales Symbol.' } ],
+  "общественный": [ { ru: 'Это ___ транспорт.', de: 'Das sind öffentliche Verkehrsmittel.' } ],
+  "городской": [ { ru: 'Это ___ парк.', de: 'Das ist ein städtischer Park.' } ],
+  "домашний": [ { ru: 'У него ___ характер.', de: 'Er hat einen häuslichen Charakter.' } ],
   "личный": [ { ru: 'Этот выбор ___.', de: 'Diese Entscheidung ist ___.' } ],
-  "сельский": [ { ru: 'Этот пейзаж ___.', de: 'Diese Landschaft ist ___.' } ],
-  "промышленный": [ { ru: 'Этот район ___.', de: 'Dieser Bezirk ist ___.' } ],
+  "сельский": [ { ru: 'Это ___ район.', de: 'Das ist ein ländlicher Bezirk.' } ],
+  "промышленный": [ { ru: 'Это ___ город.', de: 'Das ist eine industrielle Stadt.' } ],
   "галактика":  [ { ru: '___ содержит миллиарды звёзд.', de: 'Die ___ enthält Milliarden Sterne.', isAI: true } ],
   "комета":     [ { ru: '___ пролетела мимо Земли.',      de: 'Der ___ flog an der Erde vorbei.', isAI: true } ],
 
@@ -9454,7 +9459,7 @@ const SENTENCE_OVERRIDES = {
   "зонд":       [ { ru: '___ летит к Марсу.',               de: 'Die ___ fliegt zum Mars.', isAI: true } ],
   "метеорит":   [ { ru: '___ упал на землю.',                  de: 'Der ___ fiel auf die Erde.', isAI: true } ],
   "атмосфера":  [ { ru: '___ защищает планету.',               de: 'Die ___ schützt den Planeten.', isAI: true } ],
-  "экзопланета":[ { ru: '___ находится далеко от нас.',        de: 'Der ___ befindet sich weit von uns.', isAI: true } ],
+  "экзопланета":[ { ru: '___ находится далеко от нас.',        de: 'Der ___ befindet sich weit von uns entfernt.', isAI: true } ],
   "квазар":     [ { ru: '___ — очень яркий объект в космосе.', de: 'Ein ___ ist ein sehr helles Objekt im All.', isAI: true } ],
   "космическая станция": [ { ru: '___ летит вокруг Земли.',    de: 'Die ___ fliegt um die Erde.', isAI: true } ],
   "Армения":    [ { ru: '___ — страна на Кавказе.',        de: '___ ist ein Land im Kaukasus.', isAI: true } ],
@@ -9551,8 +9556,8 @@ const SENTENCE_PAIRS = [
     targets: ['гид', 'город', 'турист'],
   },
   {
-    ru: 'Столица — самый большой город.',
-    de: 'Die größte Stadt ist die Hauptstadt.',
+    ru: 'Столица — главный город страны.',
+    de: 'Die Hauptstadt ist die wichtigste Stadt des Landes.',
     targets: ['столица', 'город'],
   },
   {
@@ -10328,7 +10333,7 @@ const SENTENCE_PAIRS = [
   },
   // Essen — Sammelsätze
   { ru: 'На ужин есть мясо и рыба.', de: 'Zum Abendessen gibt es Fleisch und Fisch.', targets: ['мясо', 'рыба'] },
-  { ru: 'Рис, картофель и макароны — это гарниры.', de: 'Reis, Kartoffel und Nudeln sind Beilagen.', targets: ['рис', 'картофель', 'макароны'] },
+  { ru: 'Рис, картофель и макароны — это гарниры.', de: 'Reis, Kartoffeln und Nudeln sind Beilagen.', targets: ['рис', 'картофель', 'макароны'] },
   { ru: 'Сахар сладкий, соль солёная, а специя острая.', de: 'Zucker ist süß, Salz ist salzig, und ein Gewürz ist scharf.', targets: ['сахар', 'соль', 'специя'] },
   { ru: 'Утром я пью чай, кофе или сок.', de: 'Am Morgen trinke ich Tee, Kaffee oder Saft.', targets: ['чай', 'кофе', 'сок'] },
   { ru: 'Вода — самый полезный напиток.', de: 'Wasser ist das gesündeste Getränk.', targets: ['вода', 'напиток'] },
@@ -10405,7 +10410,7 @@ const SENTENCE_PAIRS = [
   { ru: 'Гостиная уютная: диван мягкий, а ковёр тёплый.', de: 'Das Wohnzimmer ist gemütlich: das Sofa ist weich, und der Teppich ist warm.', targets: ['гостиная', 'диван', 'ковёр'] },
   { ru: 'Балкон маленький, а терраса большая.', de: 'Der Balkon ist klein, aber die Terrasse ist groß.', targets: ['балкон', 'терраса'] },
   { ru: 'Крыша старая, и чердак пыльный.', de: 'Das Dach ist alt, und der Dachboden ist staubig.', targets: ['крыша', 'чердак'] },
-  { ru: 'Лестница ведёт на второй этаж, но одна ступенька сломана.', de: 'Die Treppe führt in das zweite Stockwerk, aber eine Stufe ist kaputt.', targets: ['лестница', 'этаж', 'ступенька'] },
+  { ru: 'Лестница ведёт на второй этаж, но одна ступенька сломана.', de: 'Die Treppe führt in den ersten Stock, aber eine Stufe ist kaputt.', targets: ['лестница', 'этаж', 'ступенька'] },
   { ru: 'Подъезд чистый, и сосед доволен.', de: 'Der Hauseingang ist sauber, und der Nachbar ist zufrieden.', targets: ['подъезд', 'сосед'] },
   { ru: 'Кладовка маленькая, но полка длинная.', de: 'Der Abstellraum ist klein, aber das Regal ist lang.', targets: ['кладовка', 'полка'] },
   { ru: 'Розетка на стене, а водопровод под полом.', de: 'Die Steckdose ist an der Wand, und die Wasserleitung ist unter dem Boden.', targets: ['розетка', 'водопровод'] },
@@ -10446,7 +10451,8 @@ const SENTENCE_PAIRS = [
   { ru: 'Телефон и смартфон лежат на столе.', de: 'Das Telefon und das Smartphone liegen auf dem Tisch.', targets: ['телефон', 'смартфон'] },
   { ru: 'Сообщение пришло вчера.', de: 'Die Nachricht kam gestern an.', targets: ['сообщение'] },
   { ru: 'Фото и видео сохранены в телефоне.', de: 'Foto und Video sind im Telefon gespeichert.', targets: ['фото', 'видео'] },
-  { ru: 'Игра и информация есть в телефоне.', de: 'Spiel und Information sind im Telefon.', targets: ['игра', 'информация'] },
+  { ru: 'Эта игра очень интересная.', de: 'Dieses Spiel ist sehr interessant.', targets: ['игра'] },
+  { ru: 'Информация есть в интернете.', de: 'Die Information steht im Internet.', targets: ['информация'] },
   { ru: 'Наушники и зарядное устройство лежат на столе.', de: 'Kopfhörer und Ladegerät liegen auf dem Tisch.', targets: ['наушники', 'зарядное устройство'] },
   { ru: 'Батарея разрядилась очень быстро.', de: 'Die Batterie war sehr schnell leer.', targets: ['батарея'] },
   { ru: 'Житель города знает все улицы.', de: 'Der Einwohner der Stadt kennt alle Straßen.', targets: ['житель'] },
@@ -10457,7 +10463,7 @@ const SENTENCE_PAIRS = [
   { ru: 'Мой тёзка живёт в соседнем доме.', de: 'Mein Namensvetter wohnt im Nachbarhaus.', targets: ['тёзка'] },
   { ru: 'Туалет и ванная рядом.', de: 'Toilette und Badezimmer sind nebeneinander.', targets: ['туалет', 'ванная'] },
   { ru: 'Стена белая, а пол тёмный.', de: 'Die Wand ist weiß, und der Fußboden ist dunkel.', targets: ['стена', 'пол'] },
-  { ru: 'Ключ лежит у двери, а лифт не работает.', de: 'Der Schlüssel liegt bei der Tür, und der Aufzug funktioniert nicht.', targets: ['ключ', 'лифт'] },
+  { ru: 'Ключ лежит у двери, а лифт не работает.', de: 'Der Schlüssel liegt an der Tür, und der Aufzug funktioniert nicht.', targets: ['ключ', 'лифт'] },
   { ru: 'План и график лежат на столе.', de: 'Plan und Zeitplan liegen auf dem Tisch.', targets: ['план', 'график'] },
   { ru: 'Сканер и таблица нужны для отчёта.', de: 'Scanner und Tabelle werden für den Bericht gebraucht.', targets: ['сканер', 'таблица'] },
   { ru: 'Заявление подали вчера.', de: 'Der Antrag wurde gestern eingereicht.', targets: ['заявление'] },
@@ -10486,7 +10492,7 @@ const SENTENCE_PAIRS = [
   { ru: 'Двор пустой, а свет горит в окне.', de: 'Der Hof ist leer, und das Licht brennt im Fenster.', targets: ['двор', 'свет'] },
   { ru: 'Подушка и одеяло лежат на кровати.', de: 'Kissen und Bettdecke liegen auf dem Bett.', targets: ['подушка', 'одеяло'] },
   { ru: 'Кресло стоит у окна.', de: 'Der Sessel steht am Fenster.', targets: ['кресло'] },
-  { ru: 'Запрет и поворот показаны на знаке.', de: 'Verbot und Abbiegung sind auf dem Schild gezeigt.', targets: ['запрет', 'поворот'] },
+  { ru: 'Запрет и поворот показаны на знаке.', de: 'Verbot und Abbiegung sind auf dem Schild zu sehen.', targets: ['запрет', 'поворот'] },
   { ru: 'Прицеп стоит за машиной.', de: 'Der Anhänger steht hinter dem Auto.', targets: ['прицеп'] },
   { ru: 'Из-за ремонта переход закрыт.', de: 'Wegen der Reparatur ist der Übergang gesperrt.', targets: ['переход', 'ремонт'] },
   { ru: 'Скафандр и экипаж готовы к полёту.', de: 'Raumanzug und Besatzung sind für den Flug bereit.', targets: ['скафандр', 'экипаж'] },
@@ -10510,7 +10516,7 @@ const SENTENCE_PAIRS = [
   { ru: 'Молоток и гвоздь лежат на столе.', de: 'Hammer und Nagel liegen auf dem Tisch.', targets: ['молоток', 'гвоздь'] },
   { ru: 'Пила и отвёртка висят на стене.', de: 'Säge und Schraubenzieher hängen an der Wand.', targets: ['пила', 'отвёртка'] },
   { ru: 'Лопата стоит в углу.', de: 'Die Schaufel steht in der Ecke.', targets: ['лопата'] },
-  { ru: 'Опасность и объезд показаны на знаке.', de: 'Gefahr und Umleitung sind auf dem Schild gezeigt.', targets: ['опасность', 'объезд'] },
+  { ru: 'Опасность и объезд показаны на знаке.', de: 'Gefahr und Umleitung sind auf dem Schild zu sehen.', targets: ['опасность', 'объезд'] },
   { ru: 'Разрешение и техосмотр лежат в машине.', de: 'Erlaubnis und Fahrzeugprüfung liegen im Auto.', targets: ['разрешение', 'техосмотр'] },
   { ru: 'Сигнал был очень громкий.', de: 'Das Signal war sehr laut.', targets: ['сигнал'] },
   { ru: 'Наблюдение и вращение планет очень важны.', de: 'Beobachtung und Rotation der Planeten sind sehr wichtig.', targets: ['наблюдение', 'вращение'] },
@@ -10567,7 +10573,7 @@ const SENTENCE_PAIRS = [
   { ru: 'Роутер и дисплей стоят на столе.', de: 'Router und Display stehen auf dem Tisch.', targets: ['роутер', 'дисплей'] },
   { ru: 'Вентилятор работает очень тихо.', de: 'Der Lüfter arbeitet sehr leise.', targets: ['вентилятор'] },
   { ru: 'Сила и частица изучаются в физике.', de: 'Kraft und Teilchen werden in der Physik untersucht.', targets: ['сила', 'частица'] },
-  { ru: 'Ядро и модель показаны на схеме.', de: 'Kern und Modell sind auf dem Schema gezeigt.', targets: ['ядро', 'модель'] },
+  { ru: 'Ядро и модель показаны на схеме.', de: 'Kern und Modell sind im Schema dargestellt.', targets: ['ядро', 'модель'] },
   { ru: 'Расчёт был очень точным.', de: 'Die Berechnung war sehr genau.', targets: ['расчёт'] },
   { ru: 'Болгарка и струбцина лежат в гараже.', de: 'Winkelschleifer und Schraubzwinge liegen in der Garage.', targets: ['болгарка', 'струбцина'] },
   { ru: 'Шайба и фанера нужны для работы.', de: 'Unterlegscheibe und Sperrholz werden für die Arbeit gebraucht.', targets: ['шайба', 'фанера'] },
@@ -10597,7 +10603,8 @@ const SENTENCE_PAIRS = [
   { ru: 'Байт и ярд — разные меры.', de: 'Byte und Yard sind verschiedene Maße.', targets: ['байт', 'ярд'] },
   { ru: 'Давление измеряют в барах.', de: 'Den Druck misst man in Bar.', targets: ['бар'] },
   { ru: 'Вид и основа задачи понятны.', de: 'Art und Grundlage der Aufgabe sind klar.', targets: ['вид', 'основа'] },
-  { ru: 'Итог и набор данных готовы.', de: 'Endergebnis und Set der Daten sind fertig.', targets: ['итог', 'набор'] },
+  { ru: 'Итог встречи хороший.', de: 'Das Endergebnis des Treffens ist gut.', targets: ['итог'] },
+  { ru: 'Набор инструментов лежит в ящике.', de: 'Das Set mit Werkzeugen liegt in der Kiste.', targets: ['набор'] },
   { ru: 'Источник был очень надёжным.', de: 'Die Quelle war sehr zuverlässig.', targets: ['источник'] },
   { ru: 'Смесь и щёлочь стоят в лаборатории.', de: 'Gemisch und Lauge stehen im Labor.', targets: ['смесь', 'щёлочь'] },
   { ru: 'В отчёте есть главный тезис, и каждая единица измерения указана.', de: 'Im Bericht steht die Hauptthese, und jede Maßeinheit ist angegeben.', targets: ['единица', 'тезис'] },
@@ -10729,7 +10736,7 @@ const SENTENCE_PAIRS = [
   { ru: 'Это главная достопримечательность города.', de: 'Das ist die wichtigste Sehenswürdigkeit der Stadt.', targets: ['достопримечательность'] },
   { ru: 'Колхоз работал двадцать лет.', de: 'Die Kolchose arbeitete zwanzig Jahre.', targets: ['колхоз'] },
   { ru: 'Все платят налоги.', de: 'Alle zahlen Steuern.', targets: ['налог'] },
-  { ru: 'Сегодня тепло и солнечно.', de: 'Heute ist es warm und sonnig.', targets: ['тепло'] },
+  { ru: 'Тепло идёт от печки.', de: 'Die Wärme kommt vom Ofen.', targets: ['тепло'] },
   { ru: 'Я буду думать об этом.', de: 'Ich werde darüber nachdenken.', targets: ['думать'] },
   { ru: 'Мы будем смотреть на закат.', de: 'Wir werden uns den Sonnenuntergang ansehen.', targets: ['смотреть'] },
   { ru: 'Иммунитет ослаблен после болезни.', de: 'Die Immunität ist nach der Krankheit geschwächt.', targets: ['иммунитет'] },
@@ -10811,7 +10818,7 @@ const SENTENCE_PAIRS = [
   { ru: 'Этот врач всегда занят.', de: 'Dieser Arzt ist immer beschäftigt.', targets: ['занятый'] },
   { ru: 'Этот документ необходим.', de: 'Dieses Dokument ist notwendig.', targets: ['необходимый'] },
   { ru: 'Это семейный ужин.', de: 'Das ist ein Familienessen.', targets: ['семейный'] },
-  { ru: 'Он едва успел на поезд.', de: 'Er hat den Zug gerade noch geschafft.', targets: ['едва'] },
+  { ru: 'Он едва успел на поезд.', de: 'Er hat den Zug kaum noch erreicht.', targets: ['едва'] },
   { ru: 'Мы решили пойти в магазин.', de: 'Wir beschlossen, in den Laden zu gehen.', targets: ['идти / пойти'] },
   { ru: 'Это пластиковая бутылка.', de: 'Das ist eine Plastikflasche.', targets: ['пластиковый'] },
   { ru: 'Зимой я ношу шерстяной свитер.', de: 'Im Winter trage ich einen Wollpullover.', targets: ['шерстяной'] },
@@ -10824,18 +10831,6 @@ const SENTENCE_PAIRS = [
   { ru: 'Мой рабочий день начинается в восемь.', de: 'Mein Arbeitstag beginnt um acht.', targets: ['рабочий'] },
 ];
 
-// Cache: Wort (ru) → Vokabel-Objekt, für den Zugriff auf die de-Form beim
-// Bau der Mehrwort-Sätze. Wird beim ersten Aufruf einmalig befüllt.
-let _wordByRuCache = null;
-// Ersetzt das erste Vorkommen von `word` in `text` durch "___"
-// (Groß-/Kleinschreibung am Satzanfang wird toleriert). Liefert null,
-// wenn das Wort nicht im Text gefunden wurde (Sicherheitsnetz gegen
-// Tippfehler zwischen targets-Liste und Satztext).
-// Sucht zuerst mit strikten Wortgrenzen, damit z.B. "Stadt" nie innerhalb
-// von "Hauptstadt" oder "Ei" innerhalb von "ein" getroffen wird (diese
-// Kollisionsklasse ist in SENTENCE_PAIRS schon zweimal aufgetreten).
-// Nur wenn die Wortgrenzen-Suche nichts findet, greift als Sicherheitsnetz
-// das bisherige Teilstring-Verhalten.
 let mcOptions = []; // aktuell angezeigte MC-Optionen
 
 // Liefert alle Wörter einer Kategorie. Zahlen-Kategorien nutzen eine flache
@@ -11438,7 +11433,6 @@ function getPoolRaw() {
 const CAT_ICONS = {
   all:         'ti-grid-dots',
   multi:       'ti-checkbox',
-  hard:        'ti-flame',
   bookmarks:   'ti-bookmark',
   Substantive: 'ti-cube',
   'Inhaltswörter': 'ti-abc',
@@ -12021,14 +12015,6 @@ function setMode(mode) {
   nextWord();
 }
 
-// Liefert den fertigen Satz (ru oder de) für die aktuelle Karte — entweder
-// aus einer KI-generierten Vorlage (bereits vollständig, kein "___" mehr)
-// oder aus der festen Vorlage mit Lückenwort/%rand%-Ersetzung.
-// Aktualisiert Wort-Anzeige, Ziel-Satz, Klick-Bereich und Transkription anhand
-// von currentSentenceTemplate. Wird sowohl beim Erst-Rendern (mit fester
-// Vorlage) als auch beim nachträglichen "Upgrade" auf einen KI-Satz benutzt.
-// Fügt ruAlt (z.B. "США") in Klammern hinter das Wort ein, wenn es in einem
-// Satztext vorkommt — nur für die Anzeige, nie für Matching/Tokenisierung.
 // Zerlegt einen Satz in klickbare Tokens (Wörter inkl. angehängter Satzzeichen).
 function tokenizeSentence(s) {
   return s.trim().split(/\s+/);
@@ -12039,18 +12025,7 @@ function normalizeToken(s) {
 function normalizeSentenceText(s) {
   return s.trim().toLowerCase().replace(/ё/g, 'е').replace(/[.,!?;:„“"'…]/g, '').replace(/\s+/g, ' ').trim();
 }
-// Großzügige Tippfehlertoleranz für ganze Sätze (skaliert mit der Satzlänge).
-// ── Wortstellung und Wort-für-Wort-Abgleich ─────────────────────
-// Russisch lässt mehrere korrekte Wortstellungen zu (Сегодня он работает /
-// Он сегодня работает). Eine Umstellung wird deshalb akzeptiert, solange
-// dieselben Wörter verwendet werden UND zwei harte Bindungen erhalten bleiben:
-// eine Präposition steht unmittelbar vor demselben Wort wie im Zielsatz, und
-// das Satzzeichen bleibt am Ende. Alles andere wäre zu riskant – ohne
-// Wortartanalyse ließe sich sonst nicht ausschließen, dass eine Umstellung den
-// Satz zerstört (z.B. Adjektiv hinter sein Substantiv rutscht).
-// PREP_CASES wird weiter unten deklariert; der Zugriff muss deshalb verzögert
-// erfolgen, sonst bricht das Skript beim Laden mit einem ReferenceError ab.
-let prepositionTokens = null;
+// ── Wort-für-Wort-Abgleich ─────────────────────────────────────
 // Richtet zwei Tokenfolgen über die längste gemeinsame Teilfolge aneinander aus
 // und liefert je Position, ob das Wort passt, nur ein Tippfehler ist oder fehlt.
 function diffSentenceTokens(userTokens, targetTokens) {
@@ -12815,7 +12790,9 @@ function toggleAutoplay() {
     box.setAttribute('role', 'dialog');
     box.setAttribute('aria-modal', 'true');
     const t = o.querySelector('.overlay-title');
-    if (t) { if (!t.id) t.id = o.id + '-title'; box.setAttribute('aria-labelledby', t.id); }
+    // Titel-id: vorhandene id des Titels oder eines Elements darin (Vokabelliste) – sonst eine neue,
+    // damit keine id doppelt vergeben wird
+    if (t) { const inner = t.querySelector('[id]'); if (!t.id && !inner) t.id = o.id + '-title'; box.setAttribute('aria-labelledby', t.id || inner.id); }
     o.querySelectorAll('.overlay-close').forEach(b => b.setAttribute('aria-label', 'Schließen'));
   });
   // Schalter in den Einstellungen tragen den Text ihrer Zeile als Namen
@@ -14962,7 +14939,7 @@ function computeVerbClass(inf) {
   const d = conjugationData[inf];
   if (!d || !d.nonPast) return 'none';
   if (CONJ_IRREGULAR.includes(inf)) return 'sonder';
-  // vollendete Verben (Futur statt Präsens) werden wie alle anderen nach ihren Endungen eingeordnet
+  // Tabellen mit Futur statt Präsens (bisher nur быть) zählen als Sonderfall
   if (d.nonPastLabel === 'Futur') return 'sonder';
   // Reflexive Verben: -ся abtrennen und den Grundstamm prüfen
   const refl = /ся$/.test(inf);
@@ -16328,7 +16305,7 @@ const nounDeclensionData = {
     pl:{ "Nom.":"врачи", "Gen.":"врачей", "Dat.":"врачам", "Akk.":"врачей", "Instr.":"врачами", "Präp.":"врачах" } },
   "мама": { de:"Mama", typeLabel:"1. Klasse · weiblich · hart",
     sg:{ "Nom.":"мама", "Gen.":"мамы", "Dat.":"маме", "Akk.":"маму", "Instr.":"мамой", "Präp.":"маме" },
-    pl:{ "Nom.":"мамы", "Gen.":"мам", "Dat.":"мамам", "Akk.":"мамы", "Instr.":"мамами", "Präp.":"мамах" } },
+    pl:{ "Nom.":"мамы", "Gen.":"мам", "Dat.":"мамам", "Akk.":"мам", "Instr.":"мамами", "Präp.":"мамах" } },
   "вода": { de:"Wasser", typeLabel:"1. Klasse · weiblich · hart",
     sg:{ "Nom.":"вода", "Gen.":"воды", "Dat.":"воде", "Akk.":"воду", "Instr.":"водой", "Präp.":"воде" },
     pl:{ "Nom.":"воды", "Gen.":"вод", "Dat.":"водам", "Akk.":"воды", "Instr.":"водами", "Präp.":"водах" } },
@@ -16870,7 +16847,7 @@ const WG_DE_NOUNS = {
   'семья':['f','Familien'], 'нога':['n','Beine'], 'рука':['f','Hände'], 'голова':['m','Köpfe'],
   'сестра':['f','Schwestern'], 'письмо':['m','Briefe'], 'яйцо':['n','Eier'], 'парк':['m','Parks'],
   'магазин':['m','Läden'], 'вокзал':['m','Bahnhöfe'], 'вопрос':['f','Fragen'], 'ответ':['f','Antworten'],
-  'урок':['m','Unterrichte'], 'язык':['f','Sprachen'], 'вечер':['m','Abende'], 'обед':['n','Mittagessen'],
+  'урок':['f','Stunden','Stunde'], 'язык':['f','Sprachen'], 'вечер':['m','Abende'], 'обед':['n','Mittagessen'],
   'хлеб':['n','Brote'], 'суп':['f','Suppen'], 'сок':['m','Säfte'], 'телефон':['n','Telefone'],
   'билет':['n','Tickets'], 'концерт':['n','Konzerte'], 'этаж':['n','Stockwerke'], 'диван':['n','Sofas'],
   'праздник':['m','Feiertage'], 'погода':['n','Wetter'], 'квартира':['f','Wohnungen'], 'комната':['n','Zimmer'],
@@ -16880,7 +16857,13 @@ const WG_DE_NOUNS = {
   'зеркало':['m','Spiegel'], 'кресло':['m','Sessel'], 'кольцо':['m','Ringe'], 'поле':['n','Felder'],
 };
 // Attributive Stämme, die von der Wörterbuchform abweichen
-const WG_DE_ADJ_STEM = { 'hoch':'hoh', 'teuer':'teur', 'dunkel':'dunkl', 'böse':'bös', 'leise':'leis', 'müde':'müd', 'weise':'weis' };
+const WG_DE_ADJ_STEM = { 'hoch':'hoh', 'teuer':'teur', 'dunkel':'dunkl', 'böse':'bös', 'leise':'leis', 'müde':'müd', 'weise':'weis', 'fit':'munter' };
+// Für einzelne Substantive passt ein anderes deutsches Adjektiv (ein Rock ist „eng“, nicht „schmal“)
+const WG_DE_ADJ_PAIR = { 'узкий|юбка': 'eng' };
+function wgDeAdjStem(adj, noun) {
+  const de = WG_DE_ADJ_PAIR[adj + '|' + noun] || declensionData[adj].de;
+  return WG_DE_ADJ_STEM[de] || de;
+}
 const WG_DE_ART = {
   'Nom': { m:'der', f:'die', n:'das', pl:'die' },
   'Akk': { m:'den', f:'die', n:'das', pl:'die' },
@@ -16905,7 +16888,8 @@ const WG_DE_DIES_END = {   // dieser
 // deutsche Substantivform; im Dativ Plural kommt ein -n dazu (den Häusern)
 function wgDeNoun(noun, number, kasus) {
   const info = WG_DE_NOUNS[noun];
-  if (number !== 'pl' || !info) return nounDeclensionData[noun].de;
+  // info[2]: abweichende deutsche Einzahl für die Wortgruppen (урок → Stunde statt Unterricht)
+  if (number !== 'pl' || !info) return (info && info[2]) || nounDeclensionData[noun].de;
   const pl = info[1];
   return (kasus === 'Dat' && !/[ns]$/.test(pl)) ? pl + 'n' : pl;
 }
@@ -16914,8 +16898,8 @@ function wgDeGender(noun, number) {
   const info = WG_DE_NOUNS[noun];
   return info ? info[0] : 'n';
 }
-function wgDeAdj(adj, g, kasus, strong) {
-  const stem = WG_DE_ADJ_STEM[declensionData[adj].de] || declensionData[adj].de;
+function wgDeAdj(adj, g, kasus, strong, noun) {
+  const stem = wgDeAdjStem(adj, noun);
   return stem + (strong ? (g === 'pl' ? 'e' : WG_DE_ADJ_END[kasus][g]) : WG_DE_ADJ_END[kasus][g]);
 }
 // baut die deutsche Entsprechung einer Wortgruppe: Artikel bzw. Begleiter,
@@ -16929,7 +16913,7 @@ function wgGermanNP({ det, adj, noun, number, kasus }) {
   } else {
     out.push(WG_DE_ART[kasus][g]);
   }
-  if (adj) out.push(wgDeAdj(adj, g, kasus, false));
+  if (adj) out.push(wgDeAdj(adj, g, kasus, false, noun));
   out.push(wgDeNoun(noun, number, kasus));
   return out.join(' ');
 }
@@ -16946,10 +16930,10 @@ function wgGermanObject(adj, noun, number, art) {
   const g = wgDeGender(noun, number);
   const subst = wgDeNoun(noun, number, 'Akk');
   if (g === 'pl') {
-    if (art === 'kein') return 'keine ' + wgDeAdj(adj, 'pl', 'Akk', false) + ' ' + subst;
-    return wgDeAdj(adj, 'pl', 'Akk', true) + ' ' + subst;   // ohne Artikel
+    if (art === 'kein') return 'keine ' + wgDeAdj(adj, 'pl', 'Akk', false, noun) + ' ' + subst;
+    return wgDeAdj(adj, 'pl', 'Akk', true, noun) + ' ' + subst;   // ohne Artikel
   }
-  const adjStem = WG_DE_ADJ_STEM[declensionData[adj].de] || declensionData[adj].de;
+  const adjStem = wgDeAdjStem(adj, noun);
   // Stoffnomen ohne Artikel: „Wir haben heißes Wasser", nicht „ein heißes Wasser"
   if (art !== 'kein' && WG_DE_MASS.has(noun)) return adjStem + ({ m:'en', f:'e', n:'es' })[g] + ' ' + subst;
   const stamm = (art === 'kein' ? 'kein' : 'ein');
@@ -17068,8 +17052,8 @@ const WG_ADJ_FIT = {
   'дорогой': ['POGVE', ''],
   'дешёвый': ['GVE', 'квартира магазин'],
   'интересный': ['PA', 'книга письмо словарь город музей парк место страна вечер день неделя год праздник'],
-  'высокий': ['P', 'гора дом мост школа музей стул стол дверь окно лампа'],
-  'низкий': ['P', 'гора дом мост школа стул стол дверь окно лампа'],
+  'высокий': ['', 'гора дом мост школа музей стул стол дверь окно лампа'],
+  'низкий': ['', 'гора дом мост школа стул стол дверь окно лампа'],
   'весёлый': ['PZA', ''],
   'грустный': ['PZA', ''],
   'сильный': ['PK', 'любовь машина'],
@@ -17753,6 +17737,8 @@ const WG_BUILDERS = {
       promptTop: sb.owner + (mitte ? ' ' + mitte : '') + ' + ' + adj + ' ' + noun,
       promptDe: sbOwnerSentence(sb.owner, adj, noun, 'sg', zeit, false),
       hint: sbHint('possession', { zeit }, sb),
+      // mit есть ist der Satz ebenfalls richtig (betont, dass man die Sache hat)
+      alt: zeit === 'present' ? [sb.owner + ' есть ' + obj.ru] : [],
     };
   },
 
@@ -17773,7 +17759,7 @@ const WG_BUILDERS = {
       answer: numeral + ' ' + adjForm + ' ' + nounForm,
       tokens: [numeral, adjForm, nounForm],
       promptTop: numeral + ' + ' + adj + ' ' + noun,
-      promptDe: deNum + ' ' + wgDeAdj(adj, 'pl', 'Nom', true) + ' ' + wgDeNoun(noun, 'pl', 'Nom'),
+      promptDe: deNum + ' ' + wgDeAdj(adj, 'pl', 'Nom', true, noun) + ' ' + wgDeNoun(noun, 'pl', 'Nom'),
       hint: 'Zahl 2–4 → Substantiv im Genitiv Singular, Adjektiv im '
         + (g === 'f' ? 'Nominativ Plural' : 'Genitiv Plural'),
       srsKey: 'numadjnoun:' + g,
@@ -17860,6 +17846,10 @@ function restartWordgroup() {
     altAnswers = perms(task.blocks).map(p => p.join(' '));
   }
   if (task.alt && task.alt.length) altAnswers = altAnswers.concat(task.alt);
+  // надо und нужно sind gleichbedeutend (eine Vokabelkarte): jede Fassung gilt auch mit dem anderen Wort
+  const nadoRe = /(^|\s)(надо|нужно)(?=[\s,.!?]|$)/i;
+  altAnswers = altAnswers.concat([task.answer, ...altAnswers].filter(a => nadoRe.test(a))
+    .map(a => a.replace(nadoRe, (x, p, w) => p + ({ 'надо': 'нужно', 'нужно': 'надо', 'Надо': 'Нужно', 'Нужно': 'Надо' })[w])));
   // weibliche Fassungen aller richtigen Antworten (я/ты in der Vergangenheit, я должна …)
   let femAnswers = [];
   if (task.femSwap) {
@@ -18831,6 +18821,7 @@ function genderOf(ru) {
   if (/мя$/.test(ru)) return { g: 'n', why: 'Wörter auf -мя sind sächlich (время, имя, семя).', hard: true };
   if (/ь$/.test(ru)) {
     if (ru === 'гость') return { g: 'm', why: 'гость ist männlich – Ausnahme zur Regel „-ость → weiblich“ (eine männliche Person).', hard: true };
+    if (ru === 'тесть') return { g: 'm', why: 'тесть ist männlich – Ausnahme zur Regel „-есть → weiblich“ (eine männliche Person: der Schwiegervater).', hard: true };
     if (ru === 'метель') return { g: 'f', why: 'метель ist weiblich – Ausnahme zur Regel „-тель → männlich“.', hard: true };
     if (/тель$/.test(ru)) return { g: 'm', why: '-ь, aber -тель → männlich (Personen und Geräte: учитель, выключатель).', hard: true };
     if (/арь$/.test(ru)) return { g: 'm', why: '-ь, aber -арь → männlich (словарь, январь, пекарь).', hard: true };
