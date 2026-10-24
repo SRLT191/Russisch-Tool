@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Schutzschild: Die App lädt nichts nach und darf nichts nach außen senden.
+     Nur eingebettete Skripte, Stile, Schrift (data:) und Bilder (data:/blob:) sind erlaubt. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; media-src data: blob:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <title>Russisch Sprachtool</title>
 <!-- Symbolschrift eingebettet (Tabler Icons, nur die 116 benutzten Zeichen):
      damit läuft die Datei komplett ohne Internet. -->
