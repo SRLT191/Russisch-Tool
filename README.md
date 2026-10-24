@@ -4,14 +4,14 @@ Ein Russisch-Trainer in einer einzigen Datei: **`index.html`** im Browser öffne
 
 **Online:** https://srlt191.github.io/Russisch-Tool/
 
-- **Vokabeln:** 3050 Karten (3067 Wörter) in 79 Kategorien, RU → DE und DE → RU, Freitext, Auswahl und Aufdecken
+- **Vokabeln:** 3050 Karten (3067 Wörter) in 79 Kategorien, RU → DE und DE → RU, Freitext, Auswahl und Aufdecken; Umschrift wahlweise nach der Aussprache oder Buchstabe für Buchstabe; Vorlesen
 - **Grammatik:** 17 Werkzeuge (Verben, Substantive, Adjektive, Pronomen, Präpositionen, Sätze)
 - **Hörverstehen:** Hörtrainer, Hörquiz, Satzdiktat
 - **Sprachniveau:** jedes Wort und jeder Satz mit Stufe (A1–C1), Stufenplan, Einstufungstest, Stufe abschließen
 
 ## Lernstand
 
-Der Lernstand liegt **nur im Browser** (localStorage) – nicht in diesem Repository. Unter *Einstellungen → Sicherung* lässt er sich als Datei sichern und wieder einlesen; beim Einlesen wird zusammengeführt, nichts geht verloren. Sicherungsdateien gehören nicht ins Repository (siehe `.gitignore`). Wahlweise speichert *Einstellungen → GitHub-Speicher* den Lernstand in einem **eigenen privaten Repo** (Datei `lernstand.json`, Zugang über einen fein eingeschränkten Token nur für dieses Repo); der Token bleibt im Browser des Geräts.
+Der Lernstand liegt **nur im Browser** (localStorage) – nicht in diesem Repository. Neben dem Übungsstand (offen/erledigt) führt die App je Wort und Aufgabe eine **Wiederholungsstufe 0–5**, die nur mit wachsendem Abstand steigt (sofort, dann nach 1, 3, 7 und 14 Tagen), dazu „zuletzt geübt“. Unter *Einstellungen → Sicherung* lässt er sich als Datei sichern und wieder einlesen; beim Einlesen wird zusammengeführt, nichts geht verloren. Sicherungsdateien gehören nicht ins Repository (siehe `.gitignore`). Wahlweise speichert *Einstellungen → GitHub-Speicher* den Lernstand in einem **eigenen privaten Repo** (Datei `lernstand.json`, Zugang über einen fein eingeschränkten Token nur für dieses Repo); der Token bleibt im Browser des Geräts.
 
 ## Prüfungen
 

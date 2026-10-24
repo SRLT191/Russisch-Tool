@@ -1,5 +1,6 @@
-# Lernstand-Sicherungen nicht ins Repository
+# Lernstand-Sicherungen und GitHub-Speicher-Datei nicht ins Repository
 sprachtool-sicherung-*.json
 *.backup*.html
 node_modules/
 pruefungen/node_modules/
+lernstand.json

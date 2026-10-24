@@ -35,7 +35,7 @@ const fs = require('fs');
   await check('Vokabeln DE→RU übernommen', () => !!dr && !!dr['кот']);
   await check('Grammatik je Werkzeug zusammengeführt', () => ({ ok: gs.gender['дом'].correct === 1 && !!gs.gender['мама'] && !!gs.rektion.x, info: Object.keys(gs).join(',') }));
   await check('Gesamtstand: Höchstwerte, frühestes „gelernt seit“', () => { const m = lt.v['мама']; return { ok: m.c === 5 && m.w === 1 && m.d === 4 && m.l === 1000 && m.dd === 9000 && m.lr === 4, info: JSON.stringify(m) }; });
-  await check('Gesamtstand: neues Wort ohne laufenden Durchgang', () => ({ ok: lt.v['папа'].d === 1 && lt.v['папа'].lr === 0 && lt.run === 4, info: JSON.stringify(lt.v['папа']) + ' run=' + lt.run }));
+  await check('Gesamtstand: neues Wort aus der Sicherung übernommen', () => ({ ok: lt.v['папа'].d === 1 && lt.v['папа'].l === 3000 && lt.run === 4, info: JSON.stringify(lt.v['папа']) + ' run=' + lt.run }));
   await check('Gesamtstand Grammatik zusammengeführt', () => ({ ok: lt.g.gender['дом'].c === 4 && lt.g.gender['дом'].l === 5000, info: JSON.stringify(lt.g.gender['дом']) }));
   await check('Merkliste vereinigt', () => ({ ok: bm.includes('мама') && bm.includes('папа'), info: bm.join(',') }));
   await check('Einstellung bleibt lokal, fehlende ergänzt', () => ev(() => ({ ok: localStorage.getItem('vokabeltrainer-theme') === 'dark' && localStorage.getItem('vokabeltrainer-speak-rate') === '0.75', info: localStorage.getItem('vokabeltrainer-theme') })));
