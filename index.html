@@ -902,7 +902,7 @@
   <!-- Zeile 2: Direktbuttons + Dropdown Rest + Reset + Theme -->
   <div id="toolbar">
     <button class="tool-btn tool-btn-primary" id="transcription-btn" onclick="toggleTranscription()"
-            title="Transliteration: nach der Aussprache → Buchstabe für Buchstabe → aus" aria-pressed="true">
+            title="Transliteration: nach der Aussprache → Buchstabe für Buchstabe → aus" aria-label="Transliteration: Aussprache (weiter mit Klick)">
       <i class="ti ti-eye" id="transcription-btn-icon"></i> <span id="transcription-btn-label">Aussprache</span>
     </button>
     <button class="tool-btn" onclick="openSessionSummary()" title="Zusammenfassung dieser Runde">
@@ -4350,9 +4350,9 @@ const vocab = {
         {ru:"южный", tr:"juschnyj", de:["südlich"]},
         {ru:"восточный", tr:"wostotschnyj", de:["östlich"]},
         {ru:"западный", tr:"sapadnyj", de:["westlich"]},
-        {ru:"дальний", tr:"dal'nij", de:["fern"]},
+        {ru:"дальний", tr:"dal'nij", de:["fern", "entfernt"]},
         {ru:"центральный", tr:"zentral'nyj", de:["zentral"]},
-        {ru:"боковой", tr:"bokowoj", de:["seitlich"]},
+        {ru:"боковой", tr:"bokowoj", de:["seitlich", "Seiten-"]},
         {ru:"крайний", tr:"krajnij", de:["äußerste"]},
         {ru:"горизонтальный", tr:"gorisontal'nyj", de:["waagerecht"]},
         {ru:"вертикальный", tr:"wertikal'nyj", de:["senkrecht"]}
@@ -4406,7 +4406,7 @@ const vocab = {
         {ru:"металлический", tr:"metallitscheskij", de:["metallisch"]},
         {ru:"шёлковый", tr:"schjolkowyj", de:["seiden"]},
         {ru:"хлопковый", tr:"chlopkowyj", de:["Baumwoll-"]},
-        {ru:"стальной", tr:"stal'noj", de:["stählern"]},
+        {ru:"стальной", tr:"stal'noj", de:["stählern", "Stahl-"]},
         {ru:"кирпичный", tr:"kirpitschnyj", de:["Ziegel-"]},
         {ru:"фарфоровый", tr:"farforowyj", de:["Porzellan-"]},
         {ru:"медный", tr:"mednyj", de:["Kupfer-"]},
@@ -4438,11 +4438,11 @@ const vocab = {
         {ru:"пустой", tr:"pustoj", de:["leer"]},
         {ru:"целый", tr:"zelyj", de:["ganz"]},
         {ru:"средний", tr:"srednij", de:["mittlere"]},
-        {ru:"небольшой", tr:"nebol'schoj", de:["gering"]},
-        {ru:"основной", tr:"osnownoj", de:["hauptsächlich"]},
+        {ru:"небольшой", tr:"nebol'schoj", de:["klein (nicht groß)", "gering"]},
+        {ru:"основной", tr:"osnownoj", de:["Haupt-", "grundlegend"]},
         {ru:"минимальный", tr:"minimal'nyj", de:["minimal"]},
         {ru:"максимальный", tr:"maksimal'nyj", de:["maximal"]},
-        {ru:"бесконечный", tr:"beskonetschnyj", de:["unendlich"]}
+        {ru:"бесконечный", tr:"beskonetschnyj", de:["unendlich", "endlos"]}
       ]
     ],
     newBlock: [],
@@ -4520,12 +4520,12 @@ const vocab = {
         {ru:"промышленный", tr:"promyschlennyj", de:["industriell"]},
         {ru:"уличный", tr:"ulitschnyj", de:["Straßen-"]},
         {ru:"рабочий", tr:"rabotschij", de:["Arbeits-"]},
-        {ru:"мужской", tr:"muschskoj", de:["Männer-"]},
+        {ru:"мужской", tr:"muschskoj", de:["Männer-", "Herren-"]},
         {ru:"женский", tr:"schenskij", de:["Frauen-"]},
         {ru:"иностранный", tr:"inostrannyj", de:["ausländisch"]},
         {ru:"российский", tr:"rossijskij", de:["russländisch"]},
         {ru:"спортивный", tr:"sportiwnyj", de:["Sport-"]},
-        {ru:"деловой", tr:"delowoj", de:["geschäftlich"]},
+        {ru:"деловой", tr:"delowoj", de:["geschäftlich", "Geschäfts-"]},
         {ru:"медицинский", tr:"medizinskij", de:["medizinisch"]},
         {ru:"студенческий", tr:"studentscheskij", de:["Studenten-"]},
         {ru:"музыкальный", tr:"musykal'nyj", de:["Musik-"]},
@@ -6382,7 +6382,8 @@ function lifeFromSrs(map, id, st) {
   map[id] = { c: st.correct || 0, w: st.wrong || 0, mb: st.box || 0, l: st.correct > 0 ? (st.lastSeen || Date.now()) : 0 };
 }
 // Nur Zahlen übernehmen – der Gesamtstand kann aus einer fremden Sicherung stammen
-// z = zuletzt geübt (jede Antwort), dw = letzte Rückstufung; lr = alter Durchgangszähler (nicht mehr benutzt)
+// z = zuletzt geübt (jede Antwort), dw = letzte Rückstufung; lr (und lifetime.run) = alter
+// Durchgangszähler – wird nur noch aus alten Ständen gelesen, nicht mehr fortgeschrieben
 const LIFE_FIELDS = ['c', 'w', 'mb', 'l', 'd', 'dd', 'lr', 'z', 'dw'];
 const LV_NAMES = ['A1', 'A2', 'B1', 'B2', 'C1'];   // wie LEVELS, aber schon beim Start verfügbar
 function cleanLifeEntry(e) {
@@ -6583,8 +6584,6 @@ document.addEventListener('keydown', e => {
 // scope: 'vocab' | 'grammar' | 'all'
 function doResetProgress(scope) {
   loadLifetime();   // Gesamtstand vor dem Löschen sicher aufbauen
-  lifetime.run = (lifetime.run || 1) + 1;   // neuer Durchgang
-  saveLifetime();
   if (scope === 'vocab' || scope === 'all') {
     Object.keys(scores).forEach(k => delete scores[k]);
     saveScores();
@@ -7040,7 +7039,7 @@ function mergeSrsMap(a, b) {
 }
 function mergeLifeEntry(a, b) {
   a = cleanLifeEntry(a); b = cleanLifeEntry(b);
-  if (!a) return b ? Object.assign(b, { lr: 0 }) : null;   // Durchgang des anderen Geräts zählt hier nicht als laufend
+  if (!a) return b || null;
   if (!b) return a;
   const m = Object.assign({}, a);
   ['c', 'w', 'mb', 'd', 'dd', 'z', 'dw'].forEach(f => { m[f] = Math.max(a[f] || 0, b[f] || 0); });
@@ -7157,12 +7156,22 @@ function ghCanon(v) {
   return JSON.stringify(v === undefined ? null : v);
 }
 function ghCanonRaw(raw) { if (raw == null) return 'null'; try { return ghCanon(JSON.parse(raw)); } catch (e) { return JSON.stringify(String(raw)); } }
-function ghHashData(get) {
+function ghFnv(parts) {
   let h = 0x811c9dc5;
-  GH_STATE_KEYS.forEach(k => { const v = k + '=' + ghCanonRaw(get(k)) + ';'; for (let i = 0; i < v.length; i++) { h ^= v.charCodeAt(i); h = Math.imul(h, 16777619); } });
+  parts.forEach(v => { for (let i = 0; i < v.length; i++) { h ^= v.charCodeAt(i); h = Math.imul(h, 16777619); } });
   return (h >>> 0).toString(16);
 }
-function ghLocalHash() { return ghHashData(k => { try { return localStorage.getItem(k); } catch (e) { return null; } }); }
+// inhaltlicher Vergleich (Schlüsselreihenfolge egal) – teuer, nur beim Laden von GitHub
+function ghCanonHash(get) { return ghFnv(GH_STATE_KEYS.map(k => k + '=' + ghCanonRaw(get(k)) + ';')); }
+// Fingerabdruck des gespeicherten Lernstands für „nicht gespeichert“ – läuft alle paar Sekunden,
+// daher über den Rohtext und nur neu gerechnet, wenn sich der Text geändert hat
+let ghHashCache = null;
+function ghLocalHash() {
+  const raw = GH_STATE_KEYS.map(k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } });
+  if (ghHashCache && raw.every((v, i) => v === ghHashCache.raw[i])) return ghHashCache.h;
+  ghHashCache = { raw, h: ghFnv(raw.map((v, i) => GH_STATE_KEYS[i] + '=' + v + ';')) };
+  return ghHashCache.h;
+}
 function ghDirty() { return ghConnected() && ghLocalHash() !== ghSettings().hash; }
 function ghB64Encode(str) {
   const bytes = new TextEncoder().encode(str); let bin = '';
@@ -7350,7 +7359,8 @@ async function ghStartup() {
       try { saveScores(); } catch (e) {}
       const changed = ghMergeIntoLocal(remote.data);
       // Gerät hat jetzt genau den GitHub-Stand → nichts zu speichern
-      if (ghLocalHash() === ghHashData(k => remote.data.data[k] === undefined ? null : remote.data.data[k])) { const s2 = ghSettings(); s2.hash = ghLocalHash(); ghSaveSettings(s2); }
+      const lokal = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+      if (ghCanonHash(lokal) === ghCanonHash(k => remote.data.data[k] === undefined ? null : remote.data.data[k])) { const s2 = ghSettings(); s2.hash = ghLocalHash(); ghSaveSettings(s2); }
       if (changed) { ghReload('Stand von GitHub geladen'); return; }
     }
     ghBusy = false; ghIdleStatus();
@@ -7363,7 +7373,8 @@ window.addEventListener('beforeunload', e => {
   if (ghSkipWarn) return;
   if (ghSettings().warnClose && ghDirty()) { e.preventDefault(); e.returnValue = ''; }
 });
-setInterval(() => { if (!ghBusy) ghUpdateIndicator(); }, 4000);
+setInterval(() => { if (!ghBusy && !document.hidden) ghUpdateIndicator(); }, 10000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && !ghBusy) ghUpdateIndicator(); });
 setTimeout(ghStartup, 0);
 
 // Sitzungsziel: einfacher Fortschrittsbalken für die laufende Runde
@@ -9680,21 +9691,21 @@ const SENTENCE_OVERRIDES = {
   "музыкальный": [ { ru: 'Это ___ фестиваль.', de: 'Das ist ein Musikfestival.' } ],
   "студенческий": [ { ru: 'Это ___ билет.', de: 'Das ist ein Studentenausweis.' } ],
   "медицинский": [ { ru: 'Это ___ центр.', de: 'Das ist ein medizinisches Zentrum.' } ],
-  "деловой": [ { ru: 'Это ___ обед.', de: 'Das ist ein geschäftliches Mittagessen.' } ],
+  "деловой": [ { ru: 'Это ___ обед.', de: 'Das ist ein Geschäftsessen.' } ],
   "независимый": [ { ru: 'Это ___ журналист.', de: 'Das ist ein unabhängiger Journalist.' } ],
   "партийный": [ { ru: 'Это ___ съезд.', de: 'Das ist ein Parteitag.' } ],
   "революционный": [ { ru: 'Это ___ план.', de: 'Das ist ein revolutionärer Plan.' } ],
   "правовой": [ { ru: 'Это ___ вопрос.', de: 'Das ist eine rechtliche Frage.' } ],
   "мировой": [ { ru: 'Это ___ рекорд.', de: 'Das ist ein Weltrekord.' } ],
-  "звёздный": [ { ru: 'Это ___ дождь.', de: 'Das ist ein Sternenregen.' } ],
+  "звёздный": [ { ru: 'Это ___ дождь.', de: 'Das ist ein Sternschnuppenschauer.' } ],
   "ледяной": [ { ru: 'Ветер был ___.', de: 'Der Wind war eisig.' } ],
   "влажный": [ { ru: 'Воздух очень ___.', de: 'Die Luft ist sehr feucht.' } ],
   "прохладный": [ { ru: 'Вечер был ___.', de: 'Der Abend war kühl.' } ],
   "жаркий": [ { ru: 'Июль был очень ___.', de: 'Der Juli war sehr heiß.' } ],
-  "бесконечный": [ { ru: 'Это ___ разговор.', de: 'Das ist ein unendliches Gespräch.' } ],
+  "бесконечный": [ { ru: 'Это ___ разговор.', de: 'Das ist ein endloses Gespräch.' } ],
   "максимальный": [ { ru: 'Это ___ вес.', de: 'Das ist das maximale Gewicht.' } ],
   "минимальный": [ { ru: 'Это ___ размер.', de: 'Das ist die minimale Größe.' } ],
-  "основной": [ { ru: 'Это ___ продукт.', de: 'Das ist das hauptsächliche Produkt.' } ],
+  "основной": [ { ru: 'Это ___ продукт.', de: 'Das ist das Hauptprodukt.' } ],
   "небольшой": [ { ru: 'Это ___ риск.', de: 'Das ist ein geringes Risiko.' } ],
   "глиняный": [ { ru: 'Это ___ кувшин.', de: 'Das ist ein Tonkrug.' } ],
   "меховой": [ { ru: 'Это ___ воротник.', de: 'Das ist ein Pelzkragen.' } ],
@@ -9709,11 +9720,11 @@ const SENTENCE_OVERRIDES = {
   "вертикальный": [ { ru: '___ столб очень высокий.', de: 'Der senkrechte Pfahl ist sehr hoch.' } ],
   "горизонтальный": [ { ru: 'Это ___ ряд.', de: 'Das ist eine waagerechte Reihe.' } ],
   "крайний": [ { ru: 'Это ___ срок.', de: 'Das ist die äußerste Frist.' } ],
-  "боковой": [ { ru: 'Это ___ выход.', de: 'Das ist ein seitlicher Ausgang.' } ],
+  "боковой": [ { ru: 'Это ___ выход.', de: 'Das ist ein Seitenausgang.' } ],
   "центральный": [ { ru: 'Это ___ вход.', de: 'Das ist der zentrale Eingang.' } ],
   "вечный": [ { ru: 'Это ___ вопрос.', de: 'Das ist eine ewige Frage.' } ],
   "следующий": [ { ru: '___ поезд придёт через час.', de: 'Der nächste Zug kommt in einer Stunde.' } ],
-  "дальний": [ { ru: 'Это мой ___ родственник.', de: 'Das ist mein ferner Verwandter.' } ],
+  "дальний": [ { ru: 'Это мой ___ родственник.', de: 'Das ist mein entfernter Verwandter.' } ],
   "западный": [ { ru: '___ берег реки высокий.', de: 'Das westliche Flussufer ist hoch.' } ],
   "восточный": [ { ru: '___ вход закрыт.', de: 'Der östliche Eingang ist geschlossen.' } ],
   "южный": [ { ru: '___ берег моря очень тёплый.', de: 'Das südliche Ufer des Meeres ist sehr warm.' } ],
@@ -9721,7 +9732,7 @@ const SENTENCE_OVERRIDES = {
   "российский": [ { ru: 'Это ___ паспорт.', de: 'Das ist ein russländischer Pass.' } ],
   "иностранный": [ { ru: 'Это ___ турист.', de: 'Das ist ein ausländischer Tourist.' } ],
   "женский": [ { ru: 'Это ___ журнал.', de: 'Das ist eine Frauenzeitschrift.' } ],
-  "мужской": [ { ru: 'Это ___ костюм.', de: 'Das ist ein Männeranzug.' } ],
+  "мужской": [ { ru: 'Это ___ костюм.', de: 'Das ist ein Herrenanzug.' } ],
   "религиозный": [ { ru: 'Это ___ праздник.', de: 'Das ist ein religiöses Fest.' } ],
   "демократический": [ { ru: 'Это ___ процесс.', de: 'Das ist ein demokratischer Prozess.' } ],
   "гражданский": [ { ru: 'Это ___ самолёт, а не военный.', de: 'Das ist ein ziviles Flugzeug, kein militärisches.' } ],
@@ -9734,7 +9745,7 @@ const SENTENCE_OVERRIDES = {
   "ясный": [ { ru: 'Вечер был ___ и тихий.', de: 'Der Abend war klar und still.' } ],
   "фарфоровый": [ { ru: 'Это ___ чайник.', de: 'Das ist eine Porzellankanne.' } ],
   "кирпичный": [ { ru: 'Это ___ дом.', de: 'Das ist ein Ziegelhaus.' } ],
-  "стальной": [ { ru: 'Это ___ мост.', de: 'Das ist eine stählerne Brücke.' } ],
+  "стальной": [ { ru: 'Это ___ мост.', de: 'Das ist eine Stahlbrücke.' } ],
   "хлопковый": [ { ru: 'Это ___ свитер.', de: 'Das ist ein Baumwollpullover.' } ],
   "шёлковый": [ { ru: 'Это ___ шарф.', de: 'Das ist ein seidener Schal.' } ],
   "галактика":  [ { ru: '___ содержит миллиарды звёзд.', de: 'Die ___ enthält Milliarden Sterne.', isAI: true } ],
@@ -12296,7 +12307,7 @@ function applyTranscriptionButton() {
   const btn = document.getElementById('transcription-btn');
   if (!btn) return;
   btn.classList.toggle('active', showTranscription);
-  btn.setAttribute('aria-pressed', showTranscription ? 'true' : 'false');
+  // drei Zustände: kein aria-pressed (an/aus), der Zustand steht in der Beschriftung
   btn.setAttribute('aria-label', 'Transliteration: ' + TR_MODE_LABEL[transcriptionMode] + ' (weiter mit Klick)');
   const icon = document.getElementById('transcription-btn-icon');
   if (icon) icon.className = 'ti ' + (transcriptionMode === 'off' ? 'ti-eye-off' : transcriptionMode === 'letters' ? 'ti-abc' : 'ti-eye');
@@ -16653,6 +16664,62 @@ const declensionData = {
     fem:{ "Nom.":"местная", "Gen.":"местной", "Dat.":"местной", "Akk.":"местную", "Instr.":"местной", "Präp.":"местной" },
     neut:{ "Nom.":"местное", "Gen.":"местного", "Dat.":"местному", "Akk.":"местное", "Instr.":"местным", "Präp.":"местном" },
     plural:{ "Nom.":"местные", "Gen.":"местных", "Dat.":"местным", "Akk.":"местные", "Instr.":"местными", "Präp.":"местных" } },
+  // Gesamtprüfung 25.10.: häufige A1/A2-Adjektive aus dem Wortschatz
+  "следующий": { de:"nächster", typeLabel:"Spelling-Rule, unbetont (ж/ш/щ/ч/г/к/х)",
+    masc:{ "Nom.":"следующий", "Gen.":"следующего", "Dat.":"следующему", "Akk.":"следующий", "Instr.":"следующим", "Präp.":"следующем" },
+    fem:{ "Nom.":"следующая", "Gen.":"следующей", "Dat.":"следующей", "Akk.":"следующую", "Instr.":"следующей", "Präp.":"следующей" },
+    neut:{ "Nom.":"следующее", "Gen.":"следующего", "Dat.":"следующему", "Akk.":"следующее", "Instr.":"следующим", "Präp.":"следующем" },
+    plural:{ "Nom.":"следующие", "Gen.":"следующих", "Dat.":"следующим", "Akk.":"следующие", "Instr.":"следующими", "Präp.":"следующих" } },
+  "небольшой": { de:"klein", typeLabel:"endbetont, Spelling-Rule",
+    masc:{ "Nom.":"небольшой", "Gen.":"небольшого", "Dat.":"небольшому", "Akk.":"небольшой", "Instr.":"небольшим", "Präp.":"небольшом" },
+    fem:{ "Nom.":"небольшая", "Gen.":"небольшой", "Dat.":"небольшой", "Akk.":"небольшую", "Instr.":"небольшой", "Präp.":"небольшой" },
+    neut:{ "Nom.":"небольшое", "Gen.":"небольшого", "Dat.":"небольшому", "Akk.":"небольшое", "Instr.":"небольшим", "Präp.":"небольшом" },
+    plural:{ "Nom.":"небольшие", "Gen.":"небольших", "Dat.":"небольшим", "Akk.":"небольшие", "Instr.":"небольшими", "Präp.":"небольших" } },
+  "мужской": { de:"Männer-", typeLabel:"endbetont, Spelling-Rule",
+    masc:{ "Nom.":"мужской", "Gen.":"мужского", "Dat.":"мужскому", "Akk.":"мужской", "Instr.":"мужским", "Präp.":"мужском" },
+    fem:{ "Nom.":"мужская", "Gen.":"мужской", "Dat.":"мужской", "Akk.":"мужскую", "Instr.":"мужской", "Präp.":"мужской" },
+    neut:{ "Nom.":"мужское", "Gen.":"мужского", "Dat.":"мужскому", "Akk.":"мужское", "Instr.":"мужским", "Präp.":"мужском" },
+    plural:{ "Nom.":"мужские", "Gen.":"мужских", "Dat.":"мужским", "Akk.":"мужские", "Instr.":"мужскими", "Präp.":"мужских" } },
+  "женский": { de:"Frauen-", typeLabel:"hart, Spelling-Rule (г/к/х→и)",
+    masc:{ "Nom.":"женский", "Gen.":"женского", "Dat.":"женскому", "Akk.":"женский", "Instr.":"женским", "Präp.":"женском" },
+    fem:{ "Nom.":"женская", "Gen.":"женской", "Dat.":"женской", "Akk.":"женскую", "Instr.":"женской", "Präp.":"женской" },
+    neut:{ "Nom.":"женское", "Gen.":"женского", "Dat.":"женскому", "Akk.":"женское", "Instr.":"женским", "Präp.":"женском" },
+    plural:{ "Nom.":"женские", "Gen.":"женских", "Dat.":"женским", "Akk.":"женские", "Instr.":"женскими", "Präp.":"женских" } },
+  "иностранный": { de:"ausländisch", typeLabel:"hart",
+    masc:{ "Nom.":"иностранный", "Gen.":"иностранного", "Dat.":"иностранному", "Akk.":"иностранный", "Instr.":"иностранным", "Präp.":"иностранном" },
+    fem:{ "Nom.":"иностранная", "Gen.":"иностранной", "Dat.":"иностранной", "Akk.":"иностранную", "Instr.":"иностранной", "Präp.":"иностранной" },
+    neut:{ "Nom.":"иностранное", "Gen.":"иностранного", "Dat.":"иностранному", "Akk.":"иностранное", "Instr.":"иностранным", "Präp.":"иностранном" },
+    plural:{ "Nom.":"иностранные", "Gen.":"иностранных", "Dat.":"иностранным", "Akk.":"иностранные", "Instr.":"иностранными", "Präp.":"иностранных" } },
+  "российский": { de:"russländisch", typeLabel:"hart, Spelling-Rule (г/к/х→и)",
+    masc:{ "Nom.":"российский", "Gen.":"российского", "Dat.":"российскому", "Akk.":"российский", "Instr.":"российским", "Präp.":"российском" },
+    fem:{ "Nom.":"российская", "Gen.":"российской", "Dat.":"российской", "Akk.":"российскую", "Instr.":"российской", "Präp.":"российской" },
+    neut:{ "Nom.":"российское", "Gen.":"российского", "Dat.":"российскому", "Akk.":"российское", "Instr.":"российским", "Präp.":"российском" },
+    plural:{ "Nom.":"российские", "Gen.":"российских", "Dat.":"российским", "Akk.":"российские", "Instr.":"российскими", "Präp.":"российских" } },
+  "центральный": { de:"zentral", typeLabel:"hart",
+    masc:{ "Nom.":"центральный", "Gen.":"центрального", "Dat.":"центральному", "Akk.":"центральный", "Instr.":"центральным", "Präp.":"центральном" },
+    fem:{ "Nom.":"центральная", "Gen.":"центральной", "Dat.":"центральной", "Akk.":"центральную", "Instr.":"центральной", "Präp.":"центральной" },
+    neut:{ "Nom.":"центральное", "Gen.":"центрального", "Dat.":"центральному", "Akk.":"центральное", "Instr.":"центральным", "Präp.":"центральном" },
+    plural:{ "Nom.":"центральные", "Gen.":"центральных", "Dat.":"центральным", "Akk.":"центральные", "Instr.":"центральными", "Präp.":"центральных" } },
+  "южный": { de:"südlich", typeLabel:"hart",
+    masc:{ "Nom.":"южный", "Gen.":"южного", "Dat.":"южному", "Akk.":"южный", "Instr.":"южным", "Präp.":"южном" },
+    fem:{ "Nom.":"южная", "Gen.":"южной", "Dat.":"южной", "Akk.":"южную", "Instr.":"южной", "Präp.":"южной" },
+    neut:{ "Nom.":"южное", "Gen.":"южного", "Dat.":"южному", "Akk.":"южное", "Instr.":"южным", "Präp.":"южном" },
+    plural:{ "Nom.":"южные", "Gen.":"южных", "Dat.":"южным", "Akk.":"южные", "Instr.":"южными", "Präp.":"южных" } },
+  "гражданский": { de:"zivil", typeLabel:"hart, Spelling-Rule (г/к/х→и)",
+    masc:{ "Nom.":"гражданский", "Gen.":"гражданского", "Dat.":"гражданскому", "Akk.":"гражданский", "Instr.":"гражданским", "Präp.":"гражданском" },
+    fem:{ "Nom.":"гражданская", "Gen.":"гражданской", "Dat.":"гражданской", "Akk.":"гражданскую", "Instr.":"гражданской", "Präp.":"гражданской" },
+    neut:{ "Nom.":"гражданское", "Gen.":"гражданского", "Dat.":"гражданскому", "Akk.":"гражданское", "Instr.":"гражданским", "Präp.":"гражданском" },
+    plural:{ "Nom.":"гражданские", "Gen.":"гражданских", "Dat.":"гражданским", "Akk.":"гражданские", "Instr.":"гражданскими", "Präp.":"гражданских" } },
+  "медицинский": { de:"medizinisch", typeLabel:"hart, Spelling-Rule (г/к/х→и)",
+    masc:{ "Nom.":"медицинский", "Gen.":"медицинского", "Dat.":"медицинскому", "Akk.":"медицинский", "Instr.":"медицинским", "Präp.":"медицинском" },
+    fem:{ "Nom.":"медицинская", "Gen.":"медицинской", "Dat.":"медицинской", "Akk.":"медицинскую", "Instr.":"медицинской", "Präp.":"медицинской" },
+    neut:{ "Nom.":"медицинское", "Gen.":"медицинского", "Dat.":"медицинскому", "Akk.":"медицинское", "Instr.":"медицинским", "Präp.":"медицинском" },
+    plural:{ "Nom.":"медицинские", "Gen.":"медицинских", "Dat.":"медицинским", "Akk.":"медицинские", "Instr.":"медицинскими", "Präp.":"медицинских" } },
+  "мировой": { de:"Welt-", typeLabel:"endbetont (-ой)",
+    masc:{ "Nom.":"мировой", "Gen.":"мирового", "Dat.":"мировому", "Akk.":"мировой", "Instr.":"мировым", "Präp.":"мировом" },
+    fem:{ "Nom.":"мировая", "Gen.":"мировой", "Dat.":"мировой", "Akk.":"мировую", "Instr.":"мировой", "Präp.":"мировой" },
+    neut:{ "Nom.":"мировое", "Gen.":"мирового", "Dat.":"мировому", "Akk.":"мировое", "Instr.":"мировым", "Präp.":"мировом" },
+    plural:{ "Nom.":"мировые", "Gen.":"мировых", "Dat.":"мировым", "Akk.":"мировые", "Instr.":"мировыми", "Präp.":"мировых" } },
 };
 // Zustand: Adjektivdeklination
 const declState = {
@@ -17441,7 +17508,8 @@ const WG_DE_NOUNS = {
 // Attributive Stämme, die von der Wörterbuchform abweichen
 const WG_DE_ADJ_STEM = { 'hoch':'hoh', 'teuer':'teur', 'dunkel':'dunkl', 'böse':'bös', 'leise':'leis', 'müde':'müd', 'weise':'weis', 'fit':'munter' };
 // Für einzelne Substantive passt ein anderes deutsches Adjektiv (ein Rock ist „eng“, nicht „schmal“)
-const WG_DE_ADJ_PAIR = { 'узкий|юбка': 'eng' };
+const WG_DE_ADJ_PAIR = { 'узкий|юбка': 'eng', 'тупой|вопрос': 'dumm', 'удобный|день': 'passend', 'удобный|время': 'passend',
+  'добрый|ответ': 'freundlich', 'древний|лес': 'uralt', 'твёрдый|ответ': 'fest', 'иностранный|язык': 'fremd' };
 function wgDeAdjStem(adj, noun) {
   const de = WG_DE_ADJ_PAIR[adj + '|' + noun] || declensionData[adj].de;
   return WG_DE_ADJ_STEM[de] || de;
@@ -17626,7 +17694,7 @@ const WG_ADJ_FIT = {
   'красивый': ['POGVZ', 'язык жизнь любовь слово рука нога'],
   'умный': ['P', 'вопрос ответ слово голова книга'],
   'тёмный': ['OZ', 'рубашка юбка шапка машина кресло дверь'],
-  'светлый': ['OZ', 'рубашка юбка шапка лампа окно голова'],
+  'светлый': ['', 'рубашка юбка шапка лампа окно голова день утро праздник музей школа дом квартира комната кухня магазин вокзал этаж'],
   'лёгкий': ['GA', 'обед суп'],
   'тяжёлый': ['G', 'день неделя год время жизнь вопрос урок'],
   'холодный': ['EKW', 'дом квартира комната кухня море озеро река город страна ночь утро день вечер зеркало'],
@@ -17636,7 +17704,7 @@ const WG_ADJ_FIT = {
   'интересный': ['PA', 'книга письмо словарь город музей парк место страна вечер день неделя год праздник'],
   'высокий': ['', 'гора дом мост школа музей стул стол дверь окно лампа'],
   'низкий': ['', 'гора дом мост школа стул стол дверь окно лампа'],
-  'весёлый': ['PZA', ''],
+  'весёлый': ['PZ', 'концерт слово'],
   'грустный': ['PZA', ''],
   'сильный': ['PK', 'любовь машина'],
   'слабый': ['PK', ''],
@@ -17667,10 +17735,10 @@ const WG_ADJ_FIT = {
   'святой': ['', 'место вода любовь слово город праздник'],
   'длинный': ['', 'дорога река мост юбка письмо стол день ночь неделя год вечер слово вопрос ответ урок нога рука поезд'],
   'короткий': ['', 'дорога река мост юбка письмо стол день ночь неделя год вечер слово вопрос ответ урок нога рука поезд'],
-  'тонкий': ['G', 'рука нога'],
+  'тонкий': ['', 'книга словарь кольцо рука нога'],
   'острый': ['', 'нож вилка суп язык вопрос'],
   'мягкий': ['', 'диван кровать кресло шапка хлеб стул рука погода'],
-  'твёрдый': ['G', 'хлеб яйцо ответ'],
+  'твёрдый': ['', 'стол стул кровать хлеб яйцо ответ'],
   'бодрый': ['P', 'утро'],
   'простой': ['AE', 'стол стул юбка рубашка шапка сумка дом квартира кольцо телефон'],
   'сложный': ['A', 'время'],
@@ -17693,6 +17761,14 @@ const WG_ADJ_FIT = {
   'глубокий': ['', 'море озеро река вопрос ночь'],
   'гладкий': ['', 'стол дорога зеркало кольцо рука'],
   'тупой': ['', 'нож вилка вопрос'],
+  // Gesamtprüfung 25.10.: neue Tabellen-Adjektive (следующий, мужской, женский, российский, мировой
+  // bewusst nicht in den Wortgruppen – die deutsche Seite ließe sich nicht sauber beugen)
+  'небольшой': ['OG', ''],
+  'иностранный': ['P', 'язык машина'],
+  'центральный': ['', 'площадь парк вокзал музей магазин'],
+  'южный': ['', 'город страна море озеро'],
+  'гражданский': ['', 'жизнь'],
+  'медицинский': ['', 'вопрос книга школа'],
   'шершавый': ['', 'стол рука стул дверь'],
   'мелкий': ['', 'река озеро море вопрос'],
   'прозрачный': ['', 'вода озеро река море окно'],
