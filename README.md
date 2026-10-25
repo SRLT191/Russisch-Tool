@@ -12,7 +12,7 @@ Ein Russisch-Trainer in einer einzigen Datei: **`index.html`** im Browser öffne
 
 ## Lernstand
 
-Der Lernstand liegt **nur im Browser** (localStorage) – nicht in diesem Repository. Neben dem Übungsstand (offen/erledigt) führt die App je Wort und Aufgabe eine **Wiederholungsstufe 0–5**, die nur mit wachsendem Abstand steigt (sofort, dann nach 1, 3, 7 und 14 Tagen), dazu „zuletzt geübt“. Unter *Einstellungen → Sicherung* lässt er sich als Datei sichern und wieder einlesen; beim Einlesen wird zusammengeführt, nichts geht verloren. Sicherungsdateien gehören nicht ins Repository (siehe `.gitignore`). Wahlweise speichert *Einstellungen → GitHub-Speicher* den Lernstand in einem **eigenen privaten Repo** (Datei `lernstand.json`, Zugang über einen fein eingeschränkten Token nur für dieses Repo); der Token bleibt im Browser des Geräts.
+Der Lernstand liegt **nur im Browser** (localStorage) – nicht in diesem Repository. Neben dem Übungsstand (offen/erledigt) führt die App je Wort und Aufgabe eine **Wiederholungsstufe 0–5**, die nur mit wachsendem Abstand steigt (sofort, dann nach 1, 3, 7 und 14 Tagen), dazu „zuletzt geübt“. Unter *Einstellungen → Speichern → Sicherung* lässt er sich als Datei sichern und wieder einlesen; beim Einlesen wird zusammengeführt, nichts geht verloren. Sicherungsdateien gehören nicht ins Repository (siehe `.gitignore`). Wahlweise speichert *Einstellungen → Speichern → GitHub-Speicher* den Lernstand in einem **eigenen privaten Repo** (Datei `lernstand.json`, Zugang über einen fein eingeschränkten Token nur für dieses Repo); der Token bleibt im Browser des Geräts.
 
 ## Prüfungen
 
@@ -32,3 +32,5 @@ Siehe `WARTUNGSPLAN.md`: Prüfbefehle, wann welcher Befehl, feste Regeln. Änder
 ## Quellen
 
 Sprachniveaus als Richtwert: A1 nach den FIPI-Anforderungen „Уровень 1“ (2023), sonst nach Worthäufigkeit (OpenSubtitles-Liste, hermitdave/FrequencyWords) mit Wortformen aus OpenRussian.org (CC BY-SA 4.0).
+
+Schriften: Noto Sans und Literata (SIL Open Font License 1.1), Symbole: Tabler Icons (MIT), alle eingebettet in `index.html`.

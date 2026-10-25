@@ -5,9 +5,11 @@ const FILE = 'file://' + (process.argv[2] || APP_PATH);
 (async () => {
   const b = await chromium.launch();
   const all = {};
+  const errs = [];
   for (const theme of ['light', 'dark']) {
     const p = await b.newPage({ viewport: { width: 1100, height: 900 }, colorScheme: theme });
     p.on('dialog', d => d.dismiss());
+    p.on('pageerror', e => errs.push(theme + ': ' + e.message));
     await p.goto(FILE); await p.waitForTimeout(300);
     const res = await p.evaluate((theme) => {
       const cur = document.documentElement.getAttribute('data-theme');
@@ -32,6 +34,7 @@ const FILE = 'file://' + (process.argv[2] || APP_PATH);
         });
       };
       const steps = [
+        ['Startseite', () => { setAppView('home'); }],
         ['Vokabeln', () => { setAppView('vocab'); setMode('free'); }],
         ['Vokabeln richtig', async () => { document.getElementById('answer-input').value = stripClarification(currentWord.de[0]); await checkAnswer(); }],
         ['Vokabeln falsch', async () => { nextWord(); document.getElementById('answer-input').value = 'qqq'; await checkAnswer(); }],
@@ -63,5 +66,6 @@ const FILE = 'file://' + (process.argv[2] || APP_PATH);
   }
   for (const t in all) { const m = new Map(); all[t].forEach(x => { const [l, r, sel] = x.split(' | '); const key = (sel||'').replace(/ „.*/, ''); const v = m.get(key) || { r: 99, n: 0, ex: sel, where: l }; v.n++; if (+r < v.r) { v.r = +r; v.ex = sel; v.where = l; } m.set(key, v); });
     console.log('== ' + t + ': ' + m.size + ' verschiedene Stellen'); [...m.entries()].sort((a, b) => a[1].r - b[1].r).slice(0, 40).forEach(([k, v]) => console.log('  ' + v.r.toFixed(2) + ' ' + v.ex + ' (' + v.where + ')')); }
+  if (errs.length) { console.log('XX JS-Fehler: ' + errs.slice(0, 3).join(' | ')); process.exitCode = 1; }
   await b.close();
 })();
