@@ -46,11 +46,11 @@ const fs = require('fs');
   await p.evaluate(() => allVocabWords().slice(0, 20).forEach(w => updateScore(w, true)));
   await q.waitForTimeout(200);
   await q.evaluate(() => updateScore(allVocabWords()[500], true));
-  await p.waitForTimeout(200);
+  await p.waitForTimeout(1400);   // gespeichert wird gebündelt (spätestens nach 1 s)
   await check('Zwei Tabs: beide Antworten bleiben erhalten', () => q.evaluate(() => { const n = Object.keys(JSON.parse(localStorage.getItem(scoresKeyFor(scoresDir)))).length; return { ok: n === 21, info: n + ' Einträge' }; }));
   await check('Zwei Tabs: Zähler im ersten Tab aktualisiert', () => ev(() => ({ ok: Object.keys(scores).length === 21, info: Object.keys(scores).length })));
-  await q.evaluate(() => progressMark('gender', 'дом', true)); await p.waitForTimeout(200);
-  await p.evaluate(() => progressMark('gender', 'мама', true)); await q.waitForTimeout(200);
+  await q.evaluate(() => progressMark('gender', 'дом', true)); await p.waitForTimeout(1400);
+  await p.evaluate(() => progressMark('gender', 'мама', true)); await q.waitForTimeout(1400);
   await check('Zwei Tabs: Grammatik und Gesamtstand zusammen', () => q.evaluate(() => { const g = JSON.parse(localStorage.getItem('vokabeltrainer-grammar-srs')).gender, L = JSON.parse(localStorage.getItem('vokabeltrainer-lifetime')); return { ok: !!g['дом'] && !!g['мама'] && Object.keys(L.v).length === 21 && !!L.g.gender['дом'] && !!L.g.gender['мама'], info: Object.keys(g).join(',') + ' / ' + Object.keys(L.v).length }; }));
   await check('keine JS-Fehler', () => ({ ok: errs.length === 0, info: errs.slice(0, 3).join(' | ') }));
   R.forEach(r => console.log(r[0], r[1], r[2] ? '· ' + r[2] : ''));

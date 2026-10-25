@@ -53,7 +53,7 @@ const { chromium } = require('playwright');
   await check('Grammatik-Kopfzeile zählt einmal richtig als gelernt', () => ev(() => { resetProgress(); progressMark('gender', 'дом', true); updateGrammarTileProgress(); return { ok: /^1 von/.test(document.getElementById('gtp-gender').textContent), info: document.getElementById('gtp-gender').textContent + ' | ' + document.getElementById('gtp-gender').title }; }));
   await check('Grammatik-Runde (Geschlecht) läuft, auch wenn alles erledigt wäre', () => ev(() => { openGender(); return genderState.queue.length > 0 && genderState.queue.every(Boolean); }));
   await check('Stufen: einmal richtig zählt als gelernt', () => ev(() => { resetProgress(); const w = allVocabWords().find(x => wordLevel(x) === 'A1'); updateScore(w, true); return { ok: levelStats().A1.learned === 1, info: 'A1 gelernt=' + levelStats().A1.learned }; }));
-  await check('Kein gespeichertes „due“ mehr', () => ev(() => !/"due"/.test(localStorage.getItem('vokabeltrainer-scores')) && !/"due"/.test(localStorage.getItem('vokabeltrainer-grammar-srs') || '')));
+  await check('Kein gespeichertes „due“ mehr', () => ev(() => flushSaves() || !/"due"/.test(localStorage.getItem('vokabeltrainer-scores')) && !/"due"/.test(localStorage.getItem('vokabeltrainer-grammar-srs') || '')));
   await check('keine JS-Fehler', () => ({ ok: errs.length === 0, info: errs.slice(0, 3).join(' | ') }));
   R.forEach(r => console.log(r[0], r[1], r[2] ? '· ' + r[2] : ''));
   console.log('\n' + R.filter(r => r[0] === 'OK ').length + ' von ' + R.length + ' bestanden');

@@ -6733,14 +6733,50 @@ function resetLifetime() {
   lifetime = { v: {}, g: {}, ver: 3, run: 1 };
   saveLifetime();
   noteReset('life');
+  flushSaves();
   ghAfterReset();
   if (typeof updateGrammarTileProgress === 'function') updateGrammarTileProgress();
   if (document.getElementById('overlay-vocab').classList.contains('open')) renderVocabTable();
   const lv = document.getElementById('overlay-levels');
   if (lv && lv.classList.contains('open')) openLevelOverview();
 }
+// ── Gebündelt speichern ─────────────────────────────────────────
+// Der Lernstand (Übungsstand, Gesamtstand, Grammatik, Tagesprotokoll) ist zusammen über 1 MB
+// groß. Statt ihn nach jeder Antwort ganz neu zu schreiben, wird gesammelt: spätestens
+// SAVE_DELAY ms nach der letzten Änderung, sofort beim Wegwechseln/Schließen und vor allem,
+// was den gespeicherten Stand liest (Sicherung, GitHub, Zusammenführen, Richtungswechsel).
+const SAVE_DELAY = 1000;
+const pendingSaves = new Map();
+let saveTimer = null, savesFrozen = false;
+function deferSave(key, write) {
+  if (savesFrozen) return;
+  pendingSaves.set(key, write);
+  clearTimeout(saveTimer); saveTimer = setTimeout(flushSaves, SAVE_DELAY);
+}
+function flushSaves() {
+  clearTimeout(saveTimer); saveTimer = null;
+  if (savesFrozen) { pendingSaves.clear(); return; }
+  const list = [...pendingSaves.values()]; pendingSaves.clear();
+  list.forEach(w => { try { w(); } catch (e) { console.warn('Sprachtool: Speichern fehlgeschlagen.', e); } });
+}
+// vor einem Neuladen nach dem Zusammenführen: nichts Altes aus dem Arbeitsspeicher zurückschreiben
+function freezeSaves() { savesFrozen = true; pendingSaves.clear(); clearTimeout(saveTimer); }
+window.addEventListener('pagehide', flushSaves);
+window.addEventListener('beforeunload', flushSaves);
+document.addEventListener('visibilitychange', () => { if (document.hidden) flushSaves(); });
+// nach dem Zusammenführen den Arbeitsspeicher aus dem gespeicherten Stand neu laden, damit
+// eine Antwort währenddessen den zusammengeführten Stand nicht überschreibt
+function reloadStateFromStorage() {
+  try {
+    Object.keys(scores).forEach(k => delete scores[k]); Object.assign(scores, loadScores());
+    lifetime = null; loadLifetime();
+    grammarSrs = null; loadGrammarSrs();
+    bookmarkedWords = loadBookmarks();
+    daylogMem = null;
+  } catch (e) {}
+}
 function saveLifetime() {
-  try { localStorage.setItem(LIFETIME_KEY, JSON.stringify(lifetime)); } catch (e) {}
+  deferSave(LIFETIME_KEY, () => { if (lifetime) localStorage.setItem(LIFETIME_KEY, JSON.stringify(lifetime)); });
 }
 function lifeNote(map, id, ok, box) {
   dayNote(ok);
@@ -6773,12 +6809,17 @@ function cleanDaylog(x) {
   });
   return out;
 }
-function loadDaylog() { try { return cleanDaylog(JSON.parse(localStorage.getItem(DAYLOG_KEY) || '{}')); } catch (e) { return {}; } }
+let daylogMem = null;   // nur gesetzt, solange eine Änderung noch nicht geschrieben ist
+function loadDaylog() {
+  if (daylogMem && pendingSaves.has(DAYLOG_KEY)) return cleanDaylog(daylogMem);
+  try { return cleanDaylog(JSON.parse(localStorage.getItem(DAYLOG_KEY) || '{}')); } catch (e) { return {}; }
+}
 function dayNote(ok) {
   const log = loadDaylog(), k = dayKey(), e = log[k] || [0, 0];
   e[0]++; if (ok) e[1]++; log[k] = e;
   const keys = Object.keys(log).sort(); keys.slice(0, Math.max(0, keys.length - 400)).forEach(x => delete log[x]);
-  try { localStorage.setItem(DAYLOG_KEY, JSON.stringify(log)); } catch (e2) {}
+  daylogMem = log;
+  deferSave(DAYLOG_KEY, () => { localStorage.setItem(DAYLOG_KEY, JSON.stringify(daylogMem || log)); daylogMem = null; });
 }
 function mergeDaylog(aRaw, bRaw) {
   let a = {}, b = {}; try { a = cleanDaylog(JSON.parse(aRaw || '{}')); } catch (e) {} try { b = cleanDaylog(JSON.parse(bRaw || '{}')); } catch (e) {}
@@ -6865,6 +6906,15 @@ function renderHome() {
 window.addEventListener('storage', e => {
   if (!e.key || e.storageArea !== localStorage) return;
   try {
+    // Hat dieser Tab noch ungeschriebene Antworten für denselben Schlüssel, werden beide Stände
+    // zusammengeführt (je Eintrag das Höhere) – so geht in keinem der beiden Tabs etwas verloren.
+    if (pendingSaves.has(e.key) && e.newValue != null && [scoresKeyFor(scoresDir), GRAMMAR_SRS_KEY, LIFETIME_KEY, DAYLOG_KEY].includes(e.key)) {
+      const ours = JSON.stringify(e.key === LIFETIME_KEY ? lifetime : e.key === GRAMMAR_SRS_KEY ? grammarSrs : e.key === DAYLOG_KEY ? daylogMem : scores);
+      pendingSaves.delete(e.key);
+      const merged = e.key === DAYLOG_KEY ? mergeDaylog(e.newValue, ours) : mergeBackupValue(e.key, e.newValue, ours);
+      if (merged != null) localStorage.setItem(e.key, merged);
+    }
+    if (e.key === DAYLOG_KEY) { daylogMem = null; return; }
     if (e.key === scoresKeyFor(scoresDir)) {
       Object.keys(scores).forEach(k => delete scores[k]);
       Object.assign(scores, loadScores());
@@ -6947,8 +6997,8 @@ function loadScores(key) {
   }
 }
 function saveScores() {
-  try { localStorage.setItem(scoresKeyFor(scoresDir), JSON.stringify(scores)); }
-  catch (e) { console.warn('Sprachtool: Fortschritt konnte nicht gespeichert werden.', e); }
+  const key = scoresKeyFor(scoresDir);   // Richtungswechsel speichert vorher sofort (switchScoresDir)
+  deferSave(key, () => localStorage.setItem(key, JSON.stringify(scores)));
 }
 // Ein Klick setzt den Übungsstand von Vokabeln und Grammatik zurück (alles wieder offen).
 // Der Gesamtstand bleibt.
@@ -6977,6 +7027,7 @@ function doResetProgress(scope) {
   }
   if (scope === 'vocab' || scope === 'all') noteReset('v');
   if (scope === 'grammar' || scope === 'all') noteReset('g');
+  flushSaves();   // Zurücksetzen sofort festschreiben
   afterProgressChange();
   ghAfterReset();
 }
@@ -7028,7 +7079,7 @@ const scores = loadScores();
 // Richtung wechseln: den Übungsstand der anderen Richtung einsetzen
 function switchScoresDir(dir) {
   if (dir === scoresDir) return;
-  saveScores();
+  saveScores(); flushSaves();
   Object.keys(scores).forEach(k => delete scores[k]);
   scoresDir = dir;
   Object.assign(scores, loadScores());
@@ -7457,6 +7508,7 @@ const BACKUP_KEYS = ['vokabeltrainer-grammar-info-open','vokabeltrainer-grammar-
   'vokabeltrainer-skip-cognates','vokabeltrainer-theme','vokabeltrainer-session-goal',
   'vokabeltrainer-cyr-keyboard','vokabeltrainer-max-level','vokabeltrainer-lifetime','vokabeltrainer-level-order','vokabeltrainer-my-level','vokabeltrainer-speak-rate','vokabeltrainer-view','vokabeltrainer-grammar-panel','vokabeltrainer-listening-panel','vokabeltrainer-sidebar-width','vokabeltrainer-life-demote','vokabeltrainer-reset-marks','vokabeltrainer-settings-ui','vokabeltrainer-ru-font','vokabeltrainer-daylog'];
 function exportBackup() {
+  flushSaves();
   const data = { app: APP_ID, version: 1, saved: new Date().toISOString(), data: {} };
   BACKUP_KEYS.forEach(k => { try { const v = localStorage.getItem(k); if (v !== null) data.data[k] = v; } catch (e) {} });
   const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
@@ -7572,6 +7624,7 @@ function filterByResetMarks(key, raw, M) {
 // Sicherung bzw. GitHub-Stand (data = { Schlüssel: Text }) in den Gerätestand einarbeiten;
 // true = es hat sich etwas geändert
 function mergeAllFromBackup(data) {
+  flushSaves();
   const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
   const a = parseResetMarks(get(RESET_MARKS_KEY)), b = parseResetMarks(typeof data[RESET_MARKS_KEY] === 'string' ? data[RESET_MARKS_KEY] : null);
@@ -7586,6 +7639,7 @@ function mergeAllFromBackup(data) {
     if (res === null) res = fl;
     if (res !== null && ghCanonRaw(res) !== ghCanonRaw(local)) { set(k, res); changed = true; }
   });
+  if (changed) reloadStateFromStorage();
   return changed;
 }
 function importBackup(input) {
@@ -7622,7 +7676,7 @@ function importBackup(input) {
       + 'es geht nichts verloren. Deine Einstellungen bleiben, fehlende werden aus der Sicherung ergänzt.' + resetHinweis)) return;
     saveScores();   // laufenden Stand sicher ablegen, bevor zusammengeführt wird
     mergeAllFromBackup(d.data);
-    ghSkipWarn = true;
+    ghSkipWarn = true; freezeSaves();
     location.reload();
   };
   reader.readAsText(file);
@@ -7674,11 +7728,16 @@ function ghFnv(parts) {
   return (h >>> 0).toString(16);
 }
 // inhaltlicher Vergleich (Schlüsselreihenfolge egal) – teuer, nur beim Laden von GitHub
+// Vergleich für „nichts zu tun“: Lernstand, Tagesprotokoll, Zurücksetz-Zeitpunkte, Stufenplan und
+// Abschluss – reine Ansichts-Einstellungen eines Geräts lösen kein Hochladen aus
+const GH_SYNC_KEYS = ['vokabeltrainer-scores', 'vokabeltrainer-scores-de-ru', 'vokabeltrainer-grammar-srs', 'vokabeltrainer-lifetime', 'vokabeltrainer-bookmarks', 'vokabeltrainer-daylog', 'vokabeltrainer-reset-marks', 'vokabeltrainer-level-plan', 'vokabeltrainer-level-exam'];
+function ghSyncHash(data) { return ghFnv(GH_SYNC_KEYS.map(k => k + '=' + ghCanonRaw(typeof data[k] === 'string' ? data[k] : null) + ';')); }
 function ghCanonHash(get) { return ghFnv(GH_STATE_KEYS.map(k => k + '=' + ghCanonRaw(get(k)) + ';')); }
 // Fingerabdruck des gespeicherten Lernstands für „nicht gespeichert“ – läuft alle paar Sekunden,
 // daher über den Rohtext und nur neu gerechnet, wenn sich der Text geändert hat
 let ghHashCache = null;
 function ghLocalHash() {
+  flushSaves();
   const raw = GH_STATE_KEYS.map(k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } });
   if (ghHashCache && raw.every((v, i) => v === ghHashCache.raw[i])) return ghHashCache.h;
   ghHashCache = { raw, h: ghFnv(raw.map((v, i) => GH_STATE_KEYS[i] + '=' + v + ';')) };
@@ -7700,6 +7759,7 @@ function ghValidPayload(d) {
     && Object.keys(d.data).every(k => typeof d.data[k] === 'string');
 }
 function ghBuildPayload() {
+  flushSaves();
   const data = { app: APP_ID, version: 1, saved: new Date().toISOString(), device: ghSettings().device || '', data: {} };
   BACKUP_KEYS.forEach(k => { try { const v = localStorage.getItem(k); if (v !== null) data.data[k] = v; } catch (e) {} });
   return data;
@@ -7767,7 +7827,7 @@ function ghUpdateIndicator() {
     const el = document.getElementById('gh-status'); if (el && !el.classList.contains('gh-err')) ghIdleStatus();
   }
 }
-function ghReload(note) { try { sessionStorage.setItem('vokabeltrainer-gh-note', note); sessionStorage.setItem('vokabeltrainer-gh-reloaded', '1'); } catch (e) {} ghSkipWarn = true; location.reload(); }
+function ghReload(note) { try { sessionStorage.setItem('vokabeltrainer-gh-note', note); sessionStorage.setItem('vokabeltrainer-gh-reloaded', '1'); } catch (e) {} ghSkipWarn = true; freezeSaves(); location.reload(); }
 async function ghSync() {
   if (ghBusy) return;
   if (!ghConnected()) { ghStatus('Nicht verbunden – Repo und Token eintragen, dann „Verbinden“', 'err'); return; }
@@ -7784,6 +7844,13 @@ async function ghSync() {
       const remoteGefiltert = {}; if (remote.data) [SCORES_STORAGE_KEY, SCORES_DE_RU_KEY].forEach(k => { remoteGefiltert[k] = filterByResetMarks(k, remote.data.data[k] || null, M); });
       const nRemote = remote.data ? ghWordCount(remoteGefiltert) : 0, nHier = ghWordCount(payload.data);
       if (nHier < nRemote) throw new Error('Abgebrochen: Hier wären weniger Wörter mit Lernstand (' + nHier + ') als auf GitHub (' + nRemote + ')');
+      // Lernstand auf GitHub schon gleich? Dann nichts hochladen (kein neuer Eintrag im Verlauf)
+      if (remote.data && ghSyncHash(payload.data) === ghSyncHash(remote.data.data)) {
+        const s2 = ghSettings(); s2.lastSync = new Date().toISOString(); s2.hash = ghLocalHash(); ghSaveSettings(s2);
+        if (reload) { ghReload('Stand von einem anderen Gerät übernommen ' + ghTime(s2.lastSync)); return; }
+        ghBusy = false; ghStatus('Bereits aktuell · zuletzt abgeglichen ' + ghTime(s2.lastSync), 'ok');
+        return;
+      }
       const body = { message: 'Lernstand ' + (s.device || 'Gerät') + ' ' + new Date().toLocaleString('de-DE'), content: ghB64Encode(JSON.stringify(payload)) };
       if (remote.sha) body.sha = remote.sha;
       const r = await ghRequest('PUT', ghFilePath(repo), body);
@@ -16224,7 +16291,7 @@ function loadGrammarSrs() {
   return grammarSrs;
 }
 function saveGrammarSrs() {
-  try { localStorage.setItem(GRAMMAR_SRS_KEY, JSON.stringify(grammarSrs)); } catch (e) {}
+  deferSave(GRAMMAR_SRS_KEY, () => { if (grammarSrs) localStorage.setItem(GRAMMAR_SRS_KEY, JSON.stringify(grammarSrs)); });
   if (typeof updateGrammarTileProgress === 'function') updateGrammarTileProgress();
 }
 // markiert ein Item nach dem Prüfen (correct true/false) und plant es neu ein
@@ -22360,6 +22427,8 @@ try {
   // Beim Öffnen erscheint die Startseite „Heute“; „Weiterlernen“ führt zur zuletzt benutzten Ansicht
   setAppView('home');
 } catch (e) {}
+// Was beim Start umgestellt wurde (Übernahme alter Stände), gleich schreiben
+flushSaves();
 </script>
 </body>
 </html>
