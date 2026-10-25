@@ -14,7 +14,7 @@ const { chromium } = require('playwright');
     'gh-sync-btn', 'gh-repo', 'gh-token', 'gh-device', 'gh-load-open', 'gh-warn-close', 'backup-file', 'lifetime-reset-btn', 'progress-reset-btn', 'theme-seg', 'translit-seg'];
   await check('jede Einstellung genau einmal und in genau einem Bereich', () => ev(IDS => {
     const fehlt = IDS.filter(id => document.querySelectorAll('#' + id).length !== 1 || !document.getElementById(id).closest('.set-sec'));
-    return { ok: !fehlt.length && document.querySelectorAll('#overlay-settings .set-sec').length === 6, info: fehlt.join(', ') };
+    return { ok: !fehlt.length && document.querySelectorAll('#overlay-settings .set-sec').length === 7, info: fehlt.join(', ') };
   }, IDS));
   await check('PC: Leiste links, nur ein Bereich sichtbar, Wechsel per Klick', async () => {
     await ev(() => openSettings());
@@ -57,14 +57,19 @@ const { chromium } = require('playwright');
     localStorage.removeItem('vokabeltrainer-gh-token'); localStorage.removeItem('vokabeltrainer-gh-settings'); closeOverlay('overlay-settings');
     return { ok: ohne && zu && auf, info: [ohne, zu, auf].join(' ') };
   }));
-  await check('„Tastenkürzel“ in der Fußzeile öffnet die Übersicht', async () => { await ev(() => openSettings()); await p.click('.set-foot .lvl-link'); return ev(() => document.getElementById('overlay-shortcuts').classList.contains('open') && !document.getElementById('overlay-settings').classList.contains('open')); });
+  await check('Tastenkürzel als eigener Bereich, Taste ? öffnet ihn', async () => {
+    await ev(() => { closeOverlay('overlay-settings'); showSettingsTab('ueben'); document.getElementById('answer-input').blur(); });
+    await p.keyboard.press('?'); await p.waitForTimeout(100);
+    return ev(() => { const sec = document.getElementById('set-sec-kuerzel'); const ok = document.getElementById('overlay-settings').classList.contains('open') && !!sec.offsetParent && sec.querySelectorAll('.kbd').length >= 14 && document.querySelector('.set-nav-btn.active').dataset.sec === 'kuerzel' && !document.getElementById('overlay-shortcuts');
+      closeOverlay('overlay-settings'); return { ok, info: sec.querySelectorAll('.kbd').length + ' Tasten' }; });
+  });
   await p.close();
   // ── Handy ──
   const m = await b.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }); m.on('pageerror', e => errs.push(e.message));
   await m.goto('file://' + APP_PATH); await m.waitForTimeout(300);
   await check('Handy: keine Leiste, sechs zugeklappte Gruppen mit Kurzfassung', () => m.evaluate(() => {
     openSettings(); const secs = [...document.querySelectorAll('.set-sec')];
-    const ok = getComputedStyle(document.querySelector('.set-nav')).display === 'none' && secs.length === 6 && secs.every(s => !s.querySelector('.set-sec-body').offsetParent)
+    const ok = getComputedStyle(document.querySelector('.set-nav')).display === 'none' && secs.length === 7 && secs.every(s => !s.querySelector('.set-sec-body').offsetParent)
       && secs.every(s => document.getElementById('set-sum-' + s.dataset.sec).textContent.trim().length > 2) && secs.every(s => s.querySelector('.set-acc').getBoundingClientRect().height >= 44);
     return { ok, info: secs.map(s => document.getElementById('set-sum-' + s.dataset.sec).textContent).join(' | ').slice(0, 160) };
   }));
