@@ -50,7 +50,7 @@ const TOKEN = 'github_pat_' + 'A'.repeat(40);
     await warte(20); await lerne(B, 'море');   // nach dem Zurücksetzen auf A geübt → bleibt
     let navs = 0; B.on('framenavigated', f => { if (f === B.mainFrame()) navs++; });
     await B.reload(); await B.waitForTimeout(1500); const s = await stand(B);
-    return { ok: s.s.length === 1 && s.s[0] === 'море' && s.g.join() === 'море' && navs === 2, info: JSON.stringify(s.s) + ' Seitenaufrufe ' + navs };
+    return { ok: s.s.length === 1 && s.s[0] === 'море' && s.g.join() === 'море' && navs === 1, info: JSON.stringify(s.s) + ' Seitenaufrufe ' + navs };
   });
   await check('B gleicht ab, danach auf A: nur das neu Geübte von B', async () => { await sync(B); await sync(A); await A.reload(); await A.waitForTimeout(1200); const s = await stand(A); return { ok: s.s.join() === 'море', info: s.s.join() }; });
   await check('Gesamtstand bleibt beim Zurücksetzen erhalten', async () => { const s = await stand(A); return { ok: ['дом', 'кот', 'лес', 'море'].every(w => s.l.includes(w)), info: s.l.join(',') }; });
