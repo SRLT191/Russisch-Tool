@@ -194,6 +194,53 @@
   .set-text strong { font-size: 14px; font-weight: 500; }
   .set-text span { font-size: 12px; color: var(--c-text-muted); }
   .gh-row { border-bottom: 0; padding-bottom: 6px; }
+  /* Einstellungen: PC = Bereiche links, Handy = aufklappbare Gruppen */
+  .set-nav { display: none; }
+  .set-h { display: none; }
+  .set-acc { display: none; }
+  .set-seg { display: inline-flex; flex-shrink: 0; border: 0.5px solid var(--c-border-input); border-radius: 8px; overflow: hidden; }
+  .set-seg button { font: inherit; font-size: 12px; padding: 5px 9px; border: 0; border-left: 0.5px solid var(--c-border-input); background: var(--c-surface); color: var(--c-text-secondary); cursor: pointer; }
+  .set-seg button:first-child { border-left: 0; }
+  .set-seg button.on { background: var(--c-accent-soft-bg); color: var(--c-accent); font-weight: 500; }
+  .gh-card { border: 0.5px solid var(--c-border-light); border-radius: 10px; padding: 0 12px 10px; margin: 8px 0; }
+  .gh-card .set-row, .gh-card .gh-fields { border-bottom: 0; }
+  #overlay-settings [hidden] { display: none !important; }
+  .gh-card .gh-fields { padding: 4px 0 8px 30px; }
+  .gh-opts { display: flex; align-items: center; gap: 6px 12px; flex-wrap: wrap; padding-left: 30px; }
+  .set-sec-danger .set-row strong { color: var(--c-error-text); }
+  .set-sec-danger .tool-btn { color: var(--c-error-text); border-color: var(--c-error-border-light); }
+  .set-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12px; color: var(--c-text-muted); padding: 12px 2px 0; margin-top: 10px; border-top: 0.5px solid var(--c-border-light); }
+  @media (min-width: 701px) {
+    #overlay-settings .overlay-box { width: 780px; height: min(660px, 85vh); max-height: 85vh; }
+    .set-body { display: flex; padding: 0; overflow: hidden; min-height: 0; }
+    .set-nav { display: flex; flex-direction: column; gap: 2px; width: 180px; flex-shrink: 0; padding: 10px 8px; border-right: 0.5px solid var(--c-border-light); overflow-y: auto; }
+    .set-nav-btn { font: inherit; font-size: 13px; text-align: left; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 0; border-radius: 8px; background: none; color: var(--c-text-secondary); cursor: pointer; }
+    .set-nav-btn:hover { background: var(--c-surface-alt); }
+    .set-nav-btn.active { background: var(--c-accent-soft-bg); color: var(--c-accent); font-weight: 500; }
+    .set-nav-btn i { font-size: 16px; }
+    .set-sections { flex: 1; min-width: 0; overflow-y: auto; padding: 0.5rem 1.25rem 1rem; }
+    .set-sec { display: none; }
+    .set-sec.active { display: block; }
+    .set-h { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--c-accent); margin: 8px 2px 2px; }
+    .set-sec-danger .set-h { color: var(--c-error-text); }
+  }
+  @media (max-width: 700px) {
+    .set-sec { border: 0.5px solid var(--c-border-light); border-radius: 10px; margin: 8px 0; overflow: hidden; }
+    .set-acc { display: flex; align-items: center; gap: 10px; width: 100%; font: inherit; text-align: left; padding: 11px 12px; border: 0; background: var(--c-surface-alt); color: var(--c-text-primary); cursor: pointer; min-height: 44px; }
+    .set-acc > i:first-child { font-size: 18px; color: var(--c-accent); }
+    .set-acc b { font-size: 14px; font-weight: 500; white-space: nowrap; }
+    .set-sec-danger .set-acc b { color: var(--c-error-text); }
+    .set-sum { font-size: 12px; color: var(--c-text-muted); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .set-chev { transition: transform .15s; }
+    .set-sec.open .set-chev { transform: rotate(180deg); }
+    .set-sec.open .set-sum { visibility: hidden; }
+    .set-sec-body { display: none; padding: 0 12px; }
+    .set-sec.open .set-sec-body { display: block; }
+    .gh-card .gh-fields, .gh-opts { padding-left: 0; }
+    .gh-card .gh-row { flex-wrap: wrap; }
+    .gh-row-btns { width: 100%; }
+    .set-row .set-seg { flex-wrap: wrap; }
+  }
   .gh-fields { display: flex; flex-direction: column; gap: 8px; padding: 0 2px 12px 32px; border-bottom: 0.5px solid var(--c-border-light); }
   .gh-field { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--c-text-muted); }
   .gh-field span { width: 44px; flex-shrink: 0; }
@@ -830,7 +877,6 @@
     #sidebar-tools .tile-tool { padding: 9px 6px; }
   }
   @media (max-width: 420px) {
-    #theme-toggle-label { display: none; }
     .tool-btn { padding: 5px 9px; font-size: 11.5px; }
     #russian-word { font-size: 30px; }
     #word-card { padding: 1rem 0.8rem 1.2rem; min-height: 130px; }
@@ -2248,145 +2294,202 @@
       <span class="overlay-title"><i class="ti ti-settings"></i> Einstellungen</span>
       <button class="overlay-close" onclick="closeOverlay('overlay-settings')">×</button>
     </div>
-    <div class="overlay-body">
-      <div class="set-row" id="autoplay-settings-item">
-        <i class="ti ti-volume" aria-hidden="true"></i>
-        <div class="set-text"><strong>Auto-Vorlesen</strong><span>Russisches Wort automatisch anhören – bei DE → RU nach der Antwort</span></div>
-        <label class="toggle-switch" id="autoplay-toggle-wrap">
-          <input type="checkbox" id="autoplay-toggle" checked onchange="toggleAutoplay()">
-          <span class="toggle-track"></span>
-        </label>
-      </div>
-      <div class="set-row" title="Internationalismen wie информация und englische Lehnwörter wie смартфон werden nicht abgefragt.">
-        <i class="ti ti-language" aria-hidden="true"></i>
-        <div class="set-text"><strong>Lehnwörter überspringen</strong><span>Durchsichtige Wörter nicht abfragen</span></div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="cognate-toggle" onchange="toggleCognates()">
-          <span class="toggle-track"></span>
-        </label>
-      </div>
-      <div class="set-row">
-        <i class="ti ti-chart-line" aria-hidden="true"></i>
-        <div class="set-text"><strong>Wörter bis Stufe</strong><span>Nur Wörter bis zu diesem Sprachniveau abfragen – gilt auch für Hörtrainer, Hörquiz und Satzdiktat (Satzstufe = schwerstes Wort)</span></div>
-        <select class="settings-select" id="maxlevel-select" aria-label="Wörter bis Stufe" onchange="setMaxLevel(this.value)">
-          <option value="">alle Stufen</option>
-          <option value="A1">bis A1</option>
-          <option value="A2">bis A2</option>
-          <option value="B1">bis B1</option>
-          <option value="B2">bis B2</option>
-        </select>
-      </div>
-      <div class="set-row" title="Von den noch nicht gelernten Wörtern kommen zuerst die der niedrigsten Stufe.">
-        <i class="ti ti-sort-ascending-2" aria-hidden="true"></i>
-        <div class="set-text"><strong>Neue Wörter nach Stufe</strong><span>Erst A1, dann A2 …</span></div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="levelorder-toggle" onchange="toggleLevelOrder()">
-          <span class="toggle-track"></span>
-        </label>
-      </div>
-      <div class="set-row">
-        <i class="ti ti-target" aria-hidden="true"></i>
-        <div class="set-text"><strong>Mein Niveau</strong><span>Grammatik darüber wird als Ausblick markiert · <button class="lvl-link" type="button" onclick="closeOverlay('overlay-settings'); openPlacement()">Einstufungstest</button></span></div>
-        <select class="settings-select" id="mylevel-select" aria-label="Mein Niveau" onchange="setMyLevel(this.value)">
-          <option value="">keine Angabe</option>
-          <option value="A1">A1</option>
-          <option value="A2">A2</option>
-          <option value="B1">B1</option>
-          <option value="B2">B2</option>
-          <option value="C1">C1</option>
-        </select>
-      </div>
-      <div class="set-row">
-        <i class="ti ti-chart-bar" aria-hidden="true"></i>
-        <div class="set-text"><strong>Fortschritt nach Stufen</strong><span>Wörter und Grammatik je Sprachniveau</span></div>
-        <button class="tool-btn" onclick="closeOverlay('overlay-settings'); openLevelOverview()"><i class="ti ti-arrow-right"></i> Öffnen</button>
-      </div>
-      <div class="set-row">
-        <i class="ti ti-keyboard" aria-hidden="true"></i>
-        <div class="set-text"><strong>Kyrillische Tastatur</strong><span>Bildschirmtastatur bei Deutsch → Russisch</span></div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="cyrkbd-toggle" onchange="toggleCyrKeyboard()">
-          <span class="toggle-track"></span>
-        </label>
-      </div>
-      <div class="set-row">
-        <i class="ti ti-stack-2" aria-hidden="true"></i>
-        <div class="set-text"><strong>Blockgröße</strong><span>Wie viele Wörter eine Gruppe umfasst</span></div>
-        <select class="settings-select" id="blocksize-select" aria-label="Gruppengröße" onchange="setBlockSize(this.value)">
-          <option value="5">5er-Blöcke</option>
-          <option value="10" selected>10er-Blöcke</option>
-          <option value="20">20er-Blöcke</option>
-          <option value="0">ein Block</option>
-        </select>
-      </div>
-      <div class="set-row">
-        <i class="ti ti-target" aria-hidden="true"></i>
-        <div class="set-text"><strong>Sitzungsziel</strong><span>Fortschrittsbalken für diese Runde</span></div>
-        <select class="settings-select" id="sessiongoal-select" aria-label="Sitzungsziel" onchange="setSessionGoal(this.value)">
-          <option value="0">aus</option>
-          <option value="10">10 Wörter</option>
-          <option value="20">20 Wörter</option>
-          <option value="30">30 Wörter</option>
-          <option value="50">50 Wörter</option>
-        </select>
-      </div>
-      <div class="set-row" id="speakrate-row">
-        <i class="ti ti-volume" aria-hidden="true"></i>
-        <div class="set-text"><strong>Vorlese-Tempo</strong><span>Geschwindigkeit der russischen Aussprache</span></div>
-        <select class="settings-select" id="speakrate-select" aria-label="Vorlese-Tempo" onchange="setSpeakRate(this.value)">
-          <option value="0.6">sehr langsam</option>
-          <option value="0.75">langsam</option>
-          <option value="0.9">normal</option>
-          <option value="1.05">schnell</option>
-        </select>
-      </div>
-      <div class="set-row">
-        <i class="ti ti-keyboard" aria-hidden="true"></i>
-        <div class="set-text"><strong>Tastenkürzel</strong><span>Übersicht aller Tasten (oder Taste ?)</span></div>
-        <button class="tool-btn" onclick="closeOverlay('overlay-settings'); openShortcuts()"><i class="ti ti-arrow-right"></i> Öffnen</button>
-      </div>
-      <div class="set-row">
-        <i class="ti ti-moon" aria-hidden="true"></i>
-        <div class="set-text"><strong>Darstellung</strong><span>Helles oder dunkles Design</span></div>
-        <button class="tool-btn" id="theme-toggle-btn" onclick="toggleTheme()"><i class="ti ti-moon" id="theme-toggle-icon"></i> <span id="theme-toggle-label">Dark Mode</span></button>
-      </div>
-      <div class="set-row">
-        <i class="ti ti-device-floppy" aria-hidden="true"></i>
-        <div class="set-text"><strong>Sicherung</strong><span id="backup-info">Lernstand, Merkliste und Einstellungen als Datei</span></div>
-        <div style="display:flex; gap:6px; flex-wrap:wrap">
-          <button class="tool-btn" onclick="exportBackup()"><i class="ti ti-download"></i> Sichern</button>
-          <button class="tool-btn" onclick="document.getElementById('backup-file').click()"><i class="ti ti-upload"></i> Einlesen</button>
-          <input type="file" id="backup-file" aria-label="Sicherungsdatei wählen" accept="application/json,.json" style="display:none" onchange="importBackup(this)">
+    <div class="overlay-body set-body">
+      <nav class="set-nav" aria-label="Bereiche der Einstellungen">
+        <button type="button" class="set-nav-btn" data-sec="ueben" onclick="showSettingsTab('ueben')"><i class="ti ti-cards" aria-hidden="true"></i>Üben</button>
+        <button type="button" class="set-nav-btn" data-sec="niveau" onclick="showSettingsTab('niveau')"><i class="ti ti-school" aria-hidden="true"></i>Mein Niveau</button>
+        <button type="button" class="set-nav-btn" data-sec="aussprache" onclick="showSettingsTab('aussprache')"><i class="ti ti-volume" aria-hidden="true"></i>Aussprache</button>
+        <button type="button" class="set-nav-btn" data-sec="darstellung" onclick="showSettingsTab('darstellung')"><i class="ti ti-palette" aria-hidden="true"></i>Darstellung</button>
+        <button type="button" class="set-nav-btn" data-sec="speichern" onclick="showSettingsTab('speichern')"><i class="ti ti-device-floppy" aria-hidden="true"></i>Speichern</button>
+        <button type="button" class="set-nav-btn" data-sec="zuruecksetzen" onclick="showSettingsTab('zuruecksetzen')"><i class="ti ti-trash" aria-hidden="true"></i>Zurücksetzen</button>
+      </nav>
+      <div class="set-sections">
+        <section class="set-sec" data-sec="ueben" aria-label="Üben">
+          <button type="button" class="set-acc" onclick="toggleSettingsSection('ueben')" aria-expanded="false"><i class="ti ti-cards" aria-hidden="true"></i><b>Üben</b><span class="set-sum" id="set-sum-ueben"></span><i class="ti ti-chevron-down set-chev" aria-hidden="true"></i></button>
+          <h3 class="set-h"><i class="ti ti-cards" aria-hidden="true"></i>Üben</h3>
+          <div class="set-sec-body">
+        <div class="set-row">
+          <i class="ti ti-chart-line" aria-hidden="true"></i>
+          <div class="set-text"><strong>Wörter bis Stufe</strong><span>Nur Wörter bis zu diesem Sprachniveau abfragen – gilt auch für Hörtrainer, Hörquiz und Satzdiktat (Satzstufe = schwerstes Wort)</span></div>
+          <select class="settings-select" id="maxlevel-select" aria-label="Wörter bis Stufe" onchange="setMaxLevel(this.value)">
+            <option value="">alle Stufen</option>
+            <option value="A1">bis A1</option>
+            <option value="A2">bis A2</option>
+            <option value="B1">bis B1</option>
+            <option value="B2">bis B2</option>
+          </select>
         </div>
-      </div>
-      <div class="set-row gh-row">
-        <i class="ti ti-arrows-exchange" aria-hidden="true"></i>
-        <div class="set-text"><strong>GitHub-Speicher</strong><span id="gh-status" role="status">Lernstand in einem eigenen privaten Repo speichern</span></div>
-        <button class="tool-btn" id="gh-sync-btn" type="button" onclick="ghSync()" disabled><i class="ti ti-refresh"></i> Jetzt abgleichen</button>
-      </div>
-      <div class="gh-fields">
-        <label class="gh-field"><span>Repo</span><input id="gh-repo" type="text" placeholder="besitzer/repo (privat)" autocomplete="off" spellcheck="false" autocapitalize="off"></label>
-        <label class="gh-field"><span>Token</span><input id="gh-token" type="password" placeholder="github_pat_…" autocomplete="off" spellcheck="false" autocapitalize="off"></label>
-        <label class="gh-field"><span>Gerät</span><input id="gh-device" type="text" maxlength="30" placeholder="z. B. PC oder Handy" onchange="ghSetOption('device', this.value)"></label>
-        <div class="gh-actions">
-          <button class="tool-btn" type="button" onclick="ghConnect()"><i class="ti ti-link"></i> Verbinden</button>
-          <button class="tool-btn" type="button" onclick="ghDisconnect()"><i class="ti ti-x"></i> Trennen</button>
+        <div class="set-row" title="Von den noch nicht gelernten Wörtern kommen zuerst die der niedrigsten Stufe.">
+          <i class="ti ti-sort-ascending-2" aria-hidden="true"></i>
+          <div class="set-text"><strong>Neue Wörter nach Stufe</strong><span>Erst A1, dann A2 …</span></div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="levelorder-toggle" onchange="toggleLevelOrder()">
+            <span class="toggle-track"></span>
+          </label>
         </div>
-        <label class="gh-check"><input type="checkbox" id="gh-load-open" onchange="ghSetOption('loadOnOpen', this.checked)"> Beim Öffnen von GitHub laden</label>
-        <label class="gh-check"><input type="checkbox" id="gh-warn-close" onchange="ghSetOption('warnClose', this.checked)"> Beim Schließen warnen, wenn nicht gespeichert</label>
-      </div>
-      <div class="set-row">
-        <i class="ti ti-repeat" aria-hidden="true"></i>
-        <div class="set-text"><strong>Falsch stuft zurück</strong><span>Eine falsche Antwort senkt die Wiederholungsstufe um 1 (höchstens einmal am Tag)</span></div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="lifedemote-toggle" onchange="toggleLifeDemote()">
-          <span class="toggle-track"></span>
-        </label>
-      </div>
-      <div class="set-row">
-        <i class="ti ti-trash" aria-hidden="true"></i>
-        <div class="set-text"><strong>Gesamtstand löschen</strong><span>„Schon einmal gelernt“ für Vokabeln und Grammatik leeren – der Übungsstand bleibt</span></div>
-        <button class="tool-btn" id="lifetime-reset-btn" onclick="resetLifetime()"><i class="ti ti-trash"></i> Löschen</button>
+        <div class="set-row" title="Internationalismen wie информация und englische Lehnwörter wie смартфон werden nicht abgefragt.">
+          <i class="ti ti-language" aria-hidden="true"></i>
+          <div class="set-text"><strong>Lehnwörter überspringen</strong><span>Durchsichtige Wörter nicht abfragen</span></div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="cognate-toggle" onchange="toggleCognates()">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div class="set-row">
+          <i class="ti ti-stack-2" aria-hidden="true"></i>
+          <div class="set-text"><strong>Blockgröße</strong><span>Wie viele Wörter eine Gruppe umfasst</span></div>
+          <select class="settings-select" id="blocksize-select" aria-label="Gruppengröße" onchange="setBlockSize(this.value)">
+            <option value="5">5er-Blöcke</option>
+            <option value="10" selected>10er-Blöcke</option>
+            <option value="20">20er-Blöcke</option>
+            <option value="0">ein Block</option>
+          </select>
+        </div>
+        <div class="set-row">
+          <i class="ti ti-target-arrow" aria-hidden="true"></i>
+          <div class="set-text"><strong>Sitzungsziel</strong><span>Fortschrittsbalken für diese Runde</span></div>
+          <select class="settings-select" id="sessiongoal-select" aria-label="Sitzungsziel" onchange="setSessionGoal(this.value)">
+            <option value="0">aus</option>
+            <option value="10">10 Wörter</option>
+            <option value="20">20 Wörter</option>
+            <option value="30">30 Wörter</option>
+            <option value="50">50 Wörter</option>
+          </select>
+        </div>
+        <div class="set-row">
+          <i class="ti ti-repeat" aria-hidden="true"></i>
+          <div class="set-text"><strong>Falsch stuft zurück</strong><span>Eine falsche Antwort senkt die Wiederholungsstufe um 1 (höchstens einmal am Tag)</span></div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="lifedemote-toggle" onchange="toggleLifeDemote()">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+          </div>
+        </section>
+        <section class="set-sec" data-sec="niveau" aria-label="Mein Niveau">
+          <button type="button" class="set-acc" onclick="toggleSettingsSection('niveau')" aria-expanded="false"><i class="ti ti-school" aria-hidden="true"></i><b>Mein Niveau</b><span class="set-sum" id="set-sum-niveau"></span><i class="ti ti-chevron-down set-chev" aria-hidden="true"></i></button>
+          <h3 class="set-h"><i class="ti ti-school" aria-hidden="true"></i>Mein Niveau</h3>
+          <div class="set-sec-body">
+        <div class="set-row">
+          <i class="ti ti-target" aria-hidden="true"></i>
+          <div class="set-text"><strong>Mein Niveau</strong><span>Grammatik darüber wird als Ausblick markiert · <button class="lvl-link" type="button" onclick="closeOverlay('overlay-settings'); openPlacement()">Einstufungstest</button></span></div>
+          <select class="settings-select" id="mylevel-select" aria-label="Mein Niveau" onchange="setMyLevel(this.value)">
+            <option value="">keine Angabe</option>
+            <option value="A1">A1</option>
+            <option value="A2">A2</option>
+            <option value="B1">B1</option>
+            <option value="B2">B2</option>
+            <option value="C1">C1</option>
+          </select>
+        </div>
+        <div class="set-row">
+          <i class="ti ti-chart-bar" aria-hidden="true"></i>
+          <div class="set-text"><strong>Fortschritt nach Stufen</strong><span>Wörter und Grammatik je Sprachniveau</span></div>
+          <button class="tool-btn" onclick="closeOverlay('overlay-settings'); openLevelOverview()"><i class="ti ti-arrow-right"></i> Öffnen</button>
+        </div>
+          </div>
+        </section>
+        <section class="set-sec" data-sec="aussprache" aria-label="Aussprache und Eingabe">
+          <button type="button" class="set-acc" onclick="toggleSettingsSection('aussprache')" aria-expanded="false"><i class="ti ti-volume" aria-hidden="true"></i><b>Aussprache und Eingabe</b><span class="set-sum" id="set-sum-aussprache"></span><i class="ti ti-chevron-down set-chev" aria-hidden="true"></i></button>
+          <h3 class="set-h"><i class="ti ti-volume" aria-hidden="true"></i>Aussprache und Eingabe</h3>
+          <div class="set-sec-body">
+        <div class="set-row" id="autoplay-settings-item">
+          <i class="ti ti-volume" aria-hidden="true"></i>
+          <div class="set-text"><strong>Auto-Vorlesen</strong><span>Russisches Wort automatisch anhören – bei DE → RU nach der Antwort</span></div>
+          <label class="toggle-switch" id="autoplay-toggle-wrap">
+            <input type="checkbox" id="autoplay-toggle" checked onchange="toggleAutoplay()">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div class="set-row" id="speakrate-row">
+          <i class="ti ti-clock-hour-4" aria-hidden="true"></i>
+          <div class="set-text"><strong>Vorlese-Tempo</strong><span>Geschwindigkeit der russischen Aussprache</span></div>
+          <select class="settings-select" id="speakrate-select" aria-label="Vorlese-Tempo" onchange="setSpeakRate(this.value)">
+            <option value="0.6">sehr langsam</option>
+            <option value="0.75">langsam</option>
+            <option value="0.9">normal</option>
+            <option value="1.05">schnell</option>
+          </select>
+        </div>
+        <div class="set-row">
+          <i class="ti ti-abc" aria-hidden="true"></i>
+          <div class="set-text"><strong>Transliteration</strong><span>Umschrift unter dem Wort – wie der Knopf auf der Karte</span></div>
+          <div class="set-seg" role="group" aria-label="Transliteration" id="translit-seg"><button type="button" data-mode="speech" onclick="setTranscriptionMode('speech')">Aussprache</button><button type="button" data-mode="letters" onclick="setTranscriptionMode('letters')">Buchstaben</button><button type="button" data-mode="off" onclick="setTranscriptionMode('off')">aus</button></div>
+        </div>
+        <div class="set-row">
+          <i class="ti ti-keyboard" aria-hidden="true"></i>
+          <div class="set-text"><strong>Kyrillische Tastatur</strong><span>Bildschirmtastatur bei Deutsch → Russisch</span></div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="cyrkbd-toggle" onchange="toggleCyrKeyboard()">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+          </div>
+        </section>
+        <section class="set-sec" data-sec="darstellung" aria-label="Darstellung">
+          <button type="button" class="set-acc" onclick="toggleSettingsSection('darstellung')" aria-expanded="false"><i class="ti ti-palette" aria-hidden="true"></i><b>Darstellung</b><span class="set-sum" id="set-sum-darstellung"></span><i class="ti ti-chevron-down set-chev" aria-hidden="true"></i></button>
+          <h3 class="set-h"><i class="ti ti-palette" aria-hidden="true"></i>Darstellung</h3>
+          <div class="set-sec-body">
+        <div class="set-row">
+          <i class="ti ti-moon" aria-hidden="true"></i>
+          <div class="set-text"><strong>Darstellung</strong><span>Farbschema der App</span></div>
+          <div class="set-seg" role="group" aria-label="Farbschema" id="theme-seg"><button type="button" data-mode="light" onclick="setThemeMode('light')">Hell</button><button type="button" data-mode="dark" onclick="setThemeMode('dark')">Dunkel</button><button type="button" data-mode="system" onclick="setThemeMode('system')">Wie das System</button></div>
+        </div>
+          </div>
+        </section>
+        <section class="set-sec" data-sec="speichern" aria-label="Speichern">
+          <button type="button" class="set-acc" onclick="toggleSettingsSection('speichern')" aria-expanded="false"><i class="ti ti-device-floppy" aria-hidden="true"></i><b>Speichern</b><span class="set-sum" id="set-sum-speichern"></span><i class="ti ti-chevron-down set-chev" aria-hidden="true"></i></button>
+          <h3 class="set-h"><i class="ti ti-device-floppy" aria-hidden="true"></i>Speichern</h3>
+          <div class="set-sec-body">
+        <div class="gh-card">
+        <div class="set-row gh-row">
+          <i class="ti ti-arrows-exchange" aria-hidden="true"></i>
+          <div class="set-text"><strong>GitHub-Speicher</strong><span id="gh-status" role="status">Lernstand in einem eigenen privaten Repo speichern</span></div>
+          <div class="gh-row-btns"><button class="tool-btn" id="gh-sync-btn" type="button" onclick="ghSync()" disabled><i class="ti ti-refresh"></i> Jetzt abgleichen</button></div>
+        </div>
+        <div class="gh-fields" id="gh-fields">
+          <label class="gh-field"><span>Repo</span><input id="gh-repo" type="text" placeholder="besitzer/repo (privat)" autocomplete="off" spellcheck="false" autocapitalize="off"></label>
+          <label class="gh-field"><span>Token</span><input id="gh-token" type="password" placeholder="github_pat_…" autocomplete="off" spellcheck="false" autocapitalize="off"></label>
+          <label class="gh-field"><span>Gerät</span><input id="gh-device" type="text" maxlength="30" placeholder="z. B. PC oder Handy" onchange="ghSetOption('device', this.value)"></label>
+          <div class="gh-actions">
+            <button class="tool-btn" type="button" onclick="ghConnect()"><i class="ti ti-link"></i> Verbinden</button>
+            <button class="tool-btn" type="button" onclick="ghDisconnect()"><i class="ti ti-x"></i> Trennen</button>
+          </div>
+        </div>
+          <div class="gh-opts">
+            <button class="tool-btn" type="button" id="gh-edit-btn" onclick="ghToggleEdit()" aria-expanded="false"><i class="ti ti-settings"></i> Verbindung ändern</button>
+            <label class="gh-check"><input type="checkbox" id="gh-load-open" onchange="ghSetOption('loadOnOpen', this.checked)"> Beim Öffnen von GitHub laden</label>
+            <label class="gh-check"><input type="checkbox" id="gh-warn-close" onchange="ghSetOption('warnClose', this.checked)"> Beim Schließen warnen, wenn nicht gespeichert</label>
+          </div>
+        </div>
+        <div class="set-row">
+          <i class="ti ti-device-floppy" aria-hidden="true"></i>
+          <div class="set-text"><strong>Sicherung</strong><span id="backup-info">Lernstand, Merkliste und Einstellungen als Datei</span></div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap">
+            <button class="tool-btn" onclick="exportBackup()"><i class="ti ti-download"></i> Sichern</button>
+            <button class="tool-btn" onclick="document.getElementById('backup-file').click()"><i class="ti ti-upload"></i> Einlesen</button>
+            <input type="file" id="backup-file" aria-label="Sicherungsdatei wählen" accept="application/json,.json" style="display:none" onchange="importBackup(this)">
+          </div>
+        </div>
+          </div>
+        </section>
+        <section class="set-sec set-sec-danger" data-sec="zuruecksetzen" aria-label="Zurücksetzen">
+          <button type="button" class="set-acc" onclick="toggleSettingsSection('zuruecksetzen')" aria-expanded="false"><i class="ti ti-trash" aria-hidden="true"></i><b>Zurücksetzen</b><span class="set-sum" id="set-sum-zuruecksetzen"></span><i class="ti ti-chevron-down set-chev" aria-hidden="true"></i></button>
+          <h3 class="set-h"><i class="ti ti-trash" aria-hidden="true"></i>Zurücksetzen</h3>
+          <div class="set-sec-body">
+        <div class="set-row">
+          <i class="ti ti-refresh" aria-hidden="true"></i>
+          <div class="set-text"><strong>Übungsstand zurücksetzen</strong><span>Alle Vokabeln und Grammatik wieder offen (wie Taste +) – der Gesamtstand bleibt</span></div>
+          <button class="tool-btn" type="button" id="progress-reset-btn" onclick="resetProgressFromSettings()"><i class="ti ti-refresh"></i> Zurücksetzen</button>
+        </div>
+        <div class="set-row">
+          <i class="ti ti-trash" aria-hidden="true"></i>
+          <div class="set-text"><strong>Gesamtstand löschen</strong><span>„Schon einmal gelernt“ für Vokabeln und Grammatik leeren – der Übungsstand bleibt</span></div>
+          <button class="tool-btn" id="lifetime-reset-btn" onclick="resetLifetime()"><i class="ti ti-trash"></i> Löschen</button>
+        </div>
+          </div>
+        </section>
+        <div class="set-foot"><span>Einstellungen werden sofort gespeichert</span><button class="lvl-link" type="button" onclick="closeOverlay('overlay-settings'); openShortcuts()">Tastenkürzel (?)</button></div>
       </div>
     </div>
   </div>
@@ -6789,11 +6892,68 @@ function updateSessionButton() {
   updateSessionGoal();
 }
 // ── Einstellungen, Sicherung, Sitzungsziel ──────────────────
+// Aufbau der Einstellungen: am PC ein Bereich nach dem anderen (Leiste links), am Handy
+// aufklappbare Gruppen mit Kurzfassung. Gemerkt werden Bereich und offene Gruppen.
+const SETTINGS_UI_KEY = 'vokabeltrainer-settings-ui';
+const SETTINGS_SECS = ['ueben', 'niveau', 'aussprache', 'darstellung', 'speichern', 'zuruecksetzen'];
+let settingsUi = { tab: 'ueben', open: [] };
+try {
+  const x = JSON.parse(localStorage.getItem(SETTINGS_UI_KEY) || 'null');
+  if (x && typeof x === 'object') {
+    if (SETTINGS_SECS.includes(x.tab)) settingsUi.tab = x.tab;
+    if (Array.isArray(x.open)) settingsUi.open = x.open.filter(s => SETTINGS_SECS.includes(s));
+  }
+} catch (e) {}
+function saveSettingsUi() { try { localStorage.setItem(SETTINGS_UI_KEY, JSON.stringify(settingsUi)); } catch (e) {} }
+function renderSettingsSections() {
+  document.querySelectorAll('#overlay-settings .set-sec').forEach(s => {
+    const id = s.dataset.sec, offen = settingsUi.open.includes(id);
+    s.classList.toggle('active', id === settingsUi.tab);
+    s.classList.toggle('open', offen);
+    s.querySelector('.set-acc').setAttribute('aria-expanded', offen ? 'true' : 'false');
+  });
+  document.querySelectorAll('#overlay-settings .set-nav-btn').forEach(b => {
+    const on = b.dataset.sec === settingsUi.tab; b.classList.toggle('active', on);
+    if (on) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+  });
+  updateSettingsSummaries();
+}
+function showSettingsTab(sec) { if (!SETTINGS_SECS.includes(sec)) return; settingsUi.tab = sec; saveSettingsUi(); renderSettingsSections(); }
+function toggleSettingsSection(sec) {
+  if (!SETTINGS_SECS.includes(sec)) return;
+  settingsUi.open = settingsUi.open.includes(sec) ? settingsUi.open.filter(s => s !== sec) : settingsUi.open.concat(sec);
+  saveSettingsUi(); renderSettingsSections();
+}
+// Kurzfassung je Gruppe (Handy, zugeklappt)
+function updateSettingsSummaries() {
+  const sel = id => { const e = document.getElementById(id); return e && e.selectedOptions && e.selectedOptions[0] ? e.selectedOptions[0].textContent.trim() : ''; };
+  const an = id => { const e = document.getElementById(id); return !!(e && e.checked); };
+  const T = {
+    ueben: [sel('maxlevel-select'), sel('blocksize-select'), 'Ziel ' + sel('sessiongoal-select'), an('cognate-toggle') ? 'ohne Lehnwörter' : '', an('lifedemote-toggle') ? 'Rückstufung an' : ''],
+    niveau: [sel('mylevel-select')],
+    aussprache: ['Vorlesen ' + (an('autoplay-toggle') ? 'an' : 'aus'), sel('speakrate-select'), 'Umschrift: ' + (typeof TR_MODE_LABEL !== 'undefined' ? ({ speech: 'Aussprache', letters: 'Buchstaben', off: 'aus' })[transcriptionMode] : '')],
+    darstellung: [{ light: 'hell', dark: 'dunkel', system: 'wie das System' }[themeMode()]],
+    speichern: [typeof ghConnected === 'function' && ghConnected() ? 'GitHub · ' + (ghDirty() ? 'nicht gespeichert' : 'gespeichert') : 'Sicherung als Datei'],
+    zuruecksetzen: ['Übungsstand · Gesamtstand'],
+  };
+  Object.entries(T).forEach(([k, v]) => { const e = document.getElementById('set-sum-' + k); if (e) e.textContent = v.filter(Boolean).join(' · '); });
+}
+// Übungsstand zurücksetzen aus den Einstellungen (mit Rückfrage – die Taste + fragt nicht)
+function resetProgressFromSettings() {
+  if (!confirm('Übungsstand zurücksetzen? Alle Vokabeln und Grammatik sind danach wieder offen. Der Gesamtstand bleibt.')) return;
+  resetProgress();
+}
 function openSettings() {
   document.getElementById('overlay-settings').classList.add('open');
   const ld = document.getElementById('lifedemote-toggle'); if (ld) ld.checked = lifeDemote;
+  ghEditing = false;
   ghFillForm();
+  applyThemeButton();
+  applyTranscriptionButton();
+  renderSettingsSections();
 }
+// Kurzfassungen nach jeder Änderung in den Einstellungen auffrischen
+document.getElementById('overlay-settings').addEventListener('change', () => updateSettingsSummaries());
 function openShortcuts() { document.getElementById('overlay-shortcuts').classList.add('open'); }
 
 // Welches Werkzeug ist offen und wie heißt dort „Lösung zeigen"?
@@ -7013,7 +7173,7 @@ const BACKUP_KEYS = ['vokabeltrainer-grammar-info-open','vokabeltrainer-grammar-
   'vokabeltrainer-hearquiz-settings','vokabeltrainer-hoertrainer-cats','vokabeltrainer-hoertrainer-pause',
   'vokabeltrainer-autoplay','vokabeltrainer-block-size','vokabeltrainer-direction',
   'vokabeltrainer-skip-cognates','vokabeltrainer-theme','vokabeltrainer-session-goal',
-  'vokabeltrainer-cyr-keyboard','vokabeltrainer-max-level','vokabeltrainer-lifetime','vokabeltrainer-level-order','vokabeltrainer-my-level','vokabeltrainer-speak-rate','vokabeltrainer-view','vokabeltrainer-grammar-panel','vokabeltrainer-listening-panel','vokabeltrainer-sidebar-width','vokabeltrainer-life-demote','vokabeltrainer-reset-marks'];
+  'vokabeltrainer-cyr-keyboard','vokabeltrainer-max-level','vokabeltrainer-lifetime','vokabeltrainer-level-order','vokabeltrainer-my-level','vokabeltrainer-speak-rate','vokabeltrainer-view','vokabeltrainer-grammar-panel','vokabeltrainer-listening-panel','vokabeltrainer-sidebar-width','vokabeltrainer-life-demote','vokabeltrainer-reset-marks','vokabeltrainer-settings-ui'];
 function exportBackup() {
   const data = { app: APP_ID, version: 1, saved: new Date().toISOString(), data: {} };
   BACKUP_KEYS.forEach(k => { try { const v = localStorage.getItem(k); if (v !== null) data.data[k] = v; } catch (e) {} });
@@ -7199,7 +7359,7 @@ const GH_API = 'https://api.github.com';
 const GH_FILE = 'lernstand.json';
 // Lernstand-Schlüssel: nur deren Änderung zählt als „nicht gespeichert“
 const GH_STATE_KEYS = ['vokabeltrainer-scores', 'vokabeltrainer-scores-de-ru', 'vokabeltrainer-grammar-srs', 'vokabeltrainer-lifetime', 'vokabeltrainer-bookmarks'];
-let ghBusy = false, ghSkipWarn = false, ghNote = '';
+let ghBusy = false, ghSkipWarn = false, ghNote = '', ghEditing = false;
 function ghSettings() {
   let s = null; try { s = JSON.parse(localStorage.getItem(GH_SETTINGS_KEY) || 'null'); } catch (e) {}
   s = s && typeof s === 'object' ? s : {};
@@ -7374,6 +7534,7 @@ async function ghConnect() {
     if (repo !== s.repo) s.hash = '';   // anderes Repo: noch nichts dort gespeichert
     s.repo = repo; s.device = device; ghSaveSettings(s);
     document.getElementById('gh-token').value = '';
+    ghEditing = false;
     ghFillForm();
   } catch (e) {
     try { if (tokIn) { if (alterToken) localStorage.setItem(GH_TOKEN_KEY, alterToken); else localStorage.removeItem(GH_TOKEN_KEY); } } catch (x) {}
@@ -7382,6 +7543,7 @@ async function ghConnect() {
   ghBusy = false;
   await ghSync();
 }
+function ghToggleEdit() { ghEditing = !ghEditing; ghFillForm(); }
 function ghDisconnect() {
   try { localStorage.removeItem(GH_TOKEN_KEY); } catch (e) {}
   const s = ghSettings(); s.hash = ''; s.lastSync = ''; ghSaveSettings(s);
@@ -7399,6 +7561,10 @@ function ghFillForm() {
   set('gh-repo', el => { if (document.activeElement !== el) el.value = s.repo; });
   set('gh-device', el => { if (document.activeElement !== el) el.value = s.device; });
   set('gh-token', el => { el.placeholder = ghToken() ? 'gespeichert – nur zum Ersetzen neu eintragen' : 'github_pat_…'; });
+  // verbunden: Felder zugeklappt hinter „Verbindung ändern“
+  const verbunden = ghConnected();
+  set('gh-fields', el => { el.hidden = verbunden && !ghEditing; });
+  set('gh-edit-btn', el => { el.hidden = !verbunden; el.setAttribute('aria-expanded', ghEditing ? 'true' : 'false'); });
   set('gh-load-open', el => { el.checked = s.loadOnOpen; });
   set('gh-warn-close', el => { el.checked = s.warnClose; });
   if (!ghBusy) ghIdleStatus();
@@ -12357,7 +12523,10 @@ function trFor(w, mode) {
 const TR_MODE_LABEL = { speech: 'Aussprache', letters: 'Buchstaben', off: 'Transliteration aus' };
 // Schalter: Aussprache → Buchstaben → aus → Aussprache
 function toggleTranscription() {
-  transcriptionMode = { speech: 'letters', letters: 'off', off: 'speech' }[transcriptionMode] || 'speech';
+  setTranscriptionMode({ speech: 'letters', letters: 'off', off: 'speech' }[transcriptionMode] || 'speech');
+}
+function setTranscriptionMode(mode) {
+  transcriptionMode = ['speech', 'letters', 'off'].includes(mode) ? mode : 'speech';
   showTranscription = transcriptionMode !== 'off';
   saveSelection();
   applyTranscriptionButton();
@@ -12374,6 +12543,8 @@ function applyTranscriptionButton() {
   if (icon) icon.className = 'ti ' + (transcriptionMode === 'off' ? 'ti-eye-off' : transcriptionMode === 'letters' ? 'ti-abc' : 'ti-eye');
   const label = document.getElementById('transcription-btn-label');
   if (label) label.textContent = TR_MODE_LABEL[transcriptionMode];
+  document.querySelectorAll('#translit-seg button').forEach(b => { const on = b.dataset.mode === transcriptionMode; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  if (typeof updateSettingsSummaries === 'function') updateSettingsSummaries();
 }
 function renderTranscription(forceShow) {
   // forceShow wird nach einer Antwort verwendet, um die Transkription auch im
@@ -13251,24 +13422,31 @@ async function checkAnswer() {
 
 
 // ── Dark Mode ──────────────────────────────────────────────
-function applyThemeButton(theme) {
-  const icon = document.getElementById('theme-toggle-icon');
-  const label = document.getElementById('theme-toggle-label');
-  if (theme === 'dark') {
-    icon.className = 'ti ti-sun';
-    label.textContent = 'Light Mode';
-  } else {
-    icon.className = 'ti ti-moon';
-    label.textContent = 'Dark Mode';
-  }
+function applyThemeButton() {
+  const m = themeMode();
+  document.querySelectorAll('#theme-seg button').forEach(b => { const on = b.dataset.mode === m; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  if (typeof updateSettingsSummaries === 'function') updateSettingsSummaries();
 }
 function toggleTheme() {
   const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-  const next = current === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  try { localStorage.setItem('vokabeltrainer-theme', next); } catch(e) { console.warn('Sprachtool: Theme-Einstellung konnte nicht gespeichert werden.', e); }
-  applyThemeButton(next);
+  setThemeMode(current === 'dark' ? 'light' : 'dark');
 }
+// Farbschema: 'light' | 'dark' | 'system' (= kein Eintrag, folgt dem Gerät)
+function themeMode() {
+  let s = null; try { s = localStorage.getItem('vokabeltrainer-theme'); } catch (e) {}
+  return s === 'dark' || s === 'light' ? s : 'system';
+}
+const THEME_MQ = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+function setThemeMode(mode) {
+  try {
+    if (mode === 'light' || mode === 'dark') localStorage.setItem('vokabeltrainer-theme', mode);
+    else localStorage.removeItem('vokabeltrainer-theme');
+  } catch (e) { console.warn('Sprachtool: Theme-Einstellung konnte nicht gespeichert werden.', e); }
+  const theme = mode === 'light' || mode === 'dark' ? mode : (THEME_MQ && THEME_MQ.matches ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+  applyThemeButton(theme);
+}
+if (THEME_MQ && THEME_MQ.addEventListener) THEME_MQ.addEventListener('change', () => { if (themeMode() === 'system') setThemeMode('system'); });
 applyThemeButton(document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
 
 // ── Audio / Aussprache ─────────────────────────────────────────

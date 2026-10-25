@@ -108,8 +108,8 @@ const TOKEN = 'github_pat_' + 'A'.repeat(40);
   await check('danach geht das Abgleichen wieder, alter Stand plus neues Wort', async () => { await ev(() => ghSync()); const rs = remoteScores(); return { ok: !!rs['сад'] && !!rs['дом'] && !(await ev(() => ghDirty())) }; });
   await check('Sicherungsdatei „Einlesen“ akzeptiert lernstand.json', () => ev(f => ghValidPayload(JSON.parse(f)) && APP_ID_ACCEPTED.includes(JSON.parse(f).app), gh.file));
   await check('Schmalansicht: Einstellungen ohne Überlauf', async () => {
-    await p.setViewportSize({ width: 390, height: 800 }); await p.waitForTimeout(400); await ev(() => openSettings());
-    return ev(() => { const box = document.querySelector('#overlay-settings .overlay-box'); const f = document.querySelector('.gh-fields').getBoundingClientRect();
+    await p.setViewportSize({ width: 390, height: 800 }); await p.waitForTimeout(400); await ev(() => { openSettings(); if (!settingsUi.open.includes('speichern')) toggleSettingsSection('speichern'); });
+    return ev(() => { const box = document.querySelector('#overlay-settings .overlay-box'); const f = document.querySelector('.gh-card').getBoundingClientRect();
       return { ok: document.documentElement.scrollWidth <= document.documentElement.clientWidth && box.scrollWidth <= box.clientWidth + 1 && f.width > 200, info: Math.round(f.width) + ' px, Seite ' + document.documentElement.scrollWidth + '/' + document.documentElement.clientWidth + ', Dialog ' + box.scrollWidth + '/' + box.clientWidth }; });
   });
   await check('Trennen löscht den Token, danach keine Anfragen mehr', async () => {
