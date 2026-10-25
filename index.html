@@ -215,6 +215,9 @@
   .gh-opts { display: flex; align-items: center; gap: 6px 12px; flex-wrap: wrap; padding-left: 30px; }
   .set-sec-danger .set-row strong { color: var(--c-error-text); }
   .set-sec-danger .tool-btn { color: var(--c-error-text); border-color: var(--c-error-border-light); }
+  .set-kuerzel .kbd-group { width: 142px; flex-shrink: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+  .set-kuerzel .kbd-group .kbd { margin-right: 0; }
+  @media (max-width: 700px) { .set-kuerzel .kbd-group { width: 74px; } }
   .set-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12px; color: var(--c-text-muted); padding: 12px 2px 0; margin-top: 10px; border-top: 0.5px solid var(--c-border-light); }
   @media (min-width: 701px) {
     #overlay-settings .overlay-box { width: 780px; height: min(660px, 85vh); max-height: 85vh; }
@@ -2412,31 +2415,6 @@
   </div>
 </div>
 
-<div class="overlay" id="overlay-shortcuts">
-  <div class="overlay-box">
-    <div class="overlay-header">
-      <span class="overlay-title"><i class="ti ti-keyboard"></i> Tastenkürzel</span>
-      <button class="overlay-close" onclick="closeOverlay('overlay-shortcuts')">×</button>
-    </div>
-    <div class="overlay-body">
-      <div class="set-row"><kbd class="kbd">Enter</kbd><div class="set-text"><strong>Prüfen / Weiter</strong><span>Im Eingabefeld und im Auswahl-Modus; im Aufdecken-Modus: aufdecken. In den Auswahl-Werkzeugen der Grammatik (Kasus-Drill, Bewegungsverben-Wahl, Rektion, Geschlecht) nach einer falschen Antwort: weiter</span></div></div>
-      <div class="set-row"><kbd class="kbd">Enter</kbd><div class="set-text"><strong>Nächstes Feld</strong><span>In den Grammatiktabellen; im letzten Feld wird geprüft, nach dem Prüfen geht es weiter</span></div></div>
-      <div class="set-row"><kbd class="kbd">→</kbd><div class="set-text"><strong>Nächstes Wort</strong><span>Überspringt die aktuelle Karte</span></div></div>
-      <div class="set-row"><kbd class="kbd">←</kbd><div class="set-text"><strong>Auflösen</strong><span>Zählt als nicht gewusst (im Aufdecken-Modus: aufdecken)</span></div></div>
-      <div class="set-row"><kbd class="kbd">Leer</kbd><div class="set-text"><strong>Vorlesen</strong><span>Russisches Wort anhören, im Hörquiz erneut abspielen</span></div></div>
-      <div class="set-row"><kbd class="kbd">3</kbd><div class="set-text"><strong>Lösung zeigen</strong><span>In allen Grammatik- und Hörwerkzeugen; im Hörquiz-Aufdecken liest 3 erneut vor</span></div></div>
-      <div class="set-row"><kbd class="kbd">2</kbd><div class="set-text"><strong>Wort-Tipp</strong><span>Im Satzbau: deckt das nächste Wort der Lösung auf</span></div></div>
-      <div class="set-row"><kbd class="kbd">1</kbd><kbd class="kbd">2</kbd><kbd class="kbd">3</kbd><kbd class="kbd">4</kbd><div class="set-text"><strong>Antwort wählen</strong><span>Im Auswahl-Modus der Vokabeln die passende Option</span></div></div>
-      <div class="set-row"><kbd class="kbd">1</kbd><kbd class="kbd">2</kbd><div class="set-text"><strong>Gewusst / Nicht gewusst</strong><span>Im Aufdecken-Modus (Vokabeln und Hörquiz), nach dem Aufdecken</span></div></div>
-      <div class="set-row"><kbd class="kbd">4</kbd><div class="set-text"><strong>Bewertung zurücknehmen</strong><span>Im Hörquiz-Aufdecken, wenn du dich verdrückt hast</span></div></div>
-      <div class="set-row"><kbd class="kbd">1</kbd><kbd class="kbd">2</kbd><kbd class="kbd">3</kbd><kbd class="kbd">4</kbd><kbd class="kbd">5</kbd><div class="set-text"><strong>Einstufungstest</strong><span>1–4 wählt eine Antwort, 5 = weiß ich nicht</span></div></div>
-      <div class="set-row"><kbd class="kbd">Esc</kbd><div class="set-text"><strong>Dialog schließen</strong><span>Schließt Einstellungen, Listen, Auswahlfenster und das ⋯-Menü der Grammatik</span></div></div>
-      <div class="set-row"><kbd class="kbd">+</kbd><div class="set-text"><strong>Fortschritt zurücksetzen</strong><span>Übungsstand von Vokabeln und Grammatik, sofort und ohne Rückfrage; auch im Antwortfeld</span></div></div>
-      <div class="set-row"><kbd class="kbd">?</kbd><div class="set-text"><strong>Diese Übersicht</strong><span>Jederzeit, auch im Antwortfeld</span></div></div>
-    </div>
-  </div>
-</div>
-
 <div class="overlay" id="overlay-levels" role="dialog" aria-modal="true" aria-labelledby="overlay-levels-title">
   <div class="overlay-box">
     <div class="overlay-header">
@@ -2467,6 +2445,7 @@
         <button type="button" class="set-nav-btn" data-sec="niveau" onclick="showSettingsTab('niveau')"><i class="ti ti-school" aria-hidden="true"></i>Mein Niveau</button>
         <button type="button" class="set-nav-btn" data-sec="aussprache" onclick="showSettingsTab('aussprache')"><i class="ti ti-volume" aria-hidden="true"></i>Aussprache</button>
         <button type="button" class="set-nav-btn" data-sec="darstellung" onclick="showSettingsTab('darstellung')"><i class="ti ti-palette" aria-hidden="true"></i>Darstellung</button>
+        <button type="button" class="set-nav-btn" data-sec="kuerzel" onclick="showSettingsTab('kuerzel')"><i class="ti ti-keyboard" aria-hidden="true"></i>Tastenkürzel</button>
         <button type="button" class="set-nav-btn" data-sec="speichern" onclick="showSettingsTab('speichern')"><i class="ti ti-device-floppy" aria-hidden="true"></i>Speichern</button>
         <button type="button" class="set-nav-btn" data-sec="zuruecksetzen" onclick="showSettingsTab('zuruecksetzen')"><i class="ti ti-trash" aria-hidden="true"></i>Zurücksetzen</button>
       </nav>
@@ -2609,6 +2588,26 @@
         </div>
           </div>
         </section>
+        <section class="set-sec" data-sec="kuerzel" id="set-sec-kuerzel" aria-label="Tastenkürzel">
+          <button type="button" class="set-acc" onclick="toggleSettingsSection('kuerzel')" aria-expanded="false"><i class="ti ti-keyboard" aria-hidden="true"></i><b>Tastenkürzel</b><span class="set-sum" id="set-sum-kuerzel"></span><i class="ti ti-chevron-down set-chev" aria-hidden="true"></i></button>
+          <h3 class="set-h"><i class="ti ti-keyboard" aria-hidden="true"></i>Tastenkürzel</h3>
+          <div class="set-sec-body set-kuerzel">
+      <div class="set-row"><span class="kbd-group"><kbd class="kbd">Enter</kbd></span><div class="set-text"><strong>Prüfen / Weiter</strong><span>Im Eingabefeld und im Auswahl-Modus; im Aufdecken-Modus: aufdecken. In den Auswahl-Werkzeugen der Grammatik (Kasus-Drill, Bewegungsverben-Wahl, Rektion, Geschlecht) nach einer falschen Antwort: weiter</span></div></div>
+      <div class="set-row"><span class="kbd-group"><kbd class="kbd">Enter</kbd></span><div class="set-text"><strong>Nächstes Feld</strong><span>In den Grammatiktabellen; im letzten Feld wird geprüft, nach dem Prüfen geht es weiter</span></div></div>
+      <div class="set-row"><span class="kbd-group"><kbd class="kbd">→</kbd></span><div class="set-text"><strong>Nächstes Wort</strong><span>Überspringt die aktuelle Karte</span></div></div>
+      <div class="set-row"><span class="kbd-group"><kbd class="kbd">←</kbd></span><div class="set-text"><strong>Auflösen</strong><span>Zählt als nicht gewusst (im Aufdecken-Modus: aufdecken)</span></div></div>
+      <div class="set-row"><span class="kbd-group"><kbd class="kbd">Leer</kbd></span><div class="set-text"><strong>Vorlesen</strong><span>Russisches Wort anhören, im Hörquiz erneut abspielen</span></div></div>
+      <div class="set-row"><span class="kbd-group"><kbd class="kbd">3</kbd></span><div class="set-text"><strong>Lösung zeigen</strong><span>In allen Grammatik- und Hörwerkzeugen; im Hörquiz-Aufdecken liest 3 erneut vor</span></div></div>
+      <div class="set-row"><span class="kbd-group"><kbd class="kbd">2</kbd></span><div class="set-text"><strong>Wort-Tipp</strong><span>Im Satzbau: deckt das nächste Wort der Lösung auf</span></div></div>
+      <div class="set-row"><span class="kbd-group"><kbd class="kbd">1</kbd><kbd class="kbd">2</kbd><kbd class="kbd">3</kbd><kbd class="kbd">4</kbd></span><div class="set-text"><strong>Antwort wählen</strong><span>Im Auswahl-Modus der Vokabeln die passende Option</span></div></div>
+      <div class="set-row"><span class="kbd-group"><kbd class="kbd">1</kbd><kbd class="kbd">2</kbd></span><div class="set-text"><strong>Gewusst / Nicht gewusst</strong><span>Im Aufdecken-Modus (Vokabeln und Hörquiz), nach dem Aufdecken</span></div></div>
+      <div class="set-row"><span class="kbd-group"><kbd class="kbd">4</kbd></span><div class="set-text"><strong>Bewertung zurücknehmen</strong><span>Im Hörquiz-Aufdecken, wenn du dich verdrückt hast</span></div></div>
+      <div class="set-row"><span class="kbd-group"><kbd class="kbd">1</kbd><kbd class="kbd">2</kbd><kbd class="kbd">3</kbd><kbd class="kbd">4</kbd><kbd class="kbd">5</kbd></span><div class="set-text"><strong>Einstufungstest</strong><span>1–4 wählt eine Antwort, 5 = weiß ich nicht</span></div></div>
+      <div class="set-row"><span class="kbd-group"><kbd class="kbd">Esc</kbd></span><div class="set-text"><strong>Dialog schließen</strong><span>Schließt Einstellungen, Listen, Auswahlfenster und das ⋯-Menü der Grammatik</span></div></div>
+      <div class="set-row"><span class="kbd-group"><kbd class="kbd">+</kbd></span><div class="set-text"><strong>Fortschritt zurücksetzen</strong><span>Übungsstand von Vokabeln und Grammatik, sofort und ohne Rückfrage; auch im Antwortfeld</span></div></div>
+      <div class="set-row"><span class="kbd-group"><kbd class="kbd">?</kbd></span><div class="set-text"><strong>Diese Übersicht</strong><span>Öffnet die Einstellungen bei den Tastenkürzeln – jederzeit, auch im Antwortfeld</span></div></div>
+          </div>
+        </section>
         <section class="set-sec" data-sec="speichern" aria-label="Speichern">
           <button type="button" class="set-acc" onclick="toggleSettingsSection('speichern')" aria-expanded="false"><i class="ti ti-device-floppy" aria-hidden="true"></i><b>Speichern</b><span class="set-sum" id="set-sum-speichern"></span><i class="ti ti-chevron-down set-chev" aria-hidden="true"></i></button>
           <h3 class="set-h"><i class="ti ti-device-floppy" aria-hidden="true"></i>Speichern</h3>
@@ -2661,7 +2660,7 @@
         </div>
           </div>
         </section>
-        <div class="set-foot"><span>Einstellungen werden sofort gespeichert</span><button class="lvl-link" type="button" onclick="closeOverlay('overlay-settings'); openShortcuts()">Tastenkürzel (?)</button></div>
+        <div class="set-foot"><span>Einstellungen werden sofort gespeichert</span></div>
       </div>
     </div>
   </div>
@@ -7227,7 +7226,7 @@ function updateSessionButton() {
 // Aufbau der Einstellungen: am PC ein Bereich nach dem anderen (Leiste links), am Handy
 // aufklappbare Gruppen mit Kurzfassung. Gemerkt werden Bereich und offene Gruppen.
 const SETTINGS_UI_KEY = 'vokabeltrainer-settings-ui';
-const SETTINGS_SECS = ['ueben', 'niveau', 'aussprache', 'darstellung', 'speichern', 'zuruecksetzen'];
+const SETTINGS_SECS = ['ueben', 'niveau', 'aussprache', 'darstellung', 'kuerzel', 'speichern', 'zuruecksetzen'];
 let settingsUi = { tab: 'ueben', open: [] };
 try {
   const x = JSON.parse(localStorage.getItem(SETTINGS_UI_KEY) || 'null');
@@ -7266,6 +7265,7 @@ function updateSettingsSummaries() {
     aussprache: ['Vorlesen ' + (an('autoplay-toggle') ? 'an' : 'aus'), sel('speakrate-select'), 'Umschrift: ' + (typeof TR_MODE_LABEL !== 'undefined' ? ({ speech: 'Aussprache', letters: 'Buchstaben', off: 'aus' })[transcriptionMode] : '')],
     darstellung: [{ light: 'hell', dark: 'dunkel', system: 'wie das System' }[themeMode()], ruFontMode() === 'sans' ? 'Russisch ohne Serifen' : 'Russisch mit Serifen'],
     speichern: [typeof ghConnected === 'function' && ghConnected() ? 'GitHub · ' + (ghDirty() ? 'nicht gespeichert' : 'gespeichert') : 'Sicherung als Datei'],
+    kuerzel: ['Enter, Pfeile, 1–5, Leer, Esc, +, ?'],
     zuruecksetzen: ['Übungsstand · Gesamtstand'],
   };
   Object.entries(T).forEach(([k, v]) => { const e = document.getElementById('set-sum-' + k); if (e) e.textContent = v.filter(Boolean).join(' · '); });
@@ -7287,7 +7287,14 @@ function openSettings() {
 }
 // Kurzfassungen nach jeder Änderung in den Einstellungen auffrischen
 document.getElementById('overlay-settings').addEventListener('change', () => updateSettingsSummaries());
-function openShortcuts() { document.getElementById('overlay-shortcuts').classList.add('open'); }
+// Taste ? : Einstellungen beim Bereich „Tastenkürzel“ (am Handy die Gruppe aufgeklappt)
+function openShortcuts() {
+  openSettings();
+  settingsUi.tab = 'kuerzel';
+  if (!settingsUi.open.includes('kuerzel')) settingsUi.open = settingsUi.open.concat('kuerzel');
+  saveSettingsUi(); renderSettingsSections();
+  const sec = document.getElementById('set-sec-kuerzel'); if (sec && !DESK_MQ.matches) sec.scrollIntoView({ block: 'start' });
+}
 
 // Welches Werkzeug ist offen und wie heißt dort „Lösung zeigen"?
 const TOOL_REVEALS = {
