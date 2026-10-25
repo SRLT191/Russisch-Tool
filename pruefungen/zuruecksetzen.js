@@ -3,11 +3,12 @@ const TMP = require('os').tmpdir();
 // Prüft alle Zurücksetzen-Funktionen: Ein-Klick-Zurücksetzen (Werkzeugleiste, „Alles gelernt“)
 // und „Gesamtstand löschen“ (Einstellungen).
 const { chromium } = require('playwright');
+// Die App startet auf „Heute“ – nach jedem Laden geht es hier in die Vokabeln.
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1100, height: 900 } });
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
   let dialogs = 0; p.on('dialog', d => { dialogs++; d.accept(); });
-  await p.goto('file://' + APP_PATH); await p.waitForTimeout(400);
+  await p.goto('file://' + APP_PATH); await p.waitForTimeout(400); await p.evaluate(() => setAppView('vocab'));
   const R = []; const check = async (n, f) => { try { const r = await f(); const ok = typeof r === 'object' ? r.ok : r; R.push([ok ? 'OK ' : 'XX ', n, r && r.info || '']); } catch (e) { R.push(['XX ', n, e.message]); } };
   const ev = f => p.evaluate(f);
   // Lernstand aufbauen: 3 Wörter gelernt (Kasten 5), 1 Wort angefangen, Grammatik in 3 Bereichen
@@ -63,7 +64,7 @@ const { chromium } = require('playwright');
   await check('Kein Rückgängig-Hinweis mehr', () => ev(() => !document.getElementById('reset-toast') && typeof undoResetProgress === 'undefined'));
 
   // 3) Neuladen
-  await p.reload(); await p.waitForTimeout(400);
+  await p.reload(); await p.waitForTimeout(400); await p.evaluate(() => setAppView('vocab'));
   await check('Nach Neuladen: Übungsstand leer, Gesamtstand da', () => ev(() => { const L = loadLifetime(); return { ok: Object.keys(scores).length === 0 && Object.keys(loadGrammarSrs()).length === 0 && Object.keys(L.v).length >= 3, info: Object.keys(L.v).length + ' Wörter im Gesamtstand' }; }));
 
   // 4) Einstellungen → Gesamtstand löschen
@@ -74,7 +75,7 @@ const { chromium } = require('playwright');
   await check('Gesamtstand löschen: Übungsstand bleibt', () => ev(() => ({ ok: Object.keys(scores).length === 1 && !!grammarSrs.gender, info: Object.keys(scores).length + ' Wort' })));
   await check('Gesamtstand löschen: Anzeigen leer (✓, Kopfzeile)', () => ev(() => { closeOverlay('overlay-settings'); openVocabList(); const n = document.querySelectorAll('#overlay-vocab .ever-ok').length; closeOverlay('overlay-vocab'); updateGrammarTileProgress(); return { ok: n === 0, info: n + ' ✓ | ' + document.getElementById('gtp-gender').title }; }));
   await check('Gesamtstand füllt sich danach neu', () => ev(() => { progressMark('gender', 'мама', true); updateScore(getPool()[1], true); const L = loadLifetime(); return { ok: !!L.g.gender['мама'] && Object.keys(L.v).length === 1, info: JSON.stringify(L).slice(0, 80) }; }));
-  await p.reload(); await p.waitForTimeout(400);
+  await p.reload(); await p.waitForTimeout(400); await p.evaluate(() => setAppView('vocab'));
   await check('Nach Neuladen: gelöschter Gesamtstand wird nicht neu aufgebaut', () => ev(() => ({ ok: Object.keys(loadLifetime().v).length === 1, info: Object.keys(loadLifetime().v).length + ' (Übungsstand ' + Object.keys(scores).length + ')' })));
   await check('Sicherung enthält Gesamtstand', () => ev(() => BACKUP_KEYS.includes('vokabeltrainer-lifetime')));
   await check('keine JS-Fehler', () => ({ ok: errs.length === 0, info: errs.slice(0, 3).join(' | ') }));
