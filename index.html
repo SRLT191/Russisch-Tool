@@ -6457,6 +6457,8 @@ function resetLifetime() {
     + '(Zählungen, „gelernt seit“). Der Übungsstand bleibt. Tipp: Vorher unter „Sicherung“ sichern.')) return;
   lifetime = { v: {}, g: {}, ver: 3, run: 1 };
   saveLifetime();
+  noteReset('life');
+  ghAfterReset();
   if (typeof updateGrammarTileProgress === 'function') updateGrammarTileProgress();
   if (document.getElementById('overlay-vocab').classList.contains('open')) renderVocabTable();
   const lv = document.getElementById('overlay-levels');
@@ -6594,7 +6596,10 @@ function doResetProgress(scope) {
     grammarSrs = {};
     saveGrammarSrs();
   }
+  if (scope === 'vocab' || scope === 'all') noteReset('v');
+  if (scope === 'grammar' || scope === 'all') noteReset('g');
   afterProgressChange();
+  ghAfterReset();
 }
 // Anzeigen nach dem Zurücksetzen auffrischen
 function afterProgressChange() {
@@ -7008,7 +7013,7 @@ const BACKUP_KEYS = ['vokabeltrainer-grammar-info-open','vokabeltrainer-grammar-
   'vokabeltrainer-hearquiz-settings','vokabeltrainer-hoertrainer-cats','vokabeltrainer-hoertrainer-pause',
   'vokabeltrainer-autoplay','vokabeltrainer-block-size','vokabeltrainer-direction',
   'vokabeltrainer-skip-cognates','vokabeltrainer-theme','vokabeltrainer-session-goal',
-  'vokabeltrainer-cyr-keyboard','vokabeltrainer-max-level','vokabeltrainer-lifetime','vokabeltrainer-level-order','vokabeltrainer-my-level','vokabeltrainer-speak-rate','vokabeltrainer-view','vokabeltrainer-grammar-panel','vokabeltrainer-listening-panel','vokabeltrainer-sidebar-width','vokabeltrainer-life-demote'];
+  'vokabeltrainer-cyr-keyboard','vokabeltrainer-max-level','vokabeltrainer-lifetime','vokabeltrainer-level-order','vokabeltrainer-my-level','vokabeltrainer-speak-rate','vokabeltrainer-view','vokabeltrainer-grammar-panel','vokabeltrainer-listening-panel','vokabeltrainer-sidebar-width','vokabeltrainer-life-demote','vokabeltrainer-reset-marks'];
 function exportBackup() {
   const data = { app: APP_ID, version: 1, saved: new Date().toISOString(), data: {} };
   BACKUP_KEYS.forEach(k => { try { const v = localStorage.getItem(k); if (v !== null) data.data[k] = v; } catch (e) {} });
@@ -7081,6 +7086,65 @@ function mergeBackupValue(key, localRaw, backupRaw) {
   // Einstellungen: vorhandene behalten, fehlende ergänzen
   return localRaw === null ? backupRaw : null;
 }
+// ── Zurücksetzen und Löschen über Geräte hinweg ─────────────────
+// Zusammenführen nimmt sonst immer das Höhere – ein gelöschter Stand käme von einem anderen
+// Gerät, aus Tool-Save oder einer alten Sicherung zurück. Darum wird der Zeitpunkt jedes
+// Zurücksetzens bzw. Löschens gemerkt (v = Vokabeln beide Richtungen, g = Grammatik,
+// life = Gesamtstand). Beim Zusammenführen gilt je Bereich der jüngste Zeitpunkt, und alle
+// Einträge, die zuletzt davor geübt wurden, fallen weg – auf beiden Seiten. Was danach
+// geübt wurde, bleibt.
+const RESET_MARKS_KEY = 'vokabeltrainer-reset-marks';
+function parseResetMarks(raw) {
+  let x = null; try { x = JSON.parse(raw || 'null'); } catch (e) {}
+  const out = { v: 0, g: 0, life: 0 };
+  if (x && typeof x === 'object') Object.keys(out).forEach(k => { const n = Number(x[k]); if (Number.isFinite(n) && n > 0) out[k] = n; });
+  return out;
+}
+function noteReset(kind) {
+  let m; try { m = parseResetMarks(localStorage.getItem(RESET_MARKS_KEY)); } catch (e) { m = parseResetMarks(null); }
+  m[kind] = Date.now();
+  try { localStorage.setItem(RESET_MARKS_KEY, JSON.stringify(m)); } catch (e) {}
+}
+function lifeEntryTime(e) { return Number(e && e.z) || Math.max(Number(e && e.dd) || 0, Number(e && e.l) || 0); }
+// Eintrag eines Speicherschlüssels ohne alles, was vor dem jüngsten Zurücksetzen liegt
+function filterByResetMarks(key, raw, M) {
+  if (raw == null) return raw;
+  let x; try { x = JSON.parse(raw); } catch (e) { return raw; }
+  if (!x || typeof x !== 'object' || Array.isArray(x)) return raw;
+  const drop = (map, mark, time) => { if (!mark || !map || typeof map !== 'object') return; Object.keys(map).forEach(k => { if (time(map[k]) <= mark) delete map[k]; }); };
+  if (key === SCORES_STORAGE_KEY || key === SCORES_DE_RU_KEY) {
+    if (!M.v) return raw;
+    drop(x, M.v, e => Number(e && e.lastSeen) || 0);
+  } else if (key === GRAMMAR_SRS_KEY) {
+    if (!M.g) return raw;
+    Object.values(x).forEach(m => drop(m, M.g, e => Number(e && e.lastSeen) || 0));
+  } else if (key === LIFETIME_KEY) {
+    if (!M.life) return raw;
+    drop(x.v, M.life, lifeEntryTime);
+    if (x.g && typeof x.g === 'object') Object.values(x.g).forEach(m => drop(m, M.life, lifeEntryTime));
+    drop(x.lv, M.life, t => Number(t) || 0);
+  } else return raw;
+  return JSON.stringify(x);
+}
+// Sicherung bzw. GitHub-Stand (data = { Schlüssel: Text }) in den Gerätestand einarbeiten;
+// true = es hat sich etwas geändert
+function mergeAllFromBackup(data) {
+  const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  const a = parseResetMarks(get(RESET_MARKS_KEY)), b = parseResetMarks(typeof data[RESET_MARKS_KEY] === 'string' ? data[RESET_MARKS_KEY] : null);
+  const M = { v: Math.max(a.v, b.v), g: Math.max(a.g, b.g), life: Math.max(a.life, b.life) };
+  let changed = false;
+  if (M.v !== a.v || M.g !== a.g || M.life !== a.life) { set(RESET_MARKS_KEY, JSON.stringify(M)); changed = true; }
+  BACKUP_KEYS.forEach(k => {
+    if (k === RESET_MARKS_KEY) return;
+    const local = get(k), fremd = typeof data[k] === 'string' ? data[k] : null;
+    const fl = filterByResetMarks(k, local, M), fb = filterByResetMarks(k, fremd, M);
+    let res = fb === null ? fl : mergeBackupValue(k, fl, fb);
+    if (res === null) res = fl;
+    if (res !== null && ghCanonRaw(res) !== ghCanonRaw(local)) { set(k, res); changed = true; }
+  });
+  return changed;
+}
 function importBackup(input) {
   const file = input.files && input.files[0];
   input.value = '';
@@ -7102,17 +7166,19 @@ function importBackup(input) {
         ...Object.keys(JSON.parse(d.data['vokabeltrainer-scores-de-ru'] || '{}') || {})]).size;
     } catch (e) { n = 0; }
     const savedAt = typeof d.saved === 'string' ? d.saved.slice(0, 10) : 'unbekanntem Datum';
+    // Seit der Sicherung zurückgesetzt oder gelöscht? Dann kommt der ältere Stand nicht zurück.
+    let resetHinweis = '';
+    try {
+      const mk = parseResetMarks(localStorage.getItem(RESET_MARKS_KEY)), saved = Date.parse(d.saved) || 0;
+      const nach = [['v', 'Vokabeln zurückgesetzt'], ['g', 'Grammatik zurückgesetzt'], ['life', 'Gesamtstand gelöscht']].filter(([k]) => mk[k] > saved);
+      if (nach.length) resetHinweis = '\n\nHinweis: Seit dieser Sicherung wurde ' + nach.map(([k, t]) => t + ' (' + lifeDateTime(mk[k]) + ')').join(', ')
+        + '. Was davor gelernt war, wird dafür nicht wiederhergestellt.';
+    } catch (e) {}
     if (!confirm('Sicherung vom ' + savedAt + ' einlesen?\n'
       + n + ' Wörter mit Lernstand. Lernstand, Gesamtstand und Merkliste werden mit dem jetzigen Stand zusammengeführt – '
-      + 'es geht nichts verloren. Deine Einstellungen bleiben, fehlende werden aus der Sicherung ergänzt.')) return;
+      + 'es geht nichts verloren. Deine Einstellungen bleiben, fehlende werden aus der Sicherung ergänzt.' + resetHinweis)) return;
     saveScores();   // laufenden Stand sicher ablegen, bevor zusammengeführt wird
-    entries.forEach(k => {
-      try {
-        const local = localStorage.getItem(k);
-        const merged = mergeBackupValue(k, local, d.data[k]);
-        if (merged !== null) localStorage.setItem(k, merged);
-      } catch (e) {}
-    });
+    mergeAllFromBackup(d.data);
     ghSkipWarn = true;
     location.reload();
   };
@@ -7149,6 +7215,9 @@ function ghNormRepo(v) {
   return /^[A-Za-z0-9-]{1,39}\/[A-Za-z0-9._-]{1,100}$/.test(v) && !v.includes('..') ? v : '';
 }
 function ghConnected() { return !!(ghNormRepo(ghSettings().repo) && ghToken()); }
+// nach Zurücksetzen oder Löschen gleich auf GitHub übertragen, damit der alte Stand dort nicht
+// stehen bleibt (ohne Netz reist der Zeitpunkt beim nächsten Abgleich mit)
+function ghAfterReset() { if (ghConnected()) setTimeout(() => { ghSync(); }, 0); }
 // Lernstand vergleichbar machen: Schlüsselreihenfolge spielt keine Rolle
 function ghCanon(v) {
   if (Array.isArray(v)) return '[' + v.map(ghCanon).join(',') + ']';
@@ -7196,17 +7265,7 @@ function ghWordCount(data) {
   try { return new Set([...Object.keys(JSON.parse(data['vokabeltrainer-scores'] || '{}') || {}), ...Object.keys(JSON.parse(data['vokabeltrainer-scores-de-ru'] || '{}') || {})]).size; } catch (e) { return 0; }
 }
 // GitHub-Stand in den Gerätestand einarbeiten; true = es hat sich etwas geändert
-function ghMergeIntoLocal(d) {
-  let changed = false;
-  BACKUP_KEYS.filter(k => typeof d.data[k] === 'string').forEach(k => {
-    try {
-      const local = localStorage.getItem(k);
-      const merged = mergeBackupValue(k, local, d.data[k]);
-      if (merged !== null && ghCanonRaw(merged) !== ghCanonRaw(local)) { localStorage.setItem(k, merged); changed = true; }
-    } catch (e) {}
-  });
-  return changed;
-}
+function ghMergeIntoLocal(d) { return mergeAllFromBackup(d.data); }
 function ghErrText(status) {
   if (status === 401) return 'Token ungültig oder abgelaufen – neuen Token eintragen';
   if (status === 403) return 'Kein Zugriff – Token braucht „Contents: Read and write“ für dieses Repo (oder GitHub-Limit erreicht)';
@@ -7278,7 +7337,9 @@ async function ghSync() {
       const remote = await ghFetchRemote(repo);
       if (remote.data && ghMergeIntoLocal(remote.data)) reload = true;
       const payload = ghBuildPayload();
-      const nRemote = remote.data ? ghWordCount(remote.data.data) : 0, nHier = ghWordCount(payload.data);
+      const M = parseResetMarks(payload.data[RESET_MARKS_KEY] || null);
+      const remoteGefiltert = {}; if (remote.data) [SCORES_STORAGE_KEY, SCORES_DE_RU_KEY].forEach(k => { remoteGefiltert[k] = filterByResetMarks(k, remote.data.data[k] || null, M); });
+      const nRemote = remote.data ? ghWordCount(remoteGefiltert) : 0, nHier = ghWordCount(payload.data);
       if (nHier < nRemote) throw new Error('Abgebrochen: Hier wären weniger Wörter mit Lernstand (' + nHier + ') als auf GitHub (' + nRemote + ')');
       const body = { message: 'Lernstand ' + (s.device || 'Gerät') + ' ' + new Date().toLocaleString('de-DE'), content: ghB64Encode(JSON.stringify(payload)) };
       if (remote.sha) body.sha = remote.sha;
