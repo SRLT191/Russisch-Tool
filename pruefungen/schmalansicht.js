@@ -6,7 +6,7 @@ const THEME = process.argv[3] || '';
 (async () => {
   const b = await chromium.launch();
   const out = [];
-  for (const w of [320, 360, 390, 768]) {
+  for (const w of [320, 360, 390, 700, 768]) {
     const p = await b.newPage({ viewport: { width: w, height: 800 } });
     p.on('pageerror', e => out.push(w + ' JS: ' + e.message));
     p.on('dialog', d => d.dismiss());
@@ -32,7 +32,9 @@ const THEME = process.argv[3] || '';
         });
       };
       const views = [
+        ['Startseite', () => setAppView('home')],
         ['Vokabeln', () => setAppView('vocab')],
+        ['Vokabeln falsch', () => { setAppView('vocab'); setMode('free'); document.getElementById('answer-input').value = 'Krankenhauseinweisungsformularausgabestelle'; checkAnswer(); }],
         ['Vokabeln Auswahl', () => { setAppView('vocab'); setMode('mc'); }],
         ['Vokabeln Aufdecken', () => { setMode('flip'); flipReveal(); }],
       ];
