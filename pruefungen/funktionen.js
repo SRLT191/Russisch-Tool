@@ -355,7 +355,8 @@ const FILE = 'file://' + (process.argv[2] || APP_PATH);
   await check('S Neuladen behält Einstellungen', async () => {
     await ev(() => { setAppView('grammar'); showGrammarPanel('noun'); });
     await p.reload(); await p.waitForTimeout(500);
-    return ev(() => ({ ok: appView === 'grammar' && document.getElementById('overlay-noun').classList.contains('open'), info: appView }));
+    // startet auf „Heute“, „Weiterlernen“ führt zurück ins zuletzt benutzte Werkzeug
+    return ev(() => { const start = appView; homeContinue(); return { ok: start === 'home' && appView === 'grammar' && document.getElementById('overlay-noun').classList.contains('open'), info: start + ' → ' + appView }; });
   });
 
   results.forEach(r => console.log(r[0], r[1], r[2] ? '· ' + r[2] : ''));

@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
   const b = await chromium.launch(); const errs = [];
   const R = []; const check = async (n, f) => { try { const r = await f(); const ok = typeof r === 'object' ? r.ok : r; R.push([ok ? 'OK ' : 'XX ', n, r && r.info || '']); } catch (e) { R.push(['XX ', n, e.message]); } };
   const p = await b.newPage({ viewport: { width: 1366, height: 820 } }); p.on('pageerror', e => errs.push(e.message));
-  await p.goto('file://' + APP_PATH); await p.waitForTimeout(400);
+  await p.goto('file://' + APP_PATH); await p.waitForTimeout(400); await p.evaluate(() => setAppView('vocab'));
   const ev = (f, a) => p.evaluate(f, a);
   await check('PC: Kopfzeile oben mit Bereichen und Vokabelliste/Alphabet/Einstellungen', () => ev(() => {
     const h = document.getElementById('app-header').getBoundingClientRect(); const vs = document.getElementById('view-switcher');
@@ -71,10 +71,10 @@ const { chromium } = require('playwright');
   await p.close();
   const m = await b.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }); m.on('pageerror', e => errs.push(e.message));
   await m.goto('file://' + APP_PATH); await m.waitForTimeout(400);
-  await check('Handy: Bereiche und Einstellungen als Leiste unten, mind. 44 px hoch, ohne Vokabelliste/Alphabet', () => m.evaluate(() => {
+  await check('Handy: Heute, Bereiche und Einstellungen als Leiste unten, mind. 44 px hoch, ohne Vokabelliste/Alphabet', () => m.evaluate(() => {
     const h = document.getElementById('app-header').getBoundingClientRect(); const vis = [...document.querySelectorAll('#app-header button')].filter(x => x.offsetParent);
     const pad = parseFloat(getComputedStyle(document.body).paddingBottom);
-    return { ok: Math.round(h.bottom) === innerHeight && h.height >= 56 && vis.length === 4 && vis.every(x => x.getBoundingClientRect().height >= 44) && pad >= h.height - 1, info: vis.map(x => x.textContent.trim()).join(' | ') };
+    return { ok: Math.round(h.bottom) === innerHeight && h.height >= 56 && vis.length === 5 && vis.every(x => x.getBoundingClientRect().height >= 44) && pad >= h.height - 1, info: vis.map(x => x.textContent.trim()).join(' | ') };
   }));
   await check('Handy: Grammatik-Navigation über dem Werkzeug, Seitenleiste aus', () => m.evaluate(() => {
     setAppView('grammar'); const ok = document.getElementById('grammar-view').contains(document.getElementById('grammar-cats')) && !document.getElementById('sidebar').offsetParent && !!document.getElementById('gcat-verb').offsetParent;
