@@ -98,6 +98,9 @@ const FILE = 'file://' + (process.argv[2] || APP_PATH);
     Object.assign(scores, JSON.parse(alt)); saveScores(); grammarSrs = JSON.parse(altG); saveGrammarSrs(); nextWord();
     return { ok: leer && !fenster, info: 'leer=' + leer + ' Fenster=' + fenster }; }));
   await check('V21 Sicherung exportieren', async () => {
+    // V18/V20 setzen zurück und stellen den alten Stand wieder her – die dabei gemerkten Zeitpunkte
+    // würden den wiederhergestellten Stand beim Einlesen ausfiltern, daher hier entfernen
+    await ev(() => localStorage.removeItem('vokabeltrainer-reset-marks'));
     const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 3000 }), ev(() => exportBackup())]);
     const path = await dl.path(); const txt = require('fs').readFileSync(path, 'utf8'); const d = JSON.parse(txt);
     global.__backup = txt; return { ok: !!d && (d.app || d.appId), info: dl.suggestedFilename() };
@@ -339,7 +342,9 @@ const FILE = 'file://' + (process.argv[2] || APP_PATH);
   // ── Sicherung einlesen ──
   await check('S Sicherung einlesen', async () => {
     const fs = require('fs'); fs.writeFileSync(require('path').join(TMP, 'backup-test.json'), global.__backup);
-    await ev(() => { localStorage.setItem('vokabeltrainer-scores', '{}'); });
+    // Zeitpunkte früherer Zurücksetz-Prüfungen entfernen – hier geht es nur ums Einlesen selbst
+    // (dass Zurückgesetztes nicht zurückkommt, prüft zuruecksetzen-geraete.js)
+    await ev(() => { localStorage.setItem('vokabeltrainer-scores', '{}'); localStorage.removeItem('vokabeltrainer-reset-marks'); });
     const input = await p.$('input[type=file]');
     if (!input) return { ok: false, info: 'kein Datei-Eingabefeld' };
     await input.setInputFiles(require('path').join(TMP, 'backup-test.json'));
