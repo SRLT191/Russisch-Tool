@@ -22,7 +22,7 @@ const { chromium } = require('playwright');
     return { ok: JSON.stringify(m) === JSON.stringify({ '2026-10-01': [5, 4], '2026-10-02': [7, 2], '2026-10-03': [2, 2], '2026-10-05': [3, 3] }), info: JSON.stringify(m) };
   }));
   await check('Tage in Folge: heute + gestern + vorgestern = 3; nur bis gestern zählt auch', () => ev(() => {
-    const d = n => dayKey(new Date(Date.now() - n * 864e5));
+    flushSaves(); const d = n => dayKey(new Date(Date.now() - n * 864e5));
     localStorage.setItem('vokabeltrainer-daylog', JSON.stringify({ [d(0)]: [5, 5], [d(1)]: [2, 1], [d(2)]: [1, 1], [d(4)]: [3, 3] })); const a = homeStats().streak;
     localStorage.setItem('vokabeltrainer-daylog', JSON.stringify({ [d(1)]: [2, 1], [d(2)]: [1, 1] })); const c = homeStats().streak;
     return { ok: a === 3 && c === 2, info: a + ' / ' + c };
