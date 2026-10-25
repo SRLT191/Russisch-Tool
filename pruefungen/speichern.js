@@ -57,6 +57,15 @@ const TOKEN = 'github_pat_' + 'A'.repeat(40);
     const s = JSON.parse(localStorage.getItem('vokabeltrainer-scores')); return { ok: !!s[getKey(x)] && !!s[getKey(y)], info: '' };
   }));
   await check('nach „Neu laden nach dem Zusammenführen“ wird nichts mehr geschrieben', () => ev(() => { freezeSaves(); const vor = localStorage.getItem('vokabeltrainer-scores'); updateScore(allVocabWords()[7], true); flushSaves(); const ok = localStorage.getItem('vokabeltrainer-scores') === vor; savesFrozen = false; return ok; }));
+  await check('Sicherung einlesen: danach wieder in derselben Ansicht, nicht auf „Heute“', async () => {
+    const f = require('path').join(require('os').tmpdir(), 'sicherung-ansicht-test.json');
+    require('fs').writeFileSync(f, await ev(() => JSON.stringify(ghBuildPayload())));
+    await ev(() => { setAppView('grammar'); showGrammarPanel('noun'); });
+    p.once('dialog', d => d.accept()); await (await p.$('#backup-file')).setInputFiles(f); await p.waitForTimeout(1500);
+    const r = await ev(() => [appView, document.getElementById('overlay-noun').classList.contains('open')]); await ev(() => setAppView('vocab'));
+    return { ok: r[0] === 'grammar' && r[1], info: r.join(' ') };
+  });
+  await check('normales Öffnen startet weiter auf „Heute“', async () => { await p.reload(); await p.waitForTimeout(400); const v = await ev(() => appView); await ev(() => setAppView('vocab')); return { ok: v === 'home', info: v }; });
   await check('Zurücksetzen wird sofort festgeschrieben', () => ev(() => { resetProgress(); return localStorage.getItem('vokabeltrainer-scores') === '{}' && !pendingSaves.size; }));
   // GitHub
   await ev(T => { localStorage.setItem('vokabeltrainer-gh-settings', JSON.stringify({ repo: 'ich/lernstand', device: 'x' })); localStorage.setItem('vokabeltrainer-gh-token', T); }, TOKEN);

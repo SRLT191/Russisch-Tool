@@ -15,6 +15,7 @@ const TOKEN = 'github_pat_' + 'A'.repeat(40);
   await ctx.route('https://api.github.com/**', async route => {
     const req = route.request(); const url = new URL(req.url()); const m = url.pathname.match(/^\/repos\/([^/]+\/[^/]+)(\/contents\/lernstand\.json)?$/);
     if (gh.offline) return route.abort('internetdisconnected');
+    if (gh.delay) await new Promise(r => setTimeout(r, gh.delay));
     gh.auth.push(req.headers()['authorization'] || '');
     const json = (status, body) => route.fulfill({ status, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(body) });
     if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'Authorization, Content-Type', 'access-control-allow-methods': 'GET, PUT' } });
@@ -77,11 +78,14 @@ const TOKEN = 'github_pat_' + 'A'.repeat(40);
   await check('Konflikt: anderes Gerät speichert dazwischen → neu zusammengeführt, nichts verloren', async () => {
     await lerne('лес', 3);
     gh.beforePut = () => { const d = remote(); const s = JSON.parse(d.data['vokabeltrainer-scores']); s['море'] = { correct: 4, wrong: 1, box: 3, lastSeen: 1 }; d.data['vokabeltrainer-scores'] = JSON.stringify(s); gh.file = JSON.stringify(d); gh.sha++; };
-    const vorher = navs; await ev(() => ghSync()).catch(() => {}); await p.waitForLoadState('load'); await p.waitForTimeout(500);
+    await ev(() => setAppView('grammar'));
+    const vorher = navs; await ev(() => ghSync()).catch(() => {}); await p.waitForTimeout(500);
     const rs = remoteScores(); const lokal = await ev(() => JSON.parse(localStorage.getItem('vokabeltrainer-scores')));
-    return { ok: rs['лес'] && rs['море'] && lokal['море'] && lokal['лес'] && navs === vorher + 1, info: 'Neuladen: ' + (navs - vorher) };
+    const blieb = await ev(() => appView === 'grammar' && !!scores[getKey(allVocabWords().find(w => w.ru === 'море'))]); await ev(() => setAppView('vocab'));
+    // kein Neuladen mehr: die App bleibt in der Ansicht, der übernommene Stand ist sofort im Arbeitsspeicher
+    return { ok: rs['лес'] && rs['море'] && lokal['море'] && lokal['лес'] && navs === vorher && blieb, info: 'Neuladen: ' + (navs - vorher) + ', Ansicht geblieben: ' + blieb };
   });
-  await check('nach dem Neuladen: Hinweis, kein zweites Neuladen, nichts offen', async () => {
+  await check('danach: Hinweis, kein Neuladen, nichts offen', async () => {
     const n = navs; await p.waitForTimeout(800); await ev(() => openSettings()); const s = await status();
     return { ok: navs === n && /anderen Gerät/.test(s) && !(await ev(() => ghDirty())), info: s };
   });
@@ -89,7 +93,14 @@ const TOKEN = 'github_pat_' + 'A'.repeat(40);
     const d = remote(); const s = JSON.parse(d.data['vokabeltrainer-scores']); s['река'] = { correct: 5, wrong: 0, box: 4, lastSeen: 2 }; d.data['vokabeltrainer-scores'] = JSON.stringify(s); gh.file = JSON.stringify(d); gh.sha++;
     const n = navs; await p.reload(); await p.waitForTimeout(1500);
     const lokal = await ev(() => scores['река'] && scores['река'].correct);
-    return { ok: lokal === 5 && navs === n + 2 && !(await ev(() => ghDirty())), info: 'Seitenaufrufe ' + (navs - n) };
+    return { ok: lokal === 5 && navs === n + 1 && !(await ev(() => ghDirty())), info: 'Seitenaufrufe ' + (navs - n) };
+  });
+  await check('Laden beim Öffnen springt nicht zurück: wer schon weitergeklickt hat, bleibt dort', async () => {
+    const d = remote(); const s = JSON.parse(d.data['vokabeltrainer-scores']); s['озеро'] = { correct: 1, wrong: 0, box: 1, lastSeen: Date.now() }; d.data['vokabeltrainer-scores'] = JSON.stringify(s); gh.file = JSON.stringify(d); gh.sha++;
+    gh.delay = 900; await p.reload(); await p.waitForTimeout(150); await ev(() => { setAppView('grammar'); showGrammarPanel('gender'); }); await p.waitForTimeout(1600); gh.delay = 0;
+    const r = await ev(() => [appView, document.getElementById('overlay-gender').classList.contains('open'), !!JSON.parse(localStorage.getItem('vokabeltrainer-scores'))[getKey(allVocabWords().find(w => w.ru === 'озеро'))]]);
+    await ev(() => setAppView('vocab'));
+    return { ok: r[0] === 'grammar' && r[1] && r[2], info: r.join(' ') };
   });
   await check('Laden beim Öffnen abschaltbar', async () => {
     await ev(() => ghSetOption('loadOnOpen', false)); const g = gh.gets; await p.reload(); await p.waitForTimeout(800);

@@ -7676,6 +7676,7 @@ function importBackup(input) {
       + 'es geht nichts verloren. Deine Einstellungen bleiben, fehlende werden aus der Sicherung ergänzt.' + resetHinweis)) return;
     saveScores();   // laufenden Stand sicher ablegen, bevor zusammengeführt wird
     mergeAllFromBackup(d.data);
+    try { sessionStorage.setItem('vokabeltrainer-return-view', appView); } catch (e) {}
     ghSkipWarn = true; freezeSaves();
     location.reload();
   };
@@ -7827,7 +7828,17 @@ function ghUpdateIndicator() {
     const el = document.getElementById('gh-status'); if (el && !el.classList.contains('gh-err')) ghIdleStatus();
   }
 }
-function ghReload(note) { try { sessionStorage.setItem('vokabeltrainer-gh-note', note); sessionStorage.setItem('vokabeltrainer-gh-reloaded', '1'); } catch (e) {} ghSkipWarn = true; freezeSaves(); location.reload(); }
+// Nach dem Übernehmen eines GitHub-Stands: Anzeigen auffrischen, ohne neu zu laden – die App
+// bleibt in der Ansicht und beim Wort, in der man gerade ist (der Arbeitsspeicher wurde in
+// mergeAllFromBackup schon neu geladen).
+function ghApplyMerged(note) {
+  try { updateProgress(); } catch (e) {}
+  try { buildNav(); } catch (e) {}
+  try { updateBookmarkBtnIcon(); } catch (e) {}
+  try { if (typeof updateGrammarTileProgress === 'function') updateGrammarTileProgress(); } catch (e) {}
+  try { if (appView === 'home') renderHome(); } catch (e) {}
+  ghNote = note; ghStatus(note, 'ok');
+}
 async function ghSync() {
   if (ghBusy) return;
   if (!ghConnected()) { ghStatus('Nicht verbunden – Repo und Token eintragen, dann „Verbinden“', 'err'); return; }
@@ -7847,8 +7858,9 @@ async function ghSync() {
       // Lernstand auf GitHub schon gleich? Dann nichts hochladen (kein neuer Eintrag im Verlauf)
       if (remote.data && ghSyncHash(payload.data) === ghSyncHash(remote.data.data)) {
         const s2 = ghSettings(); s2.lastSync = new Date().toISOString(); s2.hash = ghLocalHash(); ghSaveSettings(s2);
-        if (reload) { ghReload('Stand von einem anderen Gerät übernommen ' + ghTime(s2.lastSync)); return; }
-        ghBusy = false; ghStatus('Bereits aktuell · zuletzt abgeglichen ' + ghTime(s2.lastSync), 'ok');
+        ghBusy = false;
+        if (reload) ghApplyMerged('Stand von einem anderen Gerät übernommen ' + ghTime(s2.lastSync));
+        else ghStatus('Bereits aktuell · zuletzt abgeglichen ' + ghTime(s2.lastSync), 'ok');
         return;
       }
       const body = { message: 'Lernstand ' + (s.device || 'Gerät') + ' ' + new Date().toLocaleString('de-DE'), content: ghB64Encode(JSON.stringify(payload)) };
@@ -7857,8 +7869,9 @@ async function ghSync() {
       if (r.status === 409 || r.status === 422) continue;   // inzwischen von einem anderen Gerät gespeichert
       if (!r.ok) throw new Error(ghErrText(r.status));
       const s2 = ghSettings(); s2.lastSync = new Date().toISOString(); s2.hash = ghLocalHash(); ghSaveSettings(s2);
-      if (reload) { ghReload('Abgeglichen – Stand von einem anderen Gerät übernommen ' + ghTime(s2.lastSync)); return; }
-      ghBusy = false; ghStatus('Gespeichert · zuletzt abgeglichen ' + ghTime(s2.lastSync), 'ok');
+      ghBusy = false;
+      if (reload) ghApplyMerged('Abgeglichen – Stand von einem anderen Gerät übernommen ' + ghTime(s2.lastSync));
+      else ghStatus('Gespeichert · zuletzt abgeglichen ' + ghTime(s2.lastSync), 'ok');
       return;
     }
     throw new Error('GitHub hat das Speichern mehrmals abgelehnt – bitte gleich noch einmal abgleichen');
@@ -7920,15 +7933,11 @@ function ghFillForm() {
   if (!ghBusy) ghIdleStatus();
   ghUpdateIndicator();
 }
-// Beim Öffnen: Stand von GitHub holen und einarbeiten (neu laden, wenn sich etwas geändert hat)
+// Beim Öffnen: Stand von GitHub holen und einarbeiten (ohne Neuladen, die Ansicht bleibt)
 async function ghStartup() {
-  let note = null, nachReload = false;
-  try { note = sessionStorage.getItem('vokabeltrainer-gh-note'); nachReload = !!sessionStorage.getItem('vokabeltrainer-gh-reloaded');
-    sessionStorage.removeItem('vokabeltrainer-gh-note'); sessionStorage.removeItem('vokabeltrainer-gh-reloaded'); } catch (e) {}
   ghUpdateIndicator();
-  if (note) { ghNote = note; ghStatus(note, 'ok'); }
   const s = ghSettings();
-  if (nachReload || !s.loadOnOpen || !ghConnected()) return;
+  if (!s.loadOnOpen || !ghConnected()) return;
   ghBusy = true; ghStatus('Lade Stand von GitHub …');
   try {
     const remote = await ghFetchRemote(ghNormRepo(s.repo));
@@ -7938,7 +7947,7 @@ async function ghStartup() {
       // Gerät hat jetzt genau den GitHub-Stand → nichts zu speichern
       const lokal = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
       if (ghCanonHash(lokal) === ghCanonHash(k => remote.data.data[k] === undefined ? null : remote.data.data[k])) { const s2 = ghSettings(); s2.hash = ghLocalHash(); ghSaveSettings(s2); }
-      if (changed) { ghReload('Stand von GitHub geladen'); return; }
+      if (changed) { ghBusy = false; ghApplyMerged('Stand von GitHub geladen'); return; }
     }
     ghBusy = false; ghIdleStatus();
   } catch (e) { ghStatus(e.message, 'err'); }
@@ -22424,8 +22433,10 @@ loadLifetime();
 
 // Zuletzt genutzte Ansicht wiederherstellen (Grammatik merkt sich ihr Panel)
 try {
-  // Beim Öffnen erscheint die Startseite „Heute“; „Weiterlernen“ führt zur zuletzt benutzten Ansicht
-  setAppView('home');
+  // Beim Öffnen erscheint die Startseite „Heute“; „Weiterlernen“ führt zur zuletzt benutzten Ansicht.
+  // Lädt die App selbst neu (Sicherung eingelesen), geht es in die Ansicht von vorher zurück.
+  let zurueck = null; try { zurueck = sessionStorage.getItem('vokabeltrainer-return-view'); sessionStorage.removeItem('vokabeltrainer-return-view'); } catch (e) {}
+  setAppView(['vocab', 'grammar', 'listening', 'home'].includes(zurueck) ? zurueck : 'home');
 } catch (e) {}
 // Was beim Start umgestellt wurde (Übernahme alter Stände), gleich schreiben
 flushSaves();
