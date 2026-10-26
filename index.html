@@ -450,7 +450,10 @@
     /* schmale Text- und Symbolknöpfe mindestens 44 px breit, Auswahl-Leiste und Links 44 px hoch */
     .tool-btn, .mode-btn { min-width: 44px; }
     #sidebar-mobile-toggle { min-height: 44px; }
-    .picker-quick a { display: inline-flex; align-items: center; min-height: 44px; }
+    .picker-quick a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
+    html .list-search, html .conj-input { height: 44px; }
+    .cat-group-title[data-cats], html .cat-check-row { min-height: 44px; }
+    .cat-group-hit { padding: 11px; margin: -11px; }
     .hoertrainer-loop-row { min-height: 44px; }
     .cat-group-check, input[type="checkbox"], .cat-check-row input[type="checkbox"], .hoertrainer-loop-row input[type="checkbox"] { width: 22px !important; height: 22px !important; }
     input[type="range"] { min-height: 44px; }
@@ -8761,7 +8764,7 @@ const SENTENCE_OVERRIDES = {
   // Interjektionen
   "да":         [ { ru: '___, я понимаю.',                de: '___, ich verstehe.', isAI: true } ],
   "нет":        [ { ru: '___, это неправда.',             de: '___, das ist nicht wahr.', isAI: true } ],
-  "ой": [ { ru: '___, больно!', de: 'Au, das tut weh!', isAI: true } ],
+  "ой": [ { ru: '___, больно!', de: 'Aua, das tut weh!', isAI: true } ],
   "ура":        [ { ru: '___, мы победили!',              de: '___, wir haben gewonnen!', isAI: true } ],
   // Begrüßungen
   "спасибо":    [ { ru: '___ за помощь.',                 de: '___ für die Hilfe.', isAI: true } ],
@@ -14180,13 +14183,13 @@ function buildCatPickerBody(body, isChecked, onChange, opts) {
       t.dataset.cats = cats.join('|');
       t.style.display = 'flex'; t.style.alignItems = 'center'; t.style.gap = '8px'; t.style.cursor = 'pointer';
       const klapp = opts.collapsible && sub;
-      t.innerHTML = '<input type="checkbox" class="cat-group-check" aria-label="Alle aus „' + label + '“" style="width:15px;height:15px;accent-color:var(--c-accent)">'
+      t.innerHTML = '<label class="cat-group-hit" style="display:inline-flex;cursor:pointer"><input type="checkbox" class="cat-group-check" aria-label="Alle aus „' + label + '“" style="width:15px;height:15px;accent-color:var(--c-accent)"></label>'
         + '<span style="flex:1">' + label + (opts.collapsible ? ' <span class="cat-group-sel"></span>' : '') + '</span>'
         + (klapp ? '<button type="button" class="cat-group-toggle" aria-label="„' + label + '“ auf- oder zuklappen"><i class="ti ti-chevron-down"></i></button>' : '');
       if (klapp) {
         t.dataset.sub = label;
         t.onclick = (e) => {
-          if (e.target.closest('.cat-group-check')) return;
+          if (e.target.closest('.cat-group-check, .cat-group-hit')) return;
           if (body._collapsed.has(label)) body._collapsed.delete(label); else body._collapsed.add(label);
           applyCatPickerFilter(body, body._query || '');
         };
