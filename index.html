@@ -1008,6 +1008,19 @@
     #vocab-status { flex-wrap: wrap; row-gap: 8px; }
     #vocab-status #progress-bar-wrap { order: 5; flex-basis: 100%; }
     #progress-text { margin-right: auto; }
+    /* Kategorie-Auswahl, Vokabelliste und Alphabet in einer Zeile (Liste und Alphabet als Symbole) */
+    #sidebar { display: flex; flex-wrap: wrap; align-items: stretch; column-gap: 8px; }
+    #sidebar > * { flex: 0 0 100%; }
+    #sidebar #sidebar-mobile-toggle { flex: 1 1 0; min-width: 0; }
+    #sidebar #sidebar-tools { flex: 0 0 auto; margin-bottom: 8px; }
+    #sidebar-tools .tile-tool { flex: 0 0 auto; width: 46px; padding: 0; }
+    #sidebar-tools .tile-tool span { display: none; }
+    #sidebar-mobile-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+    /* Kartenaktionen in einer Zeile: Transliteration nur als Symbol */
+    #transcription-btn-label { display: none; }
+    /* Aufdecken: weniger Abstand, „Gewusst“/„Nicht gewusst“ bleiben über der Leiste unten sichtbar */
+    #flip-row { margin-top: 1rem; position: sticky; bottom: calc(62px + env(safe-area-inset-bottom, 0px)); z-index: 5;
+      background: var(--c-bg-page); padding: 8px 0; margin-bottom: -8px; }
   }
 
   /* Startseite „Heute“ */
