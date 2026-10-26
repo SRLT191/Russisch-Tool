@@ -31,6 +31,6 @@ Siehe `WARTUNGSPLAN.md`: Prüfbefehle, wann welcher Befehl, feste Regeln. Änder
 
 ## Quellen
 
-Sprachniveaus als Richtwert: A1 nach den FIPI-Anforderungen „Уровень 1“ (2023), sonst nach Worthäufigkeit (OpenSubtitles-Liste, hermitdave/FrequencyWords) mit Wortformen aus OpenRussian.org (CC BY-SA 4.0).
+Sprachniveaus als Richtwert: A1 nach den FIPI-Anforderungen „Уровень 1“ (2023), A2 nach dem „Лексический минимум по русскому языку как иностранному. Базовый уровень“ (Н.П. Андрюшина, Т.В. Козлова, Златоуст 2019), sonst nach Worthäufigkeit (OpenSubtitles-Liste, hermitdave/FrequencyWords) mit Wortformen aus OpenRussian.org (CC BY-SA 4.0).
 
 Schriften: Noto Sans und Literata (SIL Open Font License 1.1), Symbole: Tabler Icons (MIT), alle eingebettet in `index.html`.
