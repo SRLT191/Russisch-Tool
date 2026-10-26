@@ -1021,6 +1021,13 @@
     /* Aufdecken: weniger Abstand, „Gewusst“/„Nicht gewusst“ bleiben über der Leiste unten sichtbar */
     #flip-row { margin-top: 1rem; position: sticky; bottom: calc(62px + env(safe-area-inset-bottom, 0px)); z-index: 5;
       background: var(--c-bg-page); padding: 8px 0; margin-bottom: -8px; }
+    /* Karte kompakter, damit Wort, Aktionen und Antwort über die Knopfleiste passen */
+    #word-card { padding: 0.8rem 1rem 0.9rem; min-height: 0; }
+    #card-mode-bar { margin-bottom: 0; }
+    #russian-word { font-size: 34px; }
+    #transcription:empty { min-height: 0; }
+    #card-actions { margin-top: 8px; }
+    #correct-reveal { margin-top: 10px; padding: 8px 12px; }
   }
 
   /* Startseite „Heute“ */
@@ -13273,6 +13280,19 @@ function flipReveal() {
   speakAnswerAuto();
   document.getElementById('flip-show-btn').style.display = 'none';
   document.getElementById('flip-judge').classList.add('visible');
+  flipShowAnswerAboveBar();
+}
+// Handy: die feste Knopfleiste darf die aufgedeckte Antwort nicht verdecken – sonst so weit rollen,
+// dass die Antwort direkt über „Gewusst“/„Nicht gewusst“ steht
+function flipShowAnswerAboveBar() {
+  if (!window.matchMedia || !matchMedia('(max-width: 700px)').matches) return;
+  requestAnimationFrame(() => {
+    const ans = document.getElementById('correct-reveal'), bar = document.getElementById('flip-row');
+    if (!ans || !bar || ans.style.display === 'none') return;
+    const a = ans.getBoundingClientRect(), b = bar.getBoundingClientRect();
+    const zuViel = a.bottom - (b.top - 6);
+    if (zuViel > 0) window.scrollBy({ top: zuViel, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  });
 }
 // Selbsteinschätzung: zählt wie eine richtige bzw. falsche Antwort
 // Letzte Selbsteinschätzung, um sie zurücknehmen zu können

@@ -1,11 +1,24 @@
 const APP_PATH = require('path').resolve(__dirname, '..', 'index.html');
 // Handy: Kopfbereich in einer Zeile, Kartenaktionen in einer Zeile,
-// „Gewusst“/„Nicht gewusst“ beim Aufdecken immer über der Leiste unten sichtbar; PC unverändert
+// „Gewusst“/„Nicht gewusst“ beim Aufdecken immer über der Leiste unten sichtbar, ohne die Antwort zu verdecken; PC unverändert
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch();
   const R = []; const check = async (n, f) => { try { const r = await f(); const ok = typeof r === 'object' ? r.ok : r; R.push([ok ? 'OK ' : 'XX ', n, r && r.info || '']); } catch (e) { R.push(['XX ', n, e.message]); } };
   const errs = [];
+  // mit Browserleiste (Vivaldi am Handy) ist der sichtbare Bereich deutlich niedriger
+  for (const [w, h] of [[412, 690], [360, 560]]) for (const dir of ['ru-de', 'de-ru']) {
+    const m = await b.newPage({ viewport: { width: w, height: h }, hasTouch: true, isMobile: true });
+    m.on('pageerror', e => errs.push(e.message));
+    await m.goto('file://' + APP_PATH); await m.waitForTimeout(300);
+    await m.evaluate(d => { setAppView('vocab'); setDirection(d); setMode('flip'); window.scrollTo(0, 0); flipReveal(); }, dir);
+    await m.waitForTimeout(700);
+    await check(w + '×' + h + ' ' + dir + ': aufgedeckte Antwort steht über der Knopfleiste (nicht verdeckt)', () => m.evaluate(() => {
+      const a = document.getElementById('correct-reveal').getBoundingClientRect(), k = document.getElementById('flip-row').getBoundingClientRect();
+      return { ok: a.top >= 0 && a.bottom <= k.top + 0.5, info: 'Antwort ' + Math.round(a.top) + '–' + Math.round(a.bottom) + ', Knöpfe ab ' + Math.round(k.top) };
+    }));
+    await m.close();
+  }
   for (const [w, h] of [[412, 780], [360, 600], [320, 568]]) {
     const m = await b.newPage({ viewport: { width: w, height: h }, hasTouch: true, isMobile: true });
     m.on('pageerror', e => errs.push(e.message));
