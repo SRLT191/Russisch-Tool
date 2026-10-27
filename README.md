@@ -7,7 +7,7 @@ Ein Russisch-Trainer in einer einzigen Datei: **`index.html`** im Browser öffne
 **Als App installieren:** die Online-Seite in Vivaldi (oder Chrome/Edge) öffnen, dann im Menü *App installieren* bzw. auf dem Handy *Zum Startbildschirm hinzufügen*. Die App startet im eigenen Fenster, holt bei Internet immer die neueste Fassung und läuft auch ohne Internet (`manifest.webmanifest`, `sw.js`, Symbole in `icons/`). Der Lernstand ist derselbe wie in der Online-Seite im selben Browser; vor dem ersten Installieren trotzdem mit GitHub abgleichen oder eine Sicherung machen.
 
 - **Startseite „Heute“:** Weiterlernen (mit Vorschau, was kommt), fällige Wiederholungen mit Vorschau der nächsten Tage, heute geübt, Woche mit Summe und Quote, Stand je Sprachstufe, „Oft falsch“ zum gezielten Üben (Fehlerzähler: +1 bei falsch, −1 bei richtig), Hinweis wenn nicht auf GitHub gespeichert
-- **Vokabeln:** 3189 Karten (3206 Wörter) in 79 Kategorien, RU → DE und DE → RU, Freitext, Auswahl und Aufdecken; Umschrift wahlweise nach der Aussprache oder Buchstabe für Buchstabe; Vorlesen mit wählbarer russischer und deutscher Stimme
+- **Vokabeln:** 3204 Karten (3221 Wörter) in 79 Kategorien, RU → DE und DE → RU, Freitext, Auswahl und Aufdecken; Umschrift wahlweise nach der Aussprache oder Buchstabe für Buchstabe; Vorlesen mit wählbarer russischer und deutscher Stimme
 - **Grammatik:** 17 Werkzeuge (Verben, Substantive, Adjektive, Pronomen, Präpositionen, Sätze)
 - **Hörverstehen:** Hörtrainer, Hörquiz, Satzdiktat
 - **Sprachniveau:** jedes Wort und jeder Satz mit Stufe (A1–C1), Stufenplan, Einstufungstest, Stufe abschließen
