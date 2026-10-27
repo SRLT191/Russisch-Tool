@@ -1,8 +1,10 @@
 # Russisch-Tool
 
-Ein Russisch-Trainer in einer einzigen Datei: **`index.html`** im Browser öffnen, fertig – keine Installation, kein Server.
+Ein Russisch-Trainer in einer einzigen Datei: **`index.html`** im Browser öffnen, fertig – keine Installation, kein Server; wahlweise als App installierbar.
 
 **Online:** https://srlt191.github.io/Russisch-Tool/
+
+**Als App installieren:** die Online-Seite in Vivaldi (oder Chrome/Edge) öffnen, dann im Menü *App installieren* bzw. auf dem Handy *Zum Startbildschirm hinzufügen*. Die App startet im eigenen Fenster, holt bei Internet immer die neueste Fassung und läuft auch ohne Internet (`manifest.webmanifest`, `sw.js`, Symbole in `icons/`). Der Lernstand ist derselbe wie in der Online-Seite im selben Browser; vor dem ersten Installieren trotzdem mit GitHub abgleichen oder eine Sicherung machen.
 
 - **Startseite „Heute“:** Weiterlernen, fällige Wiederholungen, heute geübt, Woche, Stand je Sprachstufe
 - **Vokabeln:** 3134 Karten (3151 Wörter) in 79 Kategorien, RU → DE und DE → RU, Freitext, Auswahl und Aufdecken; Umschrift wahlweise nach der Aussprache oder Buchstabe für Buchstabe; Vorlesen

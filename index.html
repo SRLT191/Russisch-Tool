@@ -5,8 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Schutzschild: Die App lädt nichts nach und darf nichts nach außen senden.
      Nur eingebettete Skripte, Stile, Schrift (data:) und Bilder (data:/blob:) sind erlaubt. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; media-src data: blob:; connect-src https://api.github.com; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src data:; media-src data: blob:; connect-src https://api.github.com; manifest-src 'self'; worker-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <title>Russisch Sprachtool</title>
+<!-- Installierbare App: Manifest, Symbole und Hintergrund-Helfer (sw.js) liegen neben dieser Datei. -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#f4f3f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15171a" media="(prefers-color-scheme: dark)">
 <!-- Symbolschrift eingebettet (Tabler Icons, nur die 116 benutzten Zeichen):
      damit läuft die Datei komplett ohne Internet. -->
 <style>
@@ -8078,6 +8084,12 @@ window.addEventListener('beforeunload', e => {
 setInterval(() => { if (!ghBusy && !document.hidden) ghUpdateIndicator(); }, 10000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && !ghBusy) ghUpdateIndicator(); });
 setTimeout(ghStartup, 0);
+
+// Installierbare App: Der Hintergrund-Helfer holt immer zuerst die neue Seite aus dem Netz
+// und nimmt die gespeicherte Kopie nur ohne Internet. Bei file:// gibt es ihn nicht.
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
 
 // Sitzungsziel: einfacher Fortschrittsbalken für die laufende Runde
 const SESSION_GOAL_KEY = 'vokabeltrainer-session-goal';
