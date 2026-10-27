@@ -1005,6 +1005,18 @@
   .sub-btn .sub-btn-count, .sub-btn .sub-btn-sel { flex-shrink: 0; overflow: visible; }
   .sub-btn-sel { flex-shrink: 0; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 99px; background: var(--c-accent); color: var(--c-on-accent); font-size: 10px; font-weight: 600; display: inline-grid; place-items: center; }
   .sub-btn::after { content: ''; position: absolute; left: 26px; right: 10px; bottom: 1px; height: 2px; border-radius: 2px; background: linear-gradient(to right, var(--c-success-border) var(--sub-p, 0%), transparent var(--sub-p, 0%)); opacity: .7; pointer-events: none; }
+  /* Breite der Bereiche und Größe der Dialoge per Ziehen (nur PC) */
+  .area-grip { display: none; }
+  @media (min-width: 701px) and (hover: hover) {
+    #inner, #grammar-view, #listening-view { position: relative; }
+    #listening-view { width: 100%; max-width: 600px; }
+    .area-grip { display: block; position: absolute; top: 0; bottom: 0; right: -14px; width: 10px; cursor: col-resize; touch-action: none; z-index: 4; }
+    .area-grip::after { content: ''; position: absolute; top: 8px; bottom: 8px; left: 4px; width: 2px; border-radius: 2px; background: transparent; transition: background .15s; }
+    .area-grip:hover::after, .area-grip:focus-visible::after, body.area-ziehen .area-grip::after { background: var(--c-accent); }
+    .area-grip:focus-visible { outline: none; }
+    body.area-ziehen { cursor: col-resize; user-select: none; }
+    .overlay-box { resize: both; overflow: hidden; min-width: 360px; min-height: 160px; }
+  }
   /* Breite Fenster am PC: Lernbereich wächst mit und rückt etwas nach unten */
   @media (min-width: 1200px) and (hover: hover) {
     #inner { max-width: 720px; }
@@ -7775,7 +7787,7 @@ const BACKUP_KEYS = ['vokabeltrainer-grammar-info-open','vokabeltrainer-grammar-
   'vokabeltrainer-hearquiz-settings','vokabeltrainer-hoertrainer-cats','vokabeltrainer-hoertrainer-pause',
   'vokabeltrainer-autoplay','vokabeltrainer-block-size','vokabeltrainer-direction',
   'vokabeltrainer-skip-cognates','vokabeltrainer-theme','vokabeltrainer-session-goal',
-  'vokabeltrainer-cyr-keyboard','vokabeltrainer-max-level','vokabeltrainer-lifetime','vokabeltrainer-level-order','vokabeltrainer-my-level','vokabeltrainer-speak-rate','vokabeltrainer-view','vokabeltrainer-grammar-panel','vokabeltrainer-listening-panel','vokabeltrainer-sidebar-width','vokabeltrainer-life-demote','vokabeltrainer-reset-marks','vokabeltrainer-settings-ui','vokabeltrainer-ru-font','vokabeltrainer-daylog'];
+  'vokabeltrainer-cyr-keyboard','vokabeltrainer-max-level','vokabeltrainer-lifetime','vokabeltrainer-level-order','vokabeltrainer-my-level','vokabeltrainer-speak-rate','vokabeltrainer-view','vokabeltrainer-grammar-panel','vokabeltrainer-listening-panel','vokabeltrainer-sidebar-width','vokabeltrainer-width-vocab','vokabeltrainer-width-grammar','vokabeltrainer-width-listening','vokabeltrainer-dialog-sizes','vokabeltrainer-life-demote','vokabeltrainer-reset-marks','vokabeltrainer-settings-ui','vokabeltrainer-ru-font','vokabeltrainer-daylog'];
 function exportBackup() {
   flushSaves();
   const data = { app: APP_ID, version: 1, saved: new Date().toISOString(), data: {} };
@@ -14401,6 +14413,99 @@ function savedSidebarWidth() {
   // kleineres Fenster: gespeicherte Breite wieder in den erlaubten Bereich holen
   window.addEventListener('resize', () => setSidebarWidth(savedSidebarWidth(), false));
 })();
+// ── Breite der Arbeitsbereiche (PC) ──────────────────────────────
+// Griff am rechten Rand von Lernbereich, Grammatik und Hören: Ziehen ändert die Breite (der Bereich
+// bleibt mittig, wächst also nach beiden Seiten), Doppelklick oder Pos1 = automatische Breite.
+// Gespeichert je Ansicht; am Handy gibt es keinen Griff.
+const AREA_WIDTH = { vocab: { id: 'inner', key: 'vokabeltrainer-width-vocab', min: 420 }, grammar: { id: 'grammar-view', key: 'vokabeltrainer-width-grammar', min: 480 }, listening: { id: 'listening-view', key: 'vokabeltrainer-width-listening', min: 420 } };
+function areaMaxWidth() { const mc = document.getElementById('main-content'); if (!mc) return 1600; const cs = getComputedStyle(mc); return Math.max(420, Math.floor(mc.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight))); }
+function areaWideAllowed() { return window.matchMedia('(min-width: 701px) and (hover: hover)').matches; }
+function setAreaWidth(view, px, save) {
+  const a = AREA_WIDTH[view]; const el = a && document.getElementById(a.id); if (!el) return 0;
+  if (px == null || !areaWideAllowed()) {
+    el.style.maxWidth = ''; el.classList.remove('area-custom');
+    if (save) { try { localStorage.removeItem(a.key); } catch (e) {} }
+  } else {
+    const w = Math.round(Math.min(areaMaxWidth(), Math.max(a.min, Number(px))));
+    el.style.maxWidth = w + 'px'; el.classList.add('area-custom');
+    if (save) { try { localStorage.setItem(a.key, String(w)); } catch (e) {} }
+  }
+  const g = el.querySelector(':scope > .area-grip'); if (g) g.setAttribute('aria-valuenow', Math.round(el.getBoundingClientRect().width));
+  return Math.round(el.getBoundingClientRect().width);
+}
+function savedAreaWidth(view) { try { const v = parseInt(localStorage.getItem(AREA_WIDTH[view].key), 10); return Number.isFinite(v) ? v : null; } catch (e) { return null; } }
+(function initAreaGrips() {
+  Object.keys(AREA_WIDTH).forEach(view => {
+    const el = document.getElementById(AREA_WIDTH[view].id); if (!el) return;
+    const g = document.createElement('div');
+    g.className = 'area-grip'; g.tabIndex = 0;
+    g.setAttribute('role', 'separator'); g.setAttribute('aria-orientation', 'vertical');
+    g.setAttribute('aria-label', 'Breite des Bereichs'); g.title = 'Ziehen ändert die Breite · Doppelklick: automatisch';
+    el.appendChild(g);
+    let start = null;
+    g.addEventListener('pointerdown', e => {
+      if (e.button !== 0) return; e.preventDefault();
+      start = { x: e.clientX, w: el.getBoundingClientRect().width };
+      try { g.setPointerCapture(e.pointerId); } catch (err) {}
+      document.body.classList.add('area-ziehen');
+    });
+    // der Bereich steht mittig: der Rand bewegt sich nur halb so weit wie die Breite wächst
+    g.addEventListener('pointermove', e => { if (start) setAreaWidth(view, start.w + 2 * (e.clientX - start.x), false); });
+    const ende = () => { if (!start) return; start = null; document.body.classList.remove('area-ziehen'); setAreaWidth(view, el.getBoundingClientRect().width, true); };
+    g.addEventListener('pointerup', ende); g.addEventListener('pointercancel', ende);
+    g.addEventListener('dblclick', () => setAreaWidth(view, null, true));
+    g.addEventListener('keydown', e => {
+      const w = el.getBoundingClientRect().width;
+      if (e.key === 'ArrowRight') setAreaWidth(view, w + 32, true);
+      else if (e.key === 'ArrowLeft') setAreaWidth(view, w - 32, true);
+      else if (e.key === 'Home') setAreaWidth(view, null, true);
+      else return;
+      e.preventDefault(); e.stopPropagation();
+    });
+    const v = savedAreaWidth(view); if (v != null) setAreaWidth(view, v, false);
+  });
+  window.addEventListener('resize', () => Object.keys(AREA_WIDTH).forEach(view => setAreaWidth(view, savedAreaWidth(view), false)));
+})();
+// ── Dialoge in der Größe ziehen (PC) ─────────────────────────────
+// Ecke unten rechts: Größe ändern, wird je Dialog gemerkt; Doppelklick auf die Ecke = Standardgröße.
+const DIALOG_SIZE_KEY = 'vokabeltrainer-dialog-sizes';
+function dialogSizes() { try { const o = JSON.parse(localStorage.getItem(DIALOG_SIZE_KEY) || '{}'); return o && typeof o === 'object' && !Array.isArray(o) ? o : {}; } catch (e) { return {}; } }
+function applyDialogSize(box, size) {
+  if (size && areaWideAllowed()) {
+    const w = Math.round(Math.min(window.innerWidth - 32, Math.max(360, Number(size.w) || 0)));
+    const h = Math.round(Math.min(window.innerHeight * 0.92, Math.max(240, Number(size.h) || 0)));
+    box.style.width = w + 'px'; box.style.height = h + 'px'; box.style.maxHeight = '92vh'; box.classList.add('dialog-custom');
+  } else { box.style.width = ''; box.style.height = ''; box.style.maxHeight = ''; box.classList.remove('dialog-custom'); }
+}
+function resetDialogSize(id) {
+  const o = document.getElementById(id), box = o && o.querySelector('.overlay-box'); if (!box) return;
+  const all = dialogSizes(); delete all[id];
+  try { if (Object.keys(all).length) localStorage.setItem(DIALOG_SIZE_KEY, JSON.stringify(all)); else localStorage.removeItem(DIALOG_SIZE_KEY); } catch (e) {}
+  applyDialogSize(box, null);
+}
+(function initDialogResize() {
+  const all = dialogSizes();
+  document.querySelectorAll('.overlay').forEach(o => {
+    const box = o.querySelector('.overlay-box'); if (!box || !o.id) return;
+    if (all[o.id]) applyDialogSize(box, all[o.id]);
+    const inEcke = e => { const r = box.getBoundingClientRect(); return e.clientX > r.right - 22 && e.clientY > r.bottom - 22; };
+    let ziehen = false;
+    box.addEventListener('pointerdown', e => {
+      if (!areaWideAllowed() || !inEcke(e)) return;
+      ziehen = true; box.style.maxHeight = '92vh';
+    });
+    const ende = () => {
+      if (!ziehen) return; ziehen = false;
+      const r = box.getBoundingClientRect(), s = dialogSizes();
+      s[o.id] = { w: Math.round(r.width), h: Math.round(r.height) };
+      try { localStorage.setItem(DIALOG_SIZE_KEY, JSON.stringify(s)); } catch (e) {}
+      box.classList.add('dialog-custom');
+    };
+    window.addEventListener('pointerup', ende);
+    box.addEventListener('dblclick', e => { if (inEcke(e)) resetDialogSize(o.id); });
+  });
+  window.addEventListener('resize', () => { const s = dialogSizes(); document.querySelectorAll('.overlay').forEach(o => { const b = o.querySelector('.overlay-box'); if (b && s[o.id]) applyDialogSize(b, s[o.id]); }); });
+})();
 (function initA11y() {
   document.querySelectorAll('.overlay').forEach(o => {
     const box = o.querySelector('.overlay-box') || o;
@@ -15076,7 +15181,10 @@ function closeOverlay(id) {
   document.getElementById(id).classList.remove('open');
 }
 document.querySelectorAll('.overlay').forEach(el => {
-  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+  // Klick auf den Hintergrund schließt – aber nicht, wenn die Maus im Dialog gedrückt wurde
+  // (Größe ziehen oder Text markieren und außerhalb loslassen)
+  el.addEventListener('pointerdown', e => { el._downInside = e.target !== el; });
+  el.addEventListener('click', e => { const innen = el._downInside; el._downInside = false; if (e.target === el && !innen) el.classList.remove('open'); });
 });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
