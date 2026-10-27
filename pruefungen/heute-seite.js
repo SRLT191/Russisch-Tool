@@ -6,7 +6,7 @@ const SAAT = () => {
   ws.slice(0, 40).forEach((w, i) => { L.v[getKey(w)] = { c: i % 7 === 0 ? 1 : (i % 5 === 0 ? 0 : 3), w: i % 7 === 0 ? 4 : (i % 5 === 0 ? 2 : 0), mb: 2, l: now - 20 * D, z: now - D, d: 1 + (i % 3), dd: now - (i % 4) * D }; });
   ws.slice(40, 60).forEach(w => { L.v[getKey(w)] = { c: 9, w: 0, mb: 5, l: now - 60 * D, z: now - D, d: 5, dd: now - D }; });
   saveLifetime();
-  const log = {}; for (let i = 1; i < 6; i++) log[dayKey(new Date(now - i * D))] = [10 + i * 7, 8 + i * 5]; log[dayKey()] = [12, 9];
+  const log = {}; for (let i = 1; i < 6; i++) log[dayKey(daysAgo(i))] = [10 + i * 7, 8 + i * 5]; log[dayKey()] = [12, 9];
   localStorage.setItem('vokabeltrainer-daylog', JSON.stringify(log)); daylogMem = null;
 };
 (async () => {
