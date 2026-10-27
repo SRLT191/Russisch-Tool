@@ -7101,6 +7101,9 @@ function lifeNote(map, id, ok, box) {
 // Tagesprotokoll: je Tag Antworten und richtige (für Wochenverlauf und „Tage in Folge“)
 const DAYLOG_KEY = 'vokabeltrainer-daylog';
 const VIEW_TIMES_KEY = 'vokabeltrainer-view-times';
+// Kalendertag vor n Tagen (mittags) – nicht „jetzt minus n × 24 Stunden“: nach der Zeitumstellung
+// trifft das kurz vor Mitternacht sonst einen Tag doppelt und überspringt einen anderen
+function daysAgo(n, from) { const d = from ? new Date(from) : new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate() - n, 12); }
 function dayKey(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 function cleanDaylog(x) {
   const out = {};
@@ -7144,7 +7147,7 @@ function viewTimes() {
 function homeContinue() { setAppView(viewTimes().last); }
 function homeRelDay(ts) {
   if (!ts) return '';
-  const d = new Date(ts), heute = dayKey(), gestern = dayKey(new Date(Date.now() - 864e5));
+  const d = new Date(ts), heute = dayKey(), gestern = dayKey(daysAgo(1));
   if (dayKey(d) === heute) return 'heute';
   if (dayKey(d) === gestern) return 'gestern';
   return d.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
@@ -7152,12 +7155,12 @@ function homeRelDay(ts) {
 // Zahlen für die Startseite (auch für die Prüfung abrufbar)
 function homeStats() {
   const now = Date.now(), log = loadDaylog();
-  let streak = 0; { let d = new Date(); if (!log[dayKey(d)]) d = new Date(now - 864e5); while (log[dayKey(d)]) { streak++; d = new Date(d.getTime() - 864e5); } }
+  let streak = 0; { let d = daysAgo(0); if (!log[dayKey(d)]) d = daysAgo(1); while (log[dayKey(d)]) { streak++; d = daysAgo(1, d); } }
   const faellig = e => e && e.d > 0 && e.d < LIFE_RUNS_MAX && now >= lifeNextDue(e);
   const words = allVocabWords();
   const dueWords = words.filter(w => faellig(lifeVocabEntry(w))).length;
   let dueGrammar = 0; Object.values(loadLifetime().g || {}).forEach(m => Object.values(m || {}).forEach(e => { if (faellig(e)) dueGrammar++; }));
-  const week = []; for (let i = 6; i >= 0; i--) { const d = new Date(now - i * 864e5); week.push({ k: dayKey(d), tag: d.toLocaleDateString('de-DE', { weekday: 'short' }).replace('.', ''), n: (log[dayKey(d)] || [0])[0] }); }
+  const week = []; for (let i = 6; i >= 0; i--) { const d = daysAgo(i); week.push({ k: dayKey(d), tag: d.toLocaleDateString('de-DE', { weekday: 'short' }).replace('.', ''), n: (log[dayKey(d)] || [0])[0] }); }
   const levels = LV_NAMES.map(L => {
     const ws = words.filter(w => wordLevel(w) === L); let sicher = 0, arbeit = 0;
     ws.forEach(w => { const e = lifeVocabEntry(w); const d = (e && e.d) || 0; if (d >= LIFE_RUNS_MAX) sicher++; else if (d > 0) arbeit++; });
