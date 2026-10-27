@@ -135,7 +135,7 @@
   /* layout */
   #trainer { display: flex; gap: 0; align-items: flex-start; min-height: 100vh; }
   #sidebar-mobile-toggle { display: none; }
-  #sidebar { width: var(--sidebar-w, 200px); flex-shrink: 0; background: var(--c-surface); border-right: 0.5px solid var(--c-border); padding: 1.5rem 10px; min-height: 100vh; position: relative; }
+  #sidebar { width: var(--sidebar-w, 260px); flex-shrink: 0; background: var(--c-surface); border-right: 0.5px solid var(--c-border); padding: 1.5rem 10px; min-height: 100vh; position: relative; }
   /* Griff am rechten Rand: Seitenleiste breiter oder schmaler ziehen (nur breite Fenster) */
   #sidebar-resizer { position: absolute; top: 0; right: -5px; width: 10px; height: 100%; cursor: col-resize; z-index: 5; touch-action: none; }
   #sidebar-resizer::after { content: ''; position: absolute; top: 0; bottom: 0; left: 4px; width: 2px; background: transparent; transition: background 0.15s; }
@@ -919,8 +919,8 @@
   #russian-word { font-weight: 600; letter-spacing: 0.005em; }
   /* Kopfzeile */
   #app-header { position: sticky; top: 0; z-index: 50; height: var(--hdr-h); display: flex; align-items: center; gap: 16px; padding: 0 16px; background: var(--c-surface); border-bottom: 0.5px solid var(--c-border); }
-  .hdr-logo { display: flex; align-items: center; gap: 8px; width: calc(var(--sidebar-w, 200px) - 16px); flex-shrink: 0; font-weight: 600; font-size: 15px; color: var(--c-text-primary); }
-  .hdr-mark { width: 28px; height: 28px; border-radius: 8px; background: var(--c-accent); color: var(--c-on-accent); display: grid; place-items: center; font-weight: 600; font-size: 17px; }
+  .hdr-logo { display: flex; align-items: center; gap: 8px; width: calc(var(--sidebar-w, 260px) - 16px); flex-shrink: 0; font-weight: 600; font-size: 15px; color: var(--c-text-primary); }
+  .hdr-mark { width: 28px; height: 28px; border-radius: 8px; background: var(--c-accent); color: var(--c-on-accent); display: grid; place-items: center; font-family: 'Literata', serif; font-weight: 600; font-size: 14px; letter-spacing: -0.02em; line-height: 1; padding-bottom: 1px; }
   #view-switcher { margin: 0; }
   #view-switcher .mode-btn { padding: 7px 16px; font-size: 14px; }
   #view-switcher .mode-btn i { font-size: 16px; }
@@ -992,6 +992,38 @@
   #hq-actions .gt-primary { flex: 1; }
   /* blassere Schalter etwas kräftiger */
   .mode-btn { color: var(--c-text-secondary); }
+  /* Statusleiste: Beschriftung der Symbol-Knöpfe erst bei genug Breite */
+  .status-lbl { display: none; margin-left: 5px; }
+  /* Stufe auf der Karte: größer und je Stufe gefärbt */
+  #card-level .lvl-badge { font-size: 11.5px; padding: 4px 8px; border-radius: 7px; }
+  #card-level[data-lv="A1"] .lvl-badge, #card-level[data-lv="A2"] .lvl-badge { color: var(--c-success-text); border-color: var(--c-success-border-light); background: var(--c-success-bg); }
+  #card-level[data-lv="B1"] .lvl-badge, #card-level[data-lv="B2"] .lvl-badge { color: var(--c-accent-strong); border-color: var(--c-accent); background: var(--c-accent-soft-bg); }
+  #card-level[data-lv="C1"] .lvl-badge { color: var(--c-typo-text); border-color: var(--c-typo-text); background: transparent; }
+  /* Seitenleiste: gewählte Blöcke als kleine Marke, Fortschritt als feine Linie */
+  .sub-btn { position: relative; }
+  .sub-btn-name { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sub-btn .sub-btn-count, .sub-btn .sub-btn-sel { flex-shrink: 0; overflow: visible; }
+  .sub-btn-sel { flex-shrink: 0; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 99px; background: var(--c-accent); color: var(--c-on-accent); font-size: 10px; font-weight: 600; display: inline-grid; place-items: center; }
+  .sub-btn::after { content: ''; position: absolute; left: 26px; right: 10px; bottom: 1px; height: 2px; border-radius: 2px; background: linear-gradient(to right, var(--c-success-border) var(--sub-p, 0%), transparent var(--sub-p, 0%)); opacity: .7; pointer-events: none; }
+  /* Breite Fenster am PC: Lernbereich wächst mit und rückt etwas nach unten */
+  @media (min-width: 1200px) and (hover: hover) {
+    #inner { max-width: 720px; }
+    #russian-word { font-size: 72px; }
+    #word-card { min-height: 240px; padding: 1.8rem 2rem 1.5rem; }
+    .card-act, #speak-btn.card-act, #bookmark-btn.card-act, #detail-btn.card-act, #transcription-btn.card-act { height: 36px; font-size: 13.5px; padding: 0 14px; }
+    #control-row .mode-btn { font-size: 13.5px; }
+    #progress-text { font-size: 14px; }
+    #flip-show-btn, #flip-judge .mc-btn { min-height: 52px; font-size: 16px; }
+    #answer-input { font-size: 18px; }
+    .mc-btn { font-size: 15.5px; }
+    .status-lbl { display: inline; }
+    body[data-view="vocab"] #main-content { padding-top: clamp(2rem, 9vh, 7rem); }
+  }
+  @media (min-width: 1600px) and (hover: hover) {
+    #inner { max-width: 820px; }
+    #russian-word { font-size: 84px; }
+    #word-card { min-height: 280px; }
+  }
   /* Handy: Bereiche als Leiste unten, Einstellungen dort mit */
   @media (max-width: 700px) {
     #app-header { position: fixed; top: auto; bottom: 0; left: 0; right: 0; height: 62px; padding: 0 4px calc(env(safe-area-inset-bottom, 0px)); gap: 0; border-bottom: 0; border-top: 0.5px solid var(--c-border); }
@@ -1109,7 +1141,7 @@
 </head>
 <body>
 <header id="app-header">
-  <div class="hdr-logo" aria-hidden="true"><span class="hdr-mark" lang="ru">Р</span><span class="hdr-name">Russisch</span></div>
+  <div class="hdr-logo" aria-hidden="true"><span class="hdr-mark" lang="ru">Ру</span><span class="hdr-name">Russisch</span></div>
   <nav class="tense-switcher" id="view-switcher" aria-label="Bereiche">
     <button class="mode-btn" id="view-btn-home" onclick="setAppView('home')"><i class="ti ti-home"></i> <span>Heute</span></button>
     <button class="mode-btn active" id="view-btn-vocab" onclick="setAppView('vocab')"><i class="ti ti-cards"></i> <span>Vokabeln</span></button>
@@ -1171,10 +1203,10 @@
       <i class="ti ti-chart-bar"></i> <span id="session-btn-label">Runde</span>
     </button>
     <button class="tool-btn status-icon" onclick="openLevelOverview()" title="Fortschritt nach Sprachniveau (A1–C1)" aria-label="Fortschritt nach Stufen">
-      <i class="ti ti-chart-line"></i>
+      <i class="ti ti-chart-line"></i><span class="status-lbl">Stufen</span>
     </button>
     <button class="tool-btn tool-btn-reset status-icon" onclick="resetProgress()" title="Fortschritt zurücksetzen (Taste +)" aria-label="Fortschritt zurücksetzen" aria-keyshortcuts="+">
-      <i class="ti ti-refresh"></i>
+      <i class="ti ti-refresh"></i><span class="status-lbl">Zurücksetzen</span>
     </button>
   </div>
   <div id="session-goal-wrap" style="display:none">
@@ -1199,7 +1231,7 @@
       </div>
       <div id="transcription"></div>
       <div id="card-actions">
-        <button class="card-act" id="speak-btn" onclick="speakCurrentWord()" title="Aussprache anhören" aria-label="Aussprache anhören"><i class="ti ti-volume"></i><span>Anhören</span></button>
+        <button class="card-act" id="speak-btn" onclick="speakCurrentWord()" title="Aussprache anhören (Leertaste)" aria-label="Aussprache anhören" aria-keyshortcuts="Space"><i class="ti ti-volume"></i><span>Anhören</span><kbd aria-hidden="true" class="gt-kbd">␣</kbd></button>
         <button class="card-act" id="transcription-btn" onclick="toggleTranscription()"
                 title="Transliteration: nach der Aussprache → Buchstabe für Buchstabe → aus" aria-label="Transliteration: Aussprache (weiter mit Klick)">
           <i class="ti ti-eye" id="transcription-btn-icon"></i><span id="transcription-btn-label">Aussprache</span>
@@ -1255,10 +1287,10 @@
     <button class="mc-btn" id="mc-3" onclick="checkMC(3)"></button>
   </div>
   <div id="flip-row">
-    <button id="flip-show-btn" onclick="flipReveal()"><i class="ti ti-eye"></i> Aufdecken</button>
+    <button id="flip-show-btn" onclick="flipReveal()" aria-keyshortcuts="Enter"><i class="ti ti-eye"></i> Aufdecken <kbd aria-hidden="true" class="gt-kbd">⏎</kbd></button>
     <div id="flip-judge">
-      <button class="mc-btn" id="flip-known" onclick="flipJudge(true)"><i class="ti ti-check"></i> Gewusst</button>
-      <button class="mc-btn" id="flip-unknown" onclick="flipJudge(false)"><i class="ti ti-x"></i> Nicht gewusst</button>
+      <button class="mc-btn" id="flip-known" onclick="flipJudge(true)" aria-keyshortcuts="1"><i class="ti ti-check"></i> Gewusst <kbd aria-hidden="true" class="gt-kbd">1</kbd></button>
+      <button class="mc-btn" id="flip-unknown" onclick="flipJudge(false)" aria-keyshortcuts="2"><i class="ti ti-x"></i> Nicht gewusst <kbd aria-hidden="true" class="gt-kbd">2</kbd></button>
     </div>
     <button id="flip-undo-btn" style="display:none" onclick="undoFlip()" title="Letzte Bewertung zurücknehmen"><i class="ti ti-refresh"></i> <span id="flip-undo-label">Rückgängig</span></button>
   </div>
@@ -13025,9 +13057,14 @@ function makeCatRow(cat) {
   const selCount = (selectedBlocksByCat[cat] || new Set()).size;
   const btn = document.createElement('button');
   btn.className = 'sub-btn' + (activeMain === cat ? ' active' : '');
-  btn.innerHTML = '<i class="ti ' + (CAT_ICONS[cat] || 'ti-book') + '" aria-hidden="true"></i><span>'
-    + cat + (selCount > 0 ? ' (' + selCount + ')' : '') + '</span>'
-    + '<span class="sub-btn-count">' + getAllWordsOfCat(cat).length + '</span>';
+  const alle = getAllWordsOfCat(cat), fertig = alle.filter(hasCorrectAnswer).length;
+  const anteil = alle.length ? Math.round(fertig / alle.length * 100) : 0;
+  const nBlocks = vocab[cat] && vocab[cat].blocks ? getBlocksOfCat(cat).length + ((vocab[cat].newBlock || []).length ? 1 : 0) : 0;
+  btn.title = cat + ' · ' + fertig + ' von ' + alle.length + ' erledigt' + (selCount > 0 ? ' · ' + selCount + (nBlocks ? ' von ' + nBlocks + ' Blöcken' : (selCount === 1 ? ' Block' : ' Blöcke')) + ' gewählt' : '');
+  btn.style.setProperty('--sub-p', anteil + '%');
+  btn.innerHTML = '<i class="ti ' + (CAT_ICONS[cat] || 'ti-book') + '" aria-hidden="true"></i><span class="sub-btn-name">'
+    + cat + '</span>' + (selCount > 0 ? '<span class="sub-btn-sel" aria-label="' + selCount + (selCount === 1 ? ' Block' : ' Blöcke') + ' gewählt">' + selCount + '</span>' : '')
+    + '<span class="sub-btn-count">' + alle.length + '</span>';
   btn.onclick = (e) => { e.stopPropagation(); openBlockPicker(cat); };
   const wrap = document.createElement('div');
   wrap.className = 'tile-wrap';
@@ -13349,7 +13386,7 @@ function renderCard(word) {
   if (autoplayAudio && quizDirection === 'ru-de') speak(currentWord.ru);
   updateBookmarkBtnIcon();
   const lvEl = document.getElementById('card-level');
-  if (lvEl) lvEl.innerHTML = lvlBadge(wordLevel(word));
+  if (lvEl) { const lv = wordLevel(word); lvEl.innerHTML = lvlBadge(lv); lvEl.dataset.lv = lv || ''; }
 
   document.getElementById('correct-reveal').style.display = 'none';
   { const sd = document.getElementById('sentence-diff'); if (sd) { sd.classList.remove('visible'); sd.style.display = 'none'; } }
@@ -14313,7 +14350,7 @@ function toggleAutoplay() {
 // Doppelklick oder Pos1 stellt die Standardbreite wieder her. Gespeichert wird die Breite
 // in Pixeln, beim Laden auf den erlaubten Bereich begrenzt.
 const SIDEBAR_WIDTH_KEY = 'vokabeltrainer-sidebar-width';
-const SIDEBAR_W_DEFAULT = 200, SIDEBAR_W_MIN = 160;
+const SIDEBAR_W_DEFAULT = 260, SIDEBAR_W_MIN = 160;
 function sidebarMaxWidth() { return Math.round(Math.max(SIDEBAR_W_DEFAULT, Math.min(480, window.innerWidth * 0.45))); }
 function setSidebarWidth(px, save) {
   const sb = document.getElementById('sidebar');
