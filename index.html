@@ -226,6 +226,12 @@
   .set-kuerzel .kbd-group { width: 142px; flex-shrink: 0; display: flex; flex-wrap: wrap; gap: 4px; }
   .set-kuerzel .kbd-group .kbd { margin-right: 0; }
   @media (max-width: 700px) { .set-kuerzel .kbd-group { width: 74px; } }
+  .voice-pick { display: flex; gap: 6px; align-items: center; min-width: 0; flex-shrink: 1; }
+  .voice-pick .settings-select { max-width: 230px; min-width: 0; }
+  .voice-pick .tool-btn { flex-shrink: 0; }
+  .set-hint { margin: 2px 0 8px; padding: 8px 12px; border-radius: 10px; background: var(--c-surface-alt); color: var(--c-text-secondary); font-size: 12.5px; line-height: 1.45; }
+  .set-hint[hidden] { display: none; }
+  @media (max-width: 700px) { #voice-ru-row, #voice-de-row { flex-wrap: wrap; } .voice-pick { flex: 1 1 100%; padding-left: 30px; } .voice-pick .settings-select { flex: 1; max-width: none; } }
   .set-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12px; color: var(--c-text-muted); padding: 12px 2px 0; margin-top: 10px; border-top: 0.5px solid var(--c-border-light); }
   @media (min-width: 701px) {
     #overlay-settings .overlay-box { width: 780px; height: min(660px, 85vh); max-height: 85vh; }
@@ -2647,6 +2653,17 @@
             <span class="toggle-track"></span>
           </label>
         </div>
+        <div class="set-row" id="voice-ru-row">
+          <i class="ti ti-volume" aria-hidden="true"></i>
+          <div class="set-text"><strong>Russische Stimme</strong><span>Welche Stimme auf diesem Gerät vorliest</span></div>
+          <div class="voice-pick"><select class="settings-select" id="voice-ru-select" aria-label="Russische Stimme" onchange="setVoice('ru', this.value)"></select><button type="button" class="tool-btn" onclick="voiceSample('ru')" aria-label="Russische Stimme probehören"><i class="ti ti-player-play"></i> Probe</button></div>
+        </div>
+        <div class="set-row" id="voice-de-row">
+          <i class="ti ti-volume" aria-hidden="true"></i>
+          <div class="set-text"><strong>Deutsche Stimme</strong><span>Für Hörtrainer und DE → RU</span></div>
+          <div class="voice-pick"><select class="settings-select" id="voice-de-select" aria-label="Deutsche Stimme" onchange="setVoice('de', this.value)"></select><button type="button" class="tool-btn" onclick="voiceSample('de')" aria-label="Deutsche Stimme probehören"><i class="ti ti-player-play"></i> Probe</button></div>
+        </div>
+        <p class="set-hint" id="voice-hint" hidden></p>
         <div class="set-row" id="speakrate-row">
           <i class="ti ti-clock-hour-4" aria-hidden="true"></i>
           <div class="set-text"><strong>Vorlese-Tempo</strong><span>Geschwindigkeit der russischen Aussprache</span></div>
@@ -7536,7 +7553,7 @@ function updateSettingsSummaries() {
   const T = {
     ueben: [sel('maxlevel-select'), sel('blocksize-select'), 'Ziel ' + sel('sessiongoal-select'), an('cognate-toggle') ? 'ohne Lehnwörter' : '', an('lifedemote-toggle') ? 'Rückstufung an' : ''],
     niveau: [sel('mylevel-select')],
-    aussprache: ['Vorlesen ' + (an('autoplay-toggle') ? 'an' : 'aus'), sel('speakrate-select'), 'Umschrift: ' + (typeof TR_MODE_LABEL !== 'undefined' ? ({ speech: 'Aussprache', letters: 'Buchstaben', off: 'aus' })[transcriptionMode] : '')],
+    aussprache: ['Vorlesen ' + (an('autoplay-toggle') ? 'an' : 'aus'), (() => { try { return russianVoice ? russianVoice.name : ''; } catch (e) { return ''; } })(), sel('speakrate-select'), 'Umschrift: ' + (typeof TR_MODE_LABEL !== 'undefined' ? ({ speech: 'Aussprache', letters: 'Buchstaben', off: 'aus' })[transcriptionMode] : '')],
     darstellung: [{ light: 'hell', dark: 'dunkel', system: 'wie das System' }[themeMode()], ruFontMode() === 'sans' ? 'Russisch ohne Serifen' : 'Russisch mit Serifen'],
     speichern: [typeof ghConnected === 'function' && ghConnected() ? 'GitHub · ' + (ghDirty() ? 'nicht gespeichert' : 'gespeichert') : 'Sicherung als Datei'],
     kuerzel: ['Enter, Pfeile, 1–5, Leer, Esc, +, ?'],
@@ -7557,6 +7574,7 @@ function openSettings() {
   applyThemeButton();
   applyRuFont();
   applyTranscriptionButton();
+  fillVoiceSelects();
   renderSettingsSections();
 }
 // Kurzfassungen nach jeder Änderung in den Einstellungen auffrischen
@@ -7787,7 +7805,7 @@ const BACKUP_KEYS = ['vokabeltrainer-grammar-info-open','vokabeltrainer-grammar-
   'vokabeltrainer-hearquiz-settings','vokabeltrainer-hoertrainer-cats','vokabeltrainer-hoertrainer-pause',
   'vokabeltrainer-autoplay','vokabeltrainer-block-size','vokabeltrainer-direction',
   'vokabeltrainer-skip-cognates','vokabeltrainer-theme','vokabeltrainer-session-goal',
-  'vokabeltrainer-cyr-keyboard','vokabeltrainer-max-level','vokabeltrainer-lifetime','vokabeltrainer-level-order','vokabeltrainer-my-level','vokabeltrainer-speak-rate','vokabeltrainer-view','vokabeltrainer-grammar-panel','vokabeltrainer-listening-panel','vokabeltrainer-sidebar-width','vokabeltrainer-width-vocab','vokabeltrainer-width-grammar','vokabeltrainer-width-listening','vokabeltrainer-dialog-sizes','vokabeltrainer-life-demote','vokabeltrainer-reset-marks','vokabeltrainer-settings-ui','vokabeltrainer-ru-font','vokabeltrainer-daylog'];
+  'vokabeltrainer-cyr-keyboard','vokabeltrainer-max-level','vokabeltrainer-lifetime','vokabeltrainer-level-order','vokabeltrainer-my-level','vokabeltrainer-speak-rate','vokabeltrainer-view','vokabeltrainer-grammar-panel','vokabeltrainer-listening-panel','vokabeltrainer-sidebar-width','vokabeltrainer-width-vocab','vokabeltrainer-width-grammar','vokabeltrainer-width-listening','vokabeltrainer-dialog-sizes','vokabeltrainer-voice-ru','vokabeltrainer-voice-de','vokabeltrainer-life-demote','vokabeltrainer-reset-marks','vokabeltrainer-settings-ui','vokabeltrainer-ru-font','vokabeltrainer-daylog'];
 function exportBackup() {
   flushSaves();
   const data = { app: APP_ID, version: 1, saved: new Date().toISOString(), data: {} };
@@ -14282,11 +14300,57 @@ function setDirection(dir) {
 // ── Hörmodus ─────────────────────────────────────────────────────
 // Stub (Schalter entfernt)
 
+// Stimmenwahl je Gerät (Einstellungen → Aussprache): gespeichert wird die voiceURI der Stimme.
+// Fehlt die gewählte Stimme (anderes Gerät, deinstalliert), gilt die erste passende.
+const VOICE_KEYS = { ru: 'vokabeltrainer-voice-ru', de: 'vokabeltrainer-voice-de' };
+function voicesFor(lang) {
+  if (!AUDIO_SUPPORTED) return [];
+  try { return speechSynthesis.getVoices().filter(v => v && v.lang && v.lang.toLowerCase().replace('_', '-').startsWith(lang)); } catch (e) { return []; }
+}
+function savedVoiceUri(lang) { try { return localStorage.getItem(VOICE_KEYS[lang]) || ''; } catch (e) { return ''; } }
+function chooseVoice(lang) {
+  const list = voicesFor(lang), uri = savedVoiceUri(lang);
+  return (uri && list.find(v => v.voiceURI === uri || v.name === uri)) || list[0] || null;
+}
 function pickRussianVoice() {
   if (!AUDIO_SUPPORTED) return;
-  const voices = speechSynthesis.getVoices();
-  // bevorzugt eine echte ru-Stimme; sonst bleibt null und wir sprechen mit lang='ru-RU'
-  russianVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('ru')) || null;
+  // gewählte oder erste ru-Stimme; sonst bleibt null und wir sprechen mit lang='ru-RU'
+  russianVoice = chooseVoice('ru');
+  if (typeof fillVoiceSelects === 'function') fillVoiceSelects();
+}
+const VOICE_SAMPLE = { ru: 'Привет! Как дела?', de: 'Hallo, wie geht es dir?' };
+function voiceSample(lang) {
+  if (lang === 'ru') { pickRussianVoice(); speak(VOICE_SAMPLE.ru); }
+  else { pickGermanVoice(); try { speechSynthesis.cancel(); } catch (e) {} speakHoertrainer(VOICE_SAMPLE.de, 'de-DE', germanVoice, () => {}, speakRate); }
+}
+function setVoice(lang, uri) {
+  try { if (uri) localStorage.setItem(VOICE_KEYS[lang], uri); else localStorage.removeItem(VOICE_KEYS[lang]); } catch (e) {}
+  if (lang === 'ru') pickRussianVoice(); else pickGermanVoice();
+  voiceSample(lang);
+  if (typeof updateSettingsSummaries === 'function') updateSettingsSummaries();
+}
+// „Microsoft Irina - Russian (Russia)“ → „Microsoft Irina“ (die Sprache steht schon in der Zeile)
+function voiceLabel(v) { return String(v.name).replace(/\s+-\s+[^-]*\([^)]*\)\s*$/, '') + (v.localService === false ? ' · online' : ''); }
+// Auswahlfelder füllen (beim Öffnen der Einstellungen und wenn der Browser Stimmen nachlädt)
+function fillVoiceSelects() {
+  let wenige = false;
+  ['ru', 'de'].forEach(lang => {
+    const sel = document.getElementById('voice-' + lang + '-select'); if (!sel) return;
+    const list = voicesFor(lang), cur = chooseVoice(lang), uri = savedVoiceUri(lang);
+    sel.innerHTML = '';
+    const auto = document.createElement('option'); auto.value = ''; auto.textContent = list.length ? 'Automatisch (' + voiceLabel(list[0]) + ')' : 'keine Stimme gefunden'; sel.appendChild(auto);
+    list.forEach(v => { const o = document.createElement('option'); o.value = v.voiceURI || v.name; o.textContent = voiceLabel(v); sel.appendChild(o); });
+    sel.value = uri && cur && (cur.voiceURI === uri || cur.name === uri) ? (cur.voiceURI || cur.name) : '';
+    sel.disabled = list.length < 2;
+    if (list.length < 2) wenige = true;
+  });
+  const hint = document.getElementById('voice-hint');
+  if (hint) {
+    hint.hidden = !wenige;
+    hint.textContent = /Android/i.test(navigator.userAgent)
+      ? 'Am Handy zeigt der Browser meist nur eine Stimme je Sprache. Stimme wechseln: Android-Einstellungen → System → Sprachen → Sprachausgabe → Zahnrad bei der Engine → Sprachdaten installieren → Russisch (bei Samsung unter „Allgemeine Verwaltung“).'
+      : 'Weitere Stimmen unter Windows: Einstellungen → Zeit und Sprache → Sprache → Russisch bzw. Deutsch → Sprachoptionen → Sprachausgabe. Danach den Browser neu starten.';
+  }
 }
 let ruVoiceWarned = false;
 // Vorlese-Tempo für die Vokabelkarte (Menü → Vorlese-Tempo)
@@ -14535,6 +14599,7 @@ document.addEventListener('keydown', e => {
     if (btn) btn.classList.add('unsupported');
     const item = document.getElementById('autoplay-settings-item');
     if (item) item.style.display = 'none';
+    ['voice-ru-row', 'voice-de-row'].forEach(id => { const r = document.getElementById(id); if (r) r.style.display = 'none'; });
     autoplayAudio = false;
     return;
   }
@@ -22143,8 +22208,7 @@ let germanVoice = null;
 
 function pickGermanVoice() {
   if (!AUDIO_SUPPORTED) return;
-  const voices = speechSynthesis.getVoices();
-  germanVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('de')) || null;
+  germanVoice = chooseVoice('de');
 }
 
 // Spricht Text in gegebener Sprache und ruft onEnd auf, sobald fertig
@@ -22154,10 +22218,7 @@ function speakHoertrainer(text, lang, voice, onEnd, rate) {
   try {
     // Stimme frisch bestimmen, falls beim Start noch nicht geladen (häufig unter
     // Windows: getVoices ist beim Öffnen leer, füllt sich erst kurz danach).
-    if (!voice) {
-      const wanted = lang.toLowerCase().slice(0, 2);
-      voice = speechSynthesis.getVoices().find(v => v.lang && v.lang.toLowerCase().startsWith(wanted)) || null;
-    }
+    if (!voice) voice = chooseVoice(lang.toLowerCase().slice(0, 2));
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = lang;
     if (voice) utter.voice = voice;
