@@ -5,7 +5,9 @@ const WURZEL = path.resolve(__dirname, '..');
 const TYPEN = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.png': 'image/png', '.webmanifest': 'application/manifest+json' };
 let ersatz = null; // wenn gesetzt: so wird index.html ausgeliefert (simuliert neue Version)
 const server = http.createServer((q, a) => {
-  let u = decodeURIComponent(q.url.split('?')[0]); if (u.endsWith('/')) u += 'index.html';
+  let u = decodeURIComponent(q.url.split('?')[0]);
+  if (u === '/umleitung') { a.writeHead(302, { Location: '/' }); return a.end(); }
+  if (u.endsWith('/')) u += 'index.html';
   const f = path.join(WURZEL, path.normalize(u));
   if (!f.startsWith(WURZEL + path.sep) || /node_modules|\.git/.test(f)) { a.writeHead(404); return a.end(); }
   if (u === '/index.html' && ersatz) { a.writeHead(200, { 'Content-Type': TYPEN['.html'] }); return a.end(ersatz); }
@@ -33,9 +35,22 @@ const server = http.createServer((q, a) => {
     return { ok: !fehl.length, info: fehl.join(', ') };
   });
   await check('Hintergrund-Helfer übernimmt die Seite', async () => {
+    // fremder Speicher auf derselben Adresse (alle github.io-Seiten eines Kontos teilen sie sich)
+    await p.goto(BASIS + 'manifest.webmanifest'); await p.evaluate(async () => { const c = await caches.open('andere-app'); await c.put('/x', new Response('x')); });
     await p.goto(BASIS); await p.evaluate(() => Promise.race([navigator.serviceWorker.ready, new Promise(r => setTimeout(r, 5000))]));
     await p.reload(); await p.waitForTimeout(300);
     return { ok: await p.evaluate(() => !!navigator.serviceWorker.controller), info: '' };
+  });
+  await check('Fremde Speicher derselben Adresse bleiben unberührt', async () => ({ ok: await p.evaluate(() => caches.has('andere-app')), info: '' }));
+  await check('Adresszusätze (?…) füllen den Speicher nicht', async () => {
+    for (let i = 0; i < 4; i++) await p.goto(BASIS + '?x=' + i);
+    await p.waitForTimeout(300);
+    const k = await p.evaluate(async () => { const n = []; for (const name of await caches.keys()) if (name.startsWith('russisch-')) for (const r of await (await caches.open(name)).keys()) n.push(r.url); return n; });
+    return { ok: !k.some(u => u.includes('?')) && k.length <= 8, info: k.length + ' Einträge' };
+  });
+  await check('Umgeleitete Seitenaufrufe funktionieren', async () => {
+    const r = await p.goto(BASIS + 'umleitung').then(() => p.url()).catch(e => e.message.slice(0, 60));
+    return { ok: r === BASIS, info: r };
   });
   await check('Browser erkennt Manifest mit Symbolen', async () => {
     const s = await ctx.newCDPSession(p); const r = await s.send('Page.getAppManifest');
