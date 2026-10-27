@@ -6805,7 +6805,15 @@ function cleanLifeEntry(e) {
   const o = {};
   LIFE_FIELDS.forEach(f => { const v = Number(e[f]); o[f] = Number.isFinite(v) && v >= 0 ? v : 0; });
   o.d = Math.min(LIFE_RUNS_MAX, Math.round(o.d));
+  // Fehlerzähler nur übernehmen, wenn vorhanden – sonst gilt der Startwert aus falsch minus richtig
+  if (e.f !== undefined && e.f !== null) { const v = Number(e.f); if (Number.isFinite(v) && v >= 0) o.f = Math.round(v); }
   return o;
+}
+// Fehlerzähler für „Oft falsch“: +1 bei falsch, −1 bei richtig, nie unter 0.
+// Ältere Einträge ohne Zähler starten mit „falsch minus richtig“.
+function lifeFehler(e) {
+  if (!e) return 0;
+  return typeof e.f === 'number' ? e.f : Math.max(0, (e.w || 0) - (e.c || 0));
 }
 function cleanLifeMap(m) {
   const out = {};
@@ -6920,6 +6928,8 @@ function saveLifetime() {
 function lifeNote(map, id, ok, box) {
   dayNote(ok);
   const e = map[id] || (map[id] = { c: 0, w: 0, mb: 0, l: 0 });
+  const fehler = lifeFehler(e);
+  e.f = ok ? Math.max(0, fehler - 1) : fehler + 1;
   if (ok) e.c++; else e.w++;
   e.mb = Math.max(e.mb, box);
   const now = Date.now();
@@ -7012,10 +7022,10 @@ function homeStats() {
   };
   words.forEach(w => vormerken(lifeVocabEntry(w)));
   Object.values(loadLifetime().g || {}).forEach(m => Object.values(m || {}).forEach(vormerken));
-  // Oft falsch: mindestens zweimal falsch, noch nicht sicher; die häufigsten zuerst
-  const hard = words.map(w => ({ w, e: lifeVocabEntry(w) })).filter(x => x.e && x.e.w >= 2 && (x.e.d || 0) < LIFE_RUNS_MAX)
-    .sort((a, b) => b.e.w - a.e.w || (b.e.w / (b.e.c + b.e.w)) - (a.e.w / (a.e.c + a.e.w)) || (b.e.z || 0) - (a.e.z || 0)).slice(0, 5)
-    .map(x => ({ w: x.w, falsch: x.e.w, richtig: x.e.c }));
+  // Oft falsch: Fehlerzähler ab 2 (sinkt mit jeder richtigen Antwort), noch nicht sicher; die höchsten zuerst
+  const hard = words.map(w => ({ w, e: lifeVocabEntry(w) })).map(x => Object.assign(x, { f: lifeFehler(x.e) })).filter(x => x.e && x.f >= 2 && (x.e.d || 0) < LIFE_RUNS_MAX)
+    .sort((a, b) => b.f - a.f || (b.e.w || 0) - (a.e.w || 0) || (b.e.z || 0) - (a.e.z || 0)).slice(0, 5)
+    .map(x => ({ w: x.w, falsch: x.f, richtig: x.e.c }));
   const weekSum = week.reduce((a, d) => a + d.n, 0), weekRight = week.reduce((a, d) => a + ((log[d.k] || [0, 0])[1] || 0), 0);
   return { streak, dueWords, dueGrammar, week, weekSum, weekRight, forecast, hard, levels, today: { a: today[0], r: today[1] }, goal: sessionGoal, times: viewTimes(), bookmarks: bookmarkedWords.size };
 }
@@ -7113,7 +7123,7 @@ function renderHome() {
     <div class="home-card home-wide"><div class="home-k"><i class="ti ti-school"></i>Stand je Sprachstufe<span class="home-legend"><span class="home-lg ok"></span>sicher (5/5)<span class="home-lg wip"></span>in Arbeit</span></div>
       <div class="home-lv">${s.levels.map(l => `<div class="home-lvr" role="button" tabindex="0" onclick="openLevelOverview()" onkeydown="homeKey(event)" aria-label="${l.L}: ${l.sicher + l.arbeit} von ${l.total} – Stufenübersicht öffnen"><b>${l.L}</b><div class="home-t"><span class="ok" style="width:${l.total ? l.sicher / l.total * 100 : 0}%"></span><span class="wip" style="width:${l.total ? l.arbeit / l.total * 100 : 0}%"></span></div><span class="home-n">${l.sicher + l.arbeit} / ${l.total}</span><span class="home-p">${l.total ? Math.round((l.sicher + l.arbeit) / l.total * 100) : 0} %</span></div>`).join('')}</div></div>
     ${s.hard.length ? `<div class="home-card" id="home-hard"><div class="home-k"><i class="ti ti-circle-x"></i>Oft falsch</div>
-      <div class="home-hard">${s.hard.map(x => `<div><b lang="ru">${htmlEsc(x.w.ru)}</b><span>${htmlEsc((x.w.de || [])[0] || '')}</span><small title="falsch / richtig">${x.falsch}× falsch</small></div>`).join('')}</div>
+      <div class="home-hard">${s.hard.map(x => `<div><b lang="ru">${htmlEsc(x.w.ru)}</b><span>${htmlEsc((x.w.de || [])[0] || '')}</span><small title="Fehlerzähler: +1 bei falsch, −1 bei richtig">${x.falsch}× falsch</small></div>`).join('')}</div>
       <button type="button" class="home-btn" onclick="homeStartPool('hard')"><i class="ti ti-player-play"></i>Diese ${s.hard.length} üben</button></div>` : ''}
     <div class="home-card"><div class="home-k"><i class="ti ti-history"></i>Zuletzt geübt</div><div class="home-res">
       ${zuletzt.map(v => `<button type="button" onclick="setAppView('${v}')"><i class="ti ${ansicht[v][0]}"></i><span>${ansicht[v][1]}${panelName(v) ? ' · ' + htmlEsc(panelName(v).replace(/^\S+ · /, '')) : ''}</span><small>${homeRelDay(s.times[v])}</small></button>`).join('') || '<div class="home-s">Noch nichts geübt – los geht’s mit „Weiterlernen“.</div>'}
@@ -7768,8 +7778,11 @@ function mergeLifeEntry(a, b) {
   if (!a) return b || null;
   if (!b) return a;
   const m = Object.assign({}, a);
+  // Fehlerzähler: der zuletzt geübte Stand zählt (sonst bliebe ein alter, höherer Wert stehen)
+  const neuer = (b.z || 0) > (a.z || 0) ? b : a;
   ['c', 'w', 'mb', 'd', 'dd', 'z', 'dw'].forEach(f => { m[f] = Math.max(a[f] || 0, b[f] || 0); });
   m.l = a.l && b.l ? Math.min(a.l, b.l) : (a.l || b.l || 0);
+  if (typeof a.f === 'number' || typeof b.f === 'number') m.f = lifeFehler(neuer); else delete m.f;
   return m;
 }
 function mergeLifeMap(a, b) {
