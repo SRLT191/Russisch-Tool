@@ -351,6 +351,8 @@
   #caught-up-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
   #caught-up-reset { margin-top: 10px; padding: 8px 16px; border-radius: 10px; border: 0.5px solid var(--c-border-input); background: var(--c-surface); color: var(--c-text-muted); font-size: 13px; cursor: pointer; transition: background 0.12s; display: none; align-items: center; gap: 6px; }
   #caught-up-reset:hover { background: var(--c-bg-page); color: var(--c-text-de); }
+  #caught-up-undo { margin-top: 10px; padding: 8px 16px; border-radius: 10px; border: 0.5px solid var(--c-border-input); background: var(--c-surface); color: var(--c-text-muted); font-size: 13px; cursor: pointer; transition: background 0.12s; display: none; align-items: center; gap: 6px; }
+  #caught-up-undo:hover { background: var(--c-bg-page); color: var(--c-text-de); }
 
   /* info panel */
   #info-panel { flex-shrink: 0; width: 72px; background: var(--c-surface); border: 0.5px solid var(--c-border); border-radius: 16px; padding: 1rem 0.5rem; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 0; }
@@ -472,7 +474,7 @@
     body.kb-offen { padding-bottom: 60vh; }
     .lvl-link { display: inline-flex; align-items: center; min-height: 44px; }
     .lvl-manual { min-height: 44px; align-items: center; }
-    #caught-up-reset { min-height: 44px; }
+    #caught-up-reset, #caught-up-undo { min-height: 44px; }
     /* unter 16 px zoomt iOS beim Antippen in das Feld */
     input[type="text"], input[type="search"], input:not([type]), select, textarea { font-size: max(16px, 1em); }
   }
@@ -1272,7 +1274,8 @@
       <div id="caught-up-sub"></div>
       <div id="caught-up-actions">
         <button id="caught-up-btn" type="button" style="display:none"></button>
-        <button id="caught-up-reset" type="button" onclick="resetProgress()" title="Fortschritt zurücksetzen (Taste +)" aria-keyshortcuts="+"><i class="ti ti-refresh" aria-hidden="true"></i> Fortschritt zurücksetzen</button>
+        <button id="caught-up-reset" type="button" onclick="resetProgress()" title="Fortschritt zurücksetzen (Taste +)" aria-keyshortcuts="+"><i class="ti ti-refresh" aria-hidden="true"></i> Fortschritt zurücksetzen <kbd aria-hidden="true" class="gt-kbd" id="caught-up-reset-kbd" style="display:none">⏎</kbd></button>
+        <button id="caught-up-undo" type="button" onclick="undoFlip()" title="Letzte Bewertung zurücknehmen (Taste 3)" aria-keyshortcuts="3"><i class="ti ti-refresh" aria-hidden="true"></i> Rückgängig <kbd aria-hidden="true" class="gt-kbd">3</kbd></button>
       </div>
     </div>
     <div id="info-panel" style="display:none">
@@ -1310,7 +1313,7 @@
       <button class="mc-btn" id="flip-known" onclick="flipJudge(true)" aria-keyshortcuts="1"><i class="ti ti-check"></i> Gewusst <kbd aria-hidden="true" class="gt-kbd">1</kbd></button>
       <button class="mc-btn" id="flip-unknown" onclick="flipJudge(false)" aria-keyshortcuts="2"><i class="ti ti-x"></i> Nicht gewusst <kbd aria-hidden="true" class="gt-kbd">2</kbd></button>
     </div>
-    <button id="flip-undo-btn" style="display:none" onclick="undoFlip()" title="Letzte Bewertung zurücknehmen"><i class="ti ti-refresh"></i> <span id="flip-undo-label">Rückgängig</span></button>
+    <button id="flip-undo-btn" style="display:none" onclick="undoFlip()" title="Letzte Bewertung zurücknehmen (Taste 3)" aria-keyshortcuts="3"><i class="ti ti-refresh"></i> <span id="flip-undo-label">Rückgängig</span> <kbd aria-hidden="true" class="gt-kbd">3</kbd></button>
   </div>
   <button id="next-btn" onclick="nextWord()">Nächstes Wort →</button>
   </div>
@@ -2718,6 +2721,8 @@
       <div class="set-row"><span class="kbd-group"><kbd class="kbd">2</kbd></span><div class="set-text"><strong>Wort-Tipp</strong><span>Im Satzbau: deckt das nächste Wort der Lösung auf</span></div></div>
       <div class="set-row"><span class="kbd-group"><kbd class="kbd">1</kbd><kbd class="kbd">2</kbd><kbd class="kbd">3</kbd><kbd class="kbd">4</kbd></span><div class="set-text"><strong>Antwort wählen</strong><span>Im Auswahl-Modus der Vokabeln die passende Option</span></div></div>
       <div class="set-row"><span class="kbd-group"><kbd class="kbd">1</kbd><kbd class="kbd">2</kbd></span><div class="set-text"><strong>Gewusst / Nicht gewusst</strong><span>Im Aufdecken-Modus (Vokabeln und Hörquiz), nach dem Aufdecken</span></div></div>
+      <div class="set-row"><span class="kbd-group"><kbd class="kbd">3</kbd></span><div class="set-text"><strong>Rückgängig</strong><span>Im Aufdecken-Modus der Vokabeln: nimmt die letzte Bewertung zurück, auch nach „Alles gelernt!“</span></div></div>
+      <div class="set-row"><span class="kbd-group"><kbd class="kbd">Enter</kbd></span><div class="set-text"><strong>Neu anfangen</strong><span>Im Aufdecken-Modus der Vokabeln bei „Alles gelernt!“: setzt den Fortschritt zurück</span></div></div>
       <div class="set-row"><span class="kbd-group"><kbd class="kbd">4</kbd></span><div class="set-text"><strong>Bewertung zurücknehmen</strong><span>Im Hörquiz-Aufdecken, wenn du dich verdrückt hast</span></div></div>
       <div class="set-row"><span class="kbd-group"><kbd class="kbd">1</kbd><kbd class="kbd">2</kbd><kbd class="kbd">3</kbd><kbd class="kbd">4</kbd><kbd class="kbd">5</kbd></span><div class="set-text"><strong>Einstufungstest</strong><span>1–4 wählt eine Antwort, 5 = weiß ich nicht</span></div></div>
       <div class="set-row"><span class="kbd-group"><kbd class="kbd">Esc</kbd></span><div class="set-text"><strong>Dialog schließen</strong><span>Schließt Einstellungen, Listen, Auswahlfenster und das ⋯-Menü der Grammatik</span></div></div>
@@ -7315,6 +7320,7 @@ document.addEventListener('keydown', e => {
 });
 // scope: 'vocab' | 'grammar' | 'all'
 function doResetProgress(scope) {
+  flipUndo = null;   // nach dem Zurücksetzen gibt es nichts mehr zurückzunehmen
   loadLifetime();   // Gesamtstand vor dem Löschen sicher aufbauen
   if (scope === 'vocab' || scope === 'all') {
     Object.keys(scores).forEach(k => delete scores[k]);
@@ -13368,11 +13374,20 @@ function showCaughtUp(pool) {
   document.getElementById('caught-up-sub').style.display = 'none';
   document.getElementById('caught-up-btn').style.display = 'none';
   document.getElementById('caught-up-reset').style.display = 'inline-flex';
+  // Aufdecken-Modus: Enter setzt zurück, 3 holt das zuletzt bewertete Wort zurück
+  document.getElementById('caught-up-reset-kbd').style.display = quizMode === 'flip' ? '' : 'none';
+  document.getElementById('caught-up-undo').style.display = (quizMode === 'flip' && flipUndo) ? 'inline-flex' : 'none';
   document.getElementById('caught-up-panel').style.display = 'flex';
+}
+// „Alles gelernt!“ mit Zurücksetzen-Knopf wird gerade angezeigt
+function caughtUpShown() {
+  const p = document.getElementById('caught-up-panel'), r = document.getElementById('caught-up-reset');
+  return !!p && p.style.display === 'flex' && !!r && r.style.display !== 'none';
 }
 function showEmptyPool() {
   hideCardArea();
   document.getElementById('caught-up-reset').style.display = 'none';
+  document.getElementById('caught-up-undo').style.display = 'none';
   document.getElementById('caught-up-sub').style.display = '';
   const icon = document.getElementById('caught-up-icon');
   const title = document.getElementById('caught-up-title');
@@ -15360,6 +15375,16 @@ document.addEventListener('keydown', e => {
       else if (!hqState.revealed) revealHearquizFlip();
       else rateHearquiz(e.key !== '2');
       return;
+    }
+  }
+  // Vokabeln im Aufdecken-Modus: 3 = letzte Bewertung zurücknehmen (auch nach „Alles gelernt!“),
+  // Enter bei „Alles gelernt!“ = Fortschritt zurücksetzen
+  if (appView === 'vocab' && quizMode === 'flip' && !document.querySelector('.overlay.open')
+      && (e.key === '3' || e.key === 'Enter')) {
+    const tag = ((e.target && e.target.tagName) || '').toLowerCase();
+    if (tag !== 'input' && tag !== 'textarea' && tag !== 'select') {
+      if (e.key === '3' && flipUndo) { e.preventDefault(); undoFlip(); return; }
+      if (e.key === 'Enter' && caughtUpShown()) { e.preventDefault(); resetProgress(); return; }
     }
   }
   if (appView !== 'vocab' || document.querySelector('.overlay.open') || !currentWord) return;
