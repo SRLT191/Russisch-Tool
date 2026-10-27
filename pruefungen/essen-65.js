@@ -18,7 +18,7 @@ const { chromium } = require('playwright');
     const BESTECK = ['ложка', 'вилка', 'нож', 'тарелка', 'кастрюля', 'сковорода'];
     ok('Besteck und Kochgeschirr jetzt in „Alltagsobjekte“, nicht mehr in „Essen“', BESTECK.every(r => alltag.some(x => x.ru === r) && !essen.some(x => x.ru === r)));
     ok('Kein Wort doppelt im Wortschatz', (() => { const all = allVocabWords().map(w => w.ru); return all.length === new Set(all).size; })());
-    ok('Alltagsobjekte 56 (Essen danach erweitert, siehe essen-6.js)', alltag.length === 56, essen.length + ' / ' + alltag.length);
+    ok('Alltagsobjekte mindestens 56 (beide Kategorien danach erweitert, siehe essen-6.js, alltagsobjekte-65.js)', alltag.length >= 56, essen.length + ' / ' + alltag.length);
     return R;
   });
   R.push([errs.length ? 'XX ' : 'OK ', 'Keine JS-Fehler', errs.slice(0, 2).join(' | ')]);
