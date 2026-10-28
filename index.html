@@ -1112,7 +1112,15 @@
   .home-wl { display: flex; gap: 6px; font-size: 10.5px; color: var(--c-text-muted); } .home-wl span { flex: 1; text-align: center; }
   .home-legend { margin-left: auto; text-transform: none; letter-spacing: 0; display: flex; align-items: center; gap: 4px; }
   .home-lg { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-left: 8px; }
-  .home-lg.ok, .home-t .ok { background: var(--c-success-border); } .home-lg.wip, .home-t .wip { background: var(--c-accent); opacity: .45; }
+  /* Wiederholungsstufen 1–5: von frisch (warm) bis sicher (grün) */
+  :root { --c-st1: #E07B39; --c-st2: #D9A520; --c-st3: #A7B83A; --c-st4: #64A04A; --c-st5: #2F6B1B; }
+  :root[data-theme="dark"] { --c-st1: #F08D4E; --c-st2: #E9BE45; --c-st3: #BCD05A; --c-st4: #7DC266; --c-st5: #3F9A2A; }
+  .home-lg.s1, .home-t .s1 { background: var(--c-st1); } .home-lg.s2, .home-t .s2 { background: var(--c-st2); }
+  .home-lg.s3, .home-t .s3 { background: var(--c-st3); } .home-lg.s4, .home-t .s4 { background: var(--c-st4); }
+  .home-lg.s5, .home-t .s5 { background: var(--c-st5); }
+  .home-legend { flex-wrap: wrap; justify-content: flex-end; }
+  .home-legend .home-lg { margin-left: 7px; margin-right: 1px; }
+  .home-t span + span { box-shadow: inset 1px 0 0 var(--c-surface); }
   .home-lv { display: flex; flex-direction: column; gap: 9px; margin-top: 4px; }
   .home-lvr { display: flex; align-items: center; gap: 10px; font-size: 13px; } .home-lvr b { width: 24px; }
   .home-t { flex: 1; height: 8px; border-radius: 99px; background: var(--c-track-bg); overflow: hidden; display: flex; }
@@ -7223,6 +7231,8 @@ function homeRelDay(ts) {
   return d.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
 }
 // Zahlen für die Startseite (auch für die Prüfung abrufbar)
+// „Stufe 5 (sicher): 12 · Stufe 4: 3 …“ – nur Stufen mit Wörtern
+function homeStufenText(st) { return st.map((n, i) => ({ n, i })).filter(x => x.n).reverse().map(x => 'Stufe ' + (x.i + 1) + (x.i + 1 === LIFE_RUNS_MAX ? ' (sicher)' : '') + ': ' + x.n).join(' · '); }
 function homeStats() {
   const now = Date.now(), log = loadDaylog();
   let streak = 0; { let d = daysAgo(0); if (!log[dayKey(d)]) d = daysAgo(1); while (log[dayKey(d)]) { streak++; d = daysAgo(1, d); } }
@@ -7233,8 +7243,9 @@ function homeStats() {
   const week = []; for (let i = 6; i >= 0; i--) { const d = daysAgo(i); week.push({ k: dayKey(d), tag: d.toLocaleDateString('de-DE', { weekday: 'short' }).replace('.', ''), n: (log[dayKey(d)] || [0])[0] }); }
   const levels = LV_NAMES.map(L => {
     const ws = words.filter(w => wordLevel(w) === L); let sicher = 0, arbeit = 0;
-    ws.forEach(w => { const e = lifeVocabEntry(w); const d = (e && e.d) || 0; if (d >= LIFE_RUNS_MAX) sicher++; else if (d > 0) arbeit++; });
-    return { L, total: ws.length, sicher, arbeit };
+    const stufen = Array(LIFE_RUNS_MAX).fill(0);   // stufen[i] = Wörter auf Wiederholungsstufe i+1 (letzte = sicher)
+    ws.forEach(w => { const e = lifeVocabEntry(w); const d = (e && e.d) || 0; if (d >= LIFE_RUNS_MAX) sicher++; else if (d > 0) arbeit++; if (d > 0) stufen[Math.min(d, LIFE_RUNS_MAX) - 1]++; });
+    return { L, total: ws.length, sicher, arbeit, stufen };
   });
   const today = log[dayKey()] || [0, 0];
   // Vorschau: wie viele Wörter und Grammatikaufgaben an den nächsten Tagen fällig werden (0 = heute später)
@@ -7346,8 +7357,8 @@ function renderHome() {
       <div class="home-wl">${s.week.map((d, i) => `<span${i === 6 ? ' class="heute"' : ''}>${d.tag}</span>`).join('')}</div>
       <div class="home-s" id="home-weeksum">${s.weekSum} ${s.weekSum === 1 ? 'Antwort' : 'Antworten'} · Ø ${Math.round(s.weekSum / 7)}/Tag · ${Math.round(s.weekRight / s.weekSum * 100)} % richtig</div>`
       : '<div class="home-s home-empty" id="home-weeksum">Diese Woche noch nichts geübt.</div>'}</div>
-    <div class="home-card home-wide"><div class="home-k"><i class="ti ti-school"></i>Stand je Sprachstufe<span class="home-legend"><span class="home-lg ok"></span>sicher (5/5)<span class="home-lg wip"></span>in Arbeit</span></div>
-      <div class="home-lv">${s.levels.map(l => `<div class="home-lvr" role="button" tabindex="0" onclick="openLevelOverview()" onkeydown="homeKey(event)" aria-label="${l.L}: ${l.sicher + l.arbeit} von ${l.total} – Stufenübersicht öffnen"><b>${l.L}</b><div class="home-t"><span class="ok" style="width:${l.total ? l.sicher / l.total * 100 : 0}%"></span><span class="wip" style="width:${l.total ? l.arbeit / l.total * 100 : 0}%"></span></div><span class="home-n">${l.sicher + l.arbeit} / ${l.total}</span><span class="home-p">${l.total ? Math.round((l.sicher + l.arbeit) / l.total * 100) : 0} %</span></div>`).join('')}</div></div>
+    <div class="home-card home-wide"><div class="home-k"><i class="ti ti-school"></i>Stand je Sprachstufe<span class="home-legend" title="Wiederholungsstufe: steigt nur mit wachsendem Abstand, ab 5 gilt ein Wort als sicher">Stufe${[1, 2, 3, 4, 5].map(i => `<span class="home-lg s${i}"></span>${i === 5 ? '5 sicher' : i}`).join('')}</span></div>
+      <div class="home-lv">${s.levels.map(l => `<div class="home-lvr" role="button" tabindex="0" onclick="openLevelOverview()" onkeydown="homeKey(event)" aria-label="${l.L}: ${l.sicher + l.arbeit} von ${l.total}${l.stufen.some(n => n) ? ' (' + homeStufenText(l.stufen) + ')' : ''} – Stufenübersicht öffnen" title="${l.stufen.some(n => n) ? homeStufenText(l.stufen) : 'noch nichts geübt'}"><b>${l.L}</b><div class="home-t">${l.stufen.map((n, i) => n ? `<span class="s${i + 1}" style="width:${l.total ? n / l.total * 100 : 0}%"></span>` : '').reverse().join('')}</div><span class="home-n">${l.sicher + l.arbeit} / ${l.total}</span><span class="home-p">${l.total ? Math.round((l.sicher + l.arbeit) / l.total * 100) : 0} %</span></div>`).join('')}</div></div>
     ${s.hard.length ? `<div class="home-card" id="home-hard"><div class="home-k"><i class="ti ti-circle-x"></i>Oft falsch</div>
       <div class="home-hard">${s.hard.map(x => `<div><b lang="ru">${htmlEsc(x.w.ru)}</b><span>${htmlEsc((x.w.de || [])[0] || '')}</span><small title="Fehlerzähler: +1 bei falsch, −1 bei richtig">${x.falsch}× falsch</small></div>`).join('')}</div>
       <button type="button" class="home-btn" onclick="homeStartPool('hard')"><i class="ti ti-player-play"></i>Diese ${s.hard.length} üben</button></div>` : ''}
