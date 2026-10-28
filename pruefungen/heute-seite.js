@@ -45,8 +45,8 @@ const SAAT = () => {
     const h = homeStats().hard; const rows = document.querySelectorAll('#home-hard .home-hard > div');
     return { ok: rows.length === 5 && h.length === 5 && h.every((x, i) => !i || h[i - 1].falsch >= x.falsch) && rows[0].textContent.includes(h[0].w.ru), info: h.map(x => x.w.ru + ' ' + x.falsch).join(', ') };
   }));
-  await check('Oft falsch: Knopf übt genau diese', () => ev(() => {
-    const h = homeStats().hard.map(x => x.w.ru); document.querySelector('#home-hard .home-btn').click();
+  await check('Oft falsch: Knopf übt alle ab der gewählten Fehlerzahl', () => ev(() => {
+    const h = homeHardList(homeStats().hardAll).map(x => x.w.ru); document.querySelector('#home-hard .home-btn').click();
     const pool = getPool().map(w => w.ru);
     return { ok: activeMain === 'hard' && pool.length === h.length && h.every(r => pool.includes(r)), info: pool.join(', ') };
   }));
