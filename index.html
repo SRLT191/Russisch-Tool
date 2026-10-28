@@ -1150,6 +1150,11 @@
   .home-p { width: 40px; text-align: right; color: var(--c-text-secondary); font-variant-numeric: tabular-nums; }
   .home-hard { display: flex; flex-direction: column; gap: 4px; margin: 2px 0 4px; }
   .home-hard div { display: flex; gap: 8px; font-size: 13.5px; min-width: 0; }
+  .home-hard-mehr { margin: 0 0 6px; }
+  .home-hard-sw { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+  .home-hard-sw .set-seg button { min-height: 32px; } .home-hard-sw .set-seg button small { opacity: .7; margin-left: 2px; }
+  .home-hard-sw .set-seg button:disabled { opacity: .4; cursor: default; }
+  @media (max-width: 700px) { .home-hard-sw .set-seg button { min-height: 44px; } }
   .home-hard b { font-weight: 600; } .home-hard span { color: var(--c-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; } .home-hard small { color: var(--c-typo-text); }
   .home-btn { align-self: flex-start; border: 0.5px solid var(--c-border-light); background: var(--c-surface); color: var(--c-accent); border-radius: 10px; min-height: 40px; padding: 0 14px; font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
   .home-btn:hover { border-color: var(--c-accent); }
@@ -7260,19 +7265,33 @@ function homeStats() {
   words.forEach(w => vormerken(lifeVocabEntry(w)));
   Object.values(loadLifetime().g || {}).forEach(m => Object.values(m || {}).forEach(vormerken));
   // Oft falsch: Fehlerzähler ab 2 (sinkt mit jeder richtigen Antwort), noch nicht sicher; die höchsten zuerst
-  const hard = words.map(w => ({ w, e: lifeVocabEntry(w) })).map(x => Object.assign(x, { f: lifeFehler(x.e) })).filter(x => x.e && x.f >= 2 && (x.e.d || 0) < LIFE_RUNS_MAX)
-    .sort((a, b) => b.f - a.f || (b.e.w || 0) - (a.e.w || 0) || (b.e.z || 0) - (a.e.z || 0)).slice(0, 5)
+  const hardAll = words.map(w => ({ w, e: lifeVocabEntry(w) })).map(x => Object.assign(x, { f: lifeFehler(x.e) })).filter(x => x.e && x.f >= 2 && (x.e.d || 0) < LIFE_RUNS_MAX)
+    .sort((a, b) => b.f - a.f || (b.e.w || 0) - (a.e.w || 0) || (b.e.z || 0) - (a.e.z || 0))
     .map(x => ({ w: x.w, falsch: x.f, richtig: x.e.c }));
+  const hard = hardAll.slice(0, 5);
   const weekSum = week.reduce((a, d) => a + d.n, 0), weekRight = week.reduce((a, d) => a + ((log[d.k] || [0, 0])[1] || 0), 0);
-  return { streak, dueWords, dueGrammar, week, weekSum, weekRight, forecast, hard, levels, today: { a: today[0], r: today[1] }, goal: sessionGoal, times: viewTimes(), bookmarks: bookmarkedWords.size };
+  return { streak, dueWords, dueGrammar, week, weekSum, weekRight, forecast, hard, hardAll, levels, today: { a: today[0], r: today[1] }, goal: sessionGoal, times: viewTimes(), bookmarks: bookmarkedWords.size };
 }
 // Startseite → gezielt üben: fällige Wörter bzw. „Oft falsch“ als feste Liste für diese Runde
 let homePool = [];
+// „Oft falsch“: ab wie vielen Fehlern geübt wird (Schalter auf der Startseite, je Gerät gemerkt)
+const HARD_MIN_KEY = 'vokabeltrainer-hard-min', HARD_MINS = [2, 3, 5, 10];
+let hardMin = 2;
+try { const v = Number(localStorage.getItem(HARD_MIN_KEY)); if (HARD_MINS.includes(v)) hardMin = v; } catch (e) {}
+// gewählte Schwelle; liegt sie über dem größten Fehlerzähler, gilt „ab 2×“ (gemerkte Wahl bleibt)
+function homeHardMin(all) { return (all || []).some(x => x.falsch >= hardMin) ? hardMin : 2; }
+function homeHardList(all) { const m = homeHardMin(all); return (all || []).filter(x => x.falsch >= m); }
+function setHardMin(n) {
+  if (!HARD_MINS.includes(n)) return;
+  hardMin = n; try { localStorage.setItem(HARD_MIN_KEY, String(n)); } catch (e) {}
+  renderHome();
+  const b = document.querySelector('#home-hard .set-seg button.on'); if (b) b.focus();
+}
 function homeStartPool(kind) {
   const now = Date.now();
   const list = kind === 'due'
     ? allVocabWords().filter(w => { const e = lifeVocabEntry(w); return e && e.d > 0 && e.d < LIFE_RUNS_MAX && now >= lifeNextDue(e); })
-    : homeStats().hard.map(x => x.w);
+    : homeHardList(homeStats().hardAll).map(x => x.w);
   if (!list.length) {
     if (kind === 'due' && homeStats().dueGrammar) setAppView('grammar');
     return;
@@ -7359,9 +7378,14 @@ function renderHome() {
       : '<div class="home-s home-empty" id="home-weeksum">Diese Woche noch nichts geübt.</div>'}</div>
     <div class="home-card home-wide"><div class="home-k"><i class="ti ti-school"></i>Stand je Sprachstufe<span class="home-legend" title="Wiederholungsstufe: steigt nur mit wachsendem Abstand, ab 5 gilt ein Wort als sicher">Stufe${[1, 2, 3, 4, 5].map(i => `<span class="home-lg s${i}"></span>${i === 5 ? '5 sicher' : i}`).join('')}</span></div>
       <div class="home-lv">${s.levels.map(l => `<div class="home-lvr" role="button" tabindex="0" onclick="openLevelOverview()" onkeydown="homeKey(event)" aria-label="${l.L}: ${l.sicher + l.arbeit} von ${l.total}${l.stufen.some(n => n) ? ' (' + homeStufenText(l.stufen) + ')' : ''} – Stufenübersicht öffnen" title="${l.stufen.some(n => n) ? homeStufenText(l.stufen) : 'noch nichts geübt'}"><b>${l.L}</b><div class="home-t">${l.stufen.map((n, i) => n ? `<span class="s${i + 1}" style="width:${l.total ? n / l.total * 100 : 0}%"></span>` : '').reverse().join('')}</div><span class="home-n">${l.sicher + l.arbeit} / ${l.total}</span><span class="home-p">${l.total ? Math.round((l.sicher + l.arbeit) / l.total * 100) : 0} %</span></div>`).join('')}</div></div>
-    ${s.hard.length ? `<div class="home-card" id="home-hard"><div class="home-k"><i class="ti ti-circle-x"></i>Oft falsch</div>
-      <div class="home-hard">${s.hard.map(x => `<div><b lang="ru">${htmlEsc(x.w.ru)}</b><span>${htmlEsc((x.w.de || [])[0] || '')}</span><small title="Fehlerzähler: +1 bei falsch, −1 bei richtig">${x.falsch}× falsch</small></div>`).join('')}</div>
-      <button type="button" class="home-btn" onclick="homeStartPool('hard')"><i class="ti ti-player-play"></i>Diese ${s.hard.length} üben</button></div>` : ''}
+    ${s.hardAll.length ? (() => {
+      const liste = homeHardList(s.hardAll), mehr = liste.length - 5, eff = homeHardMin(s.hardAll);
+      return `<div class="home-card" id="home-hard"><div class="home-k"><i class="ti ti-circle-x"></i>Oft falsch</div>
+      <div class="home-hard">${liste.slice(0, 5).map(x => `<div><b lang="ru">${htmlEsc(x.w.ru)}</b><span>${htmlEsc((x.w.de || [])[0] || '')}</span><small title="Fehlerzähler: +1 bei falsch, −1 bei richtig">${x.falsch}× falsch</small></div>`).join('')}</div>
+      ${mehr > 0 ? `<div class="home-s home-hard-mehr">und ${mehr} ${mehr === 1 ? 'weiteres' : 'weitere'}</div>` : ''}
+      <div class="home-hard-sw"><div class="set-seg" role="group" aria-label="Wörter üben ab so vielen Fehlern">${HARD_MINS.map(n => { const k = s.hardAll.filter(x => x.falsch >= n).length; return `<button type="button" class="${n === eff ? 'on' : ''}" aria-pressed="${n === eff}" ${k ? '' : 'disabled'} onclick="setHardMin(${n})" title="${k} ${k === 1 ? 'Wort' : 'Wörter'} mit mindestens ${n} Fehlern">ab ${n}× <small>${k}</small></button>`; }).join('')}</div>
+      <button type="button" class="home-btn" onclick="homeStartPool('hard')"><i class="ti ti-player-play"></i>${liste.length === 1 ? 'Dieses Wort' : 'Alle ' + liste.length} üben</button></div></div>`;
+    })() : ''}
     <div class="home-card"><div class="home-k"><i class="ti ti-history"></i>Zuletzt geübt</div><div class="home-res">
       ${zuletzt.map(v => `<button type="button" onclick="setAppView('${v}')"><i class="ti ${ansicht[v][0]}"></i><span>${ansicht[v][1]}${panelName(v) ? ' · ' + htmlEsc(panelName(v).replace(/^\S+ · /, '')) : ''}</span><small>${homeRelDay(s.times[v])}</small></button>`).join('') || '<div class="home-s">Noch nichts geübt – los geht’s mit „Weiterlernen“.</div>'}
       ${s.bookmarks ? `<button type="button" onclick="setAppView('vocab'); selectMainCat('bookmarks')"><i class="ti ti-bookmark"></i><span>Merkliste · ${s.bookmarks}</span><small></small></button>` : ''}</div></div>
