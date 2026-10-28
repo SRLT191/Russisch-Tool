@@ -163,6 +163,10 @@
   .tile-wrap .tile, .tile-wrap .sub-btn { flex: 1; min-width: 0; }
   .tile-fav-btn { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; flex-shrink: 0; border: none; background: none; border-radius: 6px; cursor: pointer; color: var(--c-text-faint); font-size: 13px; transition: background 0.12s, color 0.12s; }
   .tile-fav-btn:hover { background: var(--c-bg-page); color: var(--c-text-muted); }
+  /* Blockauswahl nur bei der gewählten Kategorie und beim Überfahren, damit die Namen Platz behalten */
+  .tile-blocks-btn { display: none; }
+  .tile-wrap-active .tile-blocks-btn, .tile-blocks-btn:focus-visible { display: flex; }
+  @media (hover: hover) { .tile-wrap:hover .tile-blocks-btn { display: flex; } }
   .tile-fav-btn.active { color: #e0a000; }
   .tile-fav-btn.active:hover { color: #c98a00; }
   [data-theme="dark"] .tile-fav-btn.active { color: #f0c050; }
@@ -4811,7 +4815,7 @@ const vocab = {
         {ru:"трудный", tr:"trudnyj", de:["schwierig","schwer"]},
         {ru:"лёгкий", tr:"ljogkij", de:["leicht","einfach"]},
         {ru:"правильный", tr:"prawil'nyj", de:["richtig"]},
-        {ru:"удобный", tr:"udobnyj", de:["bequem"]},
+        {ru:"удобный", tr:"udobnyj", de:["bequem","praktisch"]},
         {ru:"уютный", tr:"ujutnyj", de:["gemütlich"]},
         {ru:"настоящий", tr:"nastojaschtschij", de:["echt"]},
         {ru:"странный", tr:"strannyj", de:["seltsam"]},
@@ -13413,6 +13417,17 @@ function sortByFavorite(catNames) {
 loadFavoriteCats();
 
 // Stern-Knopf für Favoriten — identisch in Kacheln und Unterzeilen.
+// Oberkategorien in der Seitenleiste: ein Klick klappt auf/zu, ein Doppelklick übt alle
+// Wörter aller Unterkategorien. Eigene Erkennung statt dblclick, weil buildNav die Knöpfe
+// nach dem ersten Klick neu baut (der Browser sähe sonst zwei verschiedene Ziele).
+const NAV_DOPPEL_MS = 400;
+let navTipp = { key: null, t: 0 };
+function navGroupTap(key, einfach, doppelt) {
+  const now = Date.now();
+  if (navTipp.key === key && now - navTipp.t < NAV_DOPPEL_MS) { navTipp = { key: null, t: 0 }; doppelt(); }
+  else { navTipp = { key, t: now }; einfach(); }
+}
+const NAV_GROUP_TITLE = 'Klick: auf- und zuklappen · Doppelklick: alle Wörter üben';
 function makeFavStar(key) {
   const isFav = favoriteCats.has(key);
   const star = document.createElement('button');
@@ -13428,6 +13443,7 @@ function makeNavTile(key, label, isActive, onclick, opensOverlay, favoritable) {
   const btn = document.createElement('button');
   btn.className = 'tile' + (isActive ? ' active' : '');
   btn.innerHTML = '<i class="ti ' + (CAT_ICONS[key] || 'ti-book') + '" aria-hidden="true"></i><span>' + label + '</span>';
+  if (isCatGroup(key)) btn.title = label + ' · ' + NAV_GROUP_TITLE;
   btn.onclick = () => {
     onclick();
     if (key !== 'multi' && !opensOverlay) { closeMobileSidebar(); updateMobileSidebarLabel(label); }
@@ -13453,10 +13469,13 @@ function makeCatRow(cat) {
   btn.innerHTML = '<i class="ti ' + (CAT_ICONS[cat] || 'ti-book') + '" aria-hidden="true"></i><span class="sub-btn-name">'
     + cat + '</span>' + (selCount > 0 ? '<span class="sub-btn-sel" aria-label="' + selCount + (selCount === 1 ? ' Block' : ' Blöcke') + ' gewählt">' + selCount + '</span>' : '')
     + '<span class="sub-btn-count">' + alle.length + '</span>';
-  btn.onclick = (e) => { e.stopPropagation(); openBlockPicker(cat); };
+  btn.title += ' · Klick: alle Wörter üben';
+  btn.onclick = (e) => { e.stopPropagation(); selectWholeCat(cat); };
   const wrap = document.createElement('div');
   wrap.className = 'tile-wrap';
   wrap.appendChild(btn);
+  if (vocab[cat] && vocab[cat].blocks) wrap.appendChild(makeBlockPickBtn(cat));
+  if (activeMain === cat) wrap.classList.add('tile-wrap-active');
   wrap.appendChild(makeFavStar(cat));
   return wrap;
 }
@@ -13473,6 +13492,36 @@ function makeCatList(cats, extraClass) {
 function selectMainCat(key) {
   activeMain = key; activeSub = null; expandedMain = null; expandedTheme = null;
   buildNav(); updateProgress(); updateInfoPanel(); nextWord();
+}
+
+// Doppelklick auf eine Oberkategorie: aufgeklappt lassen und alle ihre Wörter üben
+function practiseCatGroup(groupName, expand) {
+  expand();
+  activateCatGroup(groupName);
+  saveSelection(); buildNav(); updateInfoPanel();
+  closeMobileSidebar(); updateMobileSidebarLabel(groupName);
+}
+// Unterkategorie (z. B. Kleidung): ein Klick wählt alle Wörter der Kategorie
+function selectWholeCat(cat) {
+  const c = vocab[cat]; if (!c) return;
+  if (c.blocks) {
+    const idx = Array.from({ length: getBlockCount(cat) }, (_, i) => i);
+    if (c.newBlock && c.newBlock.length) idx.push('new');
+    selectedBlocksByCat[cat] = new Set(idx);
+  }
+  activeMain = cat; activeSub = null;
+  saveSelection();
+  closeMobileSidebar(); updateMobileSidebarLabel(cat);
+  buildNav(); updateProgress(); updateInfoPanel(); nextWord();
+}
+// kleiner Knopf neben einer Kategorie: Blöcke einzeln wählen (die bisherige Auswahl)
+function makeBlockPickBtn(cat) {
+  const b = document.createElement('button');
+  b.className = 'tile-fav-btn tile-blocks-btn';
+  b.innerHTML = '<i class="ti ti-list-details" aria-hidden="true"></i>';
+  b.title = 'Blöcke einzeln wählen'; b.setAttribute('aria-label', cat + ': Blöcke einzeln wählen');
+  b.onclick = (e) => { e.stopPropagation(); openBlockPicker(cat); };
+  return b;
 }
 
 // Setzt eine Oberkategorie als Pool: alle ihre Unterkategorien kommen dran.
@@ -13521,16 +13570,11 @@ function buildNav() {
   // ── Stufe 1: Substantive (Themen liegen zwei Ebenen tiefer) ──
   const substantiveActive = activeMain === 'Substantive' || SUBSTANTIVE_THEMEN.includes(activeMain)
     || !!SUBSTANTIVE_GROUPS[activeMain];
-  mr.appendChild(makeNavTile('Substantive', 'Substantive', substantiveActive, () => {
-    if (expandedMain === 'Substantive') {
-      expandedMain = null; expandedTheme = null;
-    } else {
-      expandedMain = 'Substantive'; expandedTheme = null;
-      activeMain = 'Substantive'; activeSub = null;
-      updateProgress(); nextWord();
-    }
+  mr.appendChild(makeNavTile('Substantive', 'Substantive', substantiveActive, () => navGroupTap('Substantive', () => {
+    if (expandedMain === 'Substantive') { expandedMain = null; expandedTheme = null; }
+    else { expandedMain = 'Substantive'; expandedTheme = null; }
     buildNav();
-  }, true));
+  }, () => practiseCatGroup('Substantive', () => { expandedMain = 'Substantive'; expandedTheme = null; })), true));
 
   if (expandedMain === 'Substantive') {
     const groupWrap = document.createElement('div');
@@ -13541,15 +13585,11 @@ function buildNav() {
       groupBtn.className = 'sub-btn' + (activeMain === groupName || expandedTheme === groupName
         || groupCats.includes(activeMain) ? ' active' : '');
       groupBtn.innerHTML = '<i class="ti ' + (SUBSTANTIVE_GROUP_ICONS[groupName] || 'ti-folder') + '" aria-hidden="true"></i><span>' + groupName + '</span>';
+      groupBtn.title = groupName + ' · ' + NAV_GROUP_TITLE;
       groupBtn.onclick = (e) => {
         e.stopPropagation();
-        if (expandedTheme === groupName) {
-          expandedTheme = null;
-        } else {
-          expandedTheme = groupName;
-          activateCatGroup(groupName);
-        }
-        buildNav();
+        navGroupTap(groupName, () => { expandedTheme = expandedTheme === groupName ? null : groupName; buildNav(); },
+          () => practiseCatGroup(groupName, () => { expandedTheme = groupName; }));
       };
       groupWrap.appendChild(groupBtn);
       if (expandedTheme === groupName) groupWrap.appendChild(makeCatList(groupCats, 'sub-inline-nested'));
@@ -13561,15 +13601,9 @@ function buildNav() {
   Object.keys(WORTART_GROUPS).forEach(groupName => {
     const groupCats = WORTART_GROUPS[groupName];
     mr.appendChild(makeNavTile(groupName, groupName,
-      activeMain === groupName || expandedTheme === groupName || groupCats.includes(activeMain), () => {
-        if (expandedTheme === groupName) {
-          expandedTheme = null;
-        } else {
-          expandedTheme = groupName;
-          activateCatGroup(groupName);
-        }
-        buildNav();
-      }, true));
+      activeMain === groupName || expandedTheme === groupName || groupCats.includes(activeMain), () => navGroupTap(groupName,
+        () => { expandedTheme = expandedTheme === groupName ? null : groupName; buildNav(); },
+        () => practiseCatGroup(groupName, () => { expandedTheme = groupName; })), true));
     if (expandedTheme === groupName) mr.appendChild(makeCatList(groupCats, 'sub-inline-nested'));
   });
 
@@ -13579,7 +13613,10 @@ function buildNav() {
     const selCount = (selectedBlocksByCat[cat] || new Set()).size;
     const total = getAllWordsOfCat(cat).length;
     const label = selCount > 0 ? `${shortLabel} (${selCount}/${total})` : `${shortLabel} (${total})`;
-    mr.appendChild(makeNavTile(cat, label, activeMain === cat, () => openBlockPicker(cat), true, true));
+    const t = makeNavTile(cat, label, activeMain === cat, () => selectWholeCat(cat), true, true);
+    if (vocab[cat] && vocab[cat].blocks) t.insertBefore(makeBlockPickBtn(cat), t.lastChild);
+    if (activeMain === cat) t.classList.add('tile-wrap-active');
+    mr.appendChild(t);
   });
 }
 
