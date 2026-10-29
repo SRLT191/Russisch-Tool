@@ -7745,6 +7745,17 @@ function updateExamBar() {
     document.getElementById('exam-bar-text').textContent = 'Abschluss ' + levelExam.level + ' · ' + st.done + ' von ' + st.total + ' Wörtern · ' + st.ok + ' richtig im ersten Versuch';
   }
 }
+// Seitenleiste nach jeder Antwort nachführen: Fortschrittsstrich und „erledigt“ je Kategorie,
+// bei Zahlen die Zahl in der Kachel (ohne die Leiste neu aufzubauen)
+function refreshNavCounts() {
+  document.querySelectorAll('#main-row [data-cat]').forEach(el => {
+    const cat = el.dataset.cat, alle = getAllWordsOfCat(cat); if (!alle.length) return;
+    const fertig = alle.filter(hasCorrectAnswer).length;
+    el.title = el.title.replace(/· \d+ von \d+ erledigt/, '· ' + fertig + ' von ' + alle.length + ' erledigt');
+    if (el.classList.contains('sub-btn')) el.style.setProperty('--sub-p', Math.round(fertig / alle.length * 100) + '%');
+    else { const sp = el.querySelector('span'); if (sp && el.dataset.short) sp.textContent = el.dataset.short + ' (' + fertig + '/' + alle.length + ')'; }
+  });
+}
 function updateProgress() {
   updateSessionGoal();
   updateExamBar();
@@ -7752,6 +7763,7 @@ function updateProgress() {
   const mastered = activeMain === 'exam' && levelExam ? pool.filter(w => getKey(w) in levelExam.first).length : pool.filter(hasCorrectAnswer).length;
   document.getElementById('progress-bar').style.width = (pool.length ? Math.round((mastered/pool.length)*100) : 0) + '%';
   updateInfoPanel();
+  refreshNavCounts();
 }
 function updateInfoPanel() {
   const panel = document.getElementById('info-panel');
@@ -13620,8 +13632,11 @@ function makeCatRow(cat) {
   const nBlocks = vocab[cat] && vocab[cat].blocks ? getBlocksOfCat(cat).length + ((vocab[cat].newBlock || []).length ? 1 : 0) : 0;
   btn.title = cat + ' · ' + fertig + ' von ' + alle.length + ' erledigt' + (selCount > 0 ? ' · ' + selCount + (nBlocks ? ' von ' + nBlocks + ' Blöcken' : (selCount === 1 ? ' Block' : ' Blöcke')) + ' gewählt' : '');
   btn.style.setProperty('--sub-p', anteil + '%');
+  btn.dataset.cat = cat;
+  // Blockzahl nur zeigen, wenn nicht alle Blöcke gewählt sind (ein Klick wählt ohnehin alle)
+  const teilweise = selCount > 0 && !(nBlocks && selCount >= nBlocks);
   btn.innerHTML = '<i class="ti ' + (CAT_ICONS[cat] || 'ti-book') + '" aria-hidden="true"></i><span class="sub-btn-name">'
-    + cat + '</span>' + (selCount > 0 ? '<span class="sub-btn-sel" aria-label="' + selCount + (selCount === 1 ? ' Block' : ' Blöcke') + ' gewählt">' + selCount + '</span>' : '')
+    + cat + '</span>' + (teilweise ? '<span class="sub-btn-sel" aria-label="' + selCount + (selCount === 1 ? ' Block' : ' Blöcke') + ' gewählt">' + selCount + '</span>' : '')
     + '<span class="sub-btn-count">' + alle.length + '</span>';
   btn.title += ' · Klick: alle Wörter üben';
   btn.onclick = (e) => { e.stopPropagation(); selectWholeCat(cat); };
@@ -13764,10 +13779,12 @@ function buildNav() {
   // ── Ungruppierte Reste (aktuell nur Zahlen) ──
   sortByFavorite(UNGROUPED_FLAT_CATS).forEach(cat => {
     const shortLabel = cat.length > 9 ? cat.slice(0, 8) + '…' : cat;
-    const selCount = (selectedBlocksByCat[cat] || new Set()).size;
-    const total = getAllWordsOfCat(cat).length;
-    const label = selCount > 0 ? `${shortLabel} (${selCount}/${total})` : `${shortLabel} (${total})`;
+    // wie bei den Unterkategorien: erledigt / gesamt (vorher stand hier die Zahl der gewählten Blöcke)
+    const alle = getAllWordsOfCat(cat), total = alle.length, fertig = alle.filter(hasCorrectAnswer).length;
+    const label = `${shortLabel} (${fertig}/${total})`;
     const t = makeNavTile(cat, label, activeMain === cat, () => selectWholeCat(cat), true, true);
+    t.querySelector('.tile').title = cat + ' · ' + fertig + ' von ' + total + ' erledigt · Klick: alle Wörter üben';
+    t.querySelector('.tile').dataset.cat = cat; t.querySelector('.tile').dataset.short = shortLabel;
     if (vocab[cat] && vocab[cat].blocks) t.insertBefore(makeBlockPickBtn(cat), t.lastChild);
     if (activeMain === cat) t.classList.add('tile-wrap-active');
     mr.appendChild(t);
