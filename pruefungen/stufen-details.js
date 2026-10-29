@@ -12,7 +12,7 @@ const { chromium } = require('playwright');
     [[1, 3], [2, 2], [5, 1]].reduce((k, [d, n]) => { for (let i = 0; i < n; i++) L.v[getKey(a1[k + i])] = { c: d, w: 0, mb: d, l: now, d, dd: now }; return k + n; }, 0);
     L.v[getKey(b2[0])] = { c: 2, w: 0, mb: 2, l: now, d: 2, dd: now };
     saveLifetime(); setAppView('home');
-    const rows = [...document.querySelectorAll('.home-lvr')], sum = rows[rows.length - 1];
+    const rows = [...document.querySelectorAll('#home-stufen .home-lvr')], sum = rows[rows.length - 1];
     return { leg: [...document.querySelectorAll('.home-legend .home-lgi')].map(x => x.title), legFokus: [...document.querySelectorAll('.home-legend .home-lgi')].every(x => x.tabIndex === 0),
       a1Segs: [...rows[0].querySelectorAll('.home-t span')].map(x => x.title), a1Total: allVocabWords().filter(w => wordLevel(w) === 'A1').length,
       zeilen: rows.length, sumB: sum.querySelector('b').textContent, sumN: sum.querySelector('.home-n').textContent, sumKlick: sum.getAttribute('role'),

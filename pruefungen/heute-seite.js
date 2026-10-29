@@ -32,7 +32,7 @@ const SAAT = () => {
     const e = document.getElementById('home-weeksum'); const bars = document.querySelectorAll('.home-week div');
     return { ok: /^167 Antworten · Ø 24\/Tag · 74 % richtig$/.test(e.textContent.trim()) && bars[6].classList.contains('heute') && !bars[5].classList.contains('heute'), info: e.textContent };
   }));
-  await check('Stufen: Prozent je Stufe', () => ev(() => { const p = [...document.querySelectorAll('.home-lvr:not(.home-lvr-sum) .home-p')].map(x => x.textContent); return { ok: p.length === 5 && p.every(x => /^\d+ %$/.test(x)) && p[0] === '5 %', info: p.join(' ') }; }));
+  await check('Stufen: Prozent je Stufe', () => ev(() => { const p = [...document.querySelectorAll('#home-stufen .home-lvr:not(.home-lvr-sum) .home-p')].map(x => x.textContent); return { ok: p.length === 5 && p.every(x => /^\d+ %$/.test(x)) && p[0] === '5 %', info: p.join(' ') }; }));
   await check('Klick auf Fällig übt genau die fälligen Wörter', () => ev(() => {
     // auch mit Stufengrenze A1: fällig ist fällig, egal welche Stufe
     const n = homeStats().dueWords; maxLevel = 'A1'; document.getElementById('home-due').click();
