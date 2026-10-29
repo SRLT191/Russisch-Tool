@@ -25,12 +25,12 @@ const SAAT = () => {
   await ev(SAAT); await ev(() => setAppView('home'));
   await check('Fällig: Zahl und Vorschau der nächsten Tage', () => ev(() => {
     const s = homeStats(), t = document.getElementById('home-due').textContent, f = document.getElementById('home-forecast');
-    return { ok: s.dueWords > 0 && t.includes(String(s.dueWords)) && !!f && /morgen \d+/.test(f.textContent) && s.forecast.reduce((a, d) => a + d.n, 0) > 0, info: (f && f.textContent) || '' };
+    return { ok: s.dueWords > 0 && t.includes(String(s.dueWords)) && !!f && /morgen \d+/.test(f.getAttribute('aria-label')) && s.forecast.reduce((a, d) => a + d.n, 0) > 0, info: (f && f.getAttribute('aria-label')) || '' };
   }));
-  await check('Weiterlernen: Zeile sagt, was kommt', () => ev(() => { const e = document.getElementById('home-plan'); return { ok: !!e && /^Vokabeln · .+ · \d+ fällig/.test(e.textContent), info: e && e.textContent }; }));
+  await check('Weiterlernen: Zeile sagt, was kommt', () => ev(() => { const e = document.getElementById('home-plan'); return { ok: !!e && /^Vokabeln · .+: \d+ fällig/.test(e.textContent), info: e && e.textContent }; }));
   await check('Woche: Summe, Schnitt, Quote und heutiger Tag hervorgehoben', () => ev(() => {
     const e = document.getElementById('home-weeksum'); const bars = document.querySelectorAll('.home-week div');
-    return { ok: /^167 Antworten · Ø 24\/Tag · 74 % richtig$/.test(e.textContent.trim()) && bars[6].classList.contains('heute') && !bars[5].classList.contains('heute'), info: e.textContent };
+    return { ok: /^167 Antworten · Ø 28 je Übungstag \(6 von 7\) · 74 % richtig$/.test(e.textContent.trim()) && bars[6].classList.contains('heute') && !bars[5].classList.contains('heute'), info: e.textContent };
   }));
   await check('Stufen: Prozent je Stufe', () => ev(() => { const p = [...document.querySelectorAll('#home-stufen .home-lvr:not(.home-lvr-sum) .home-p')].map(x => x.textContent); return { ok: p.length === 5 && p.every(x => /^\d+ %$/.test(x)) && p[0] === '5 %', info: p.join(' ') }; }));
   await check('Klick auf Fällig übt genau die fälligen Wörter', () => ev(() => {
@@ -56,7 +56,7 @@ const SAAT = () => {
   await check('Klick auf Heute öffnet das Tagesziel', () => ev(() => {
     document.getElementById('home-today').click();
     const o = document.getElementById('overlay-settings').classList.contains('open');
-    const ok = o && settingsUi.tab === 'ueben' && document.activeElement && document.activeElement.id === 'sessiongoal-select';
+    const ok = o && settingsUi.tab === 'ueben' && document.activeElement && document.activeElement.id === 'daygoal-select';
     closeOverlay('overlay-settings'); return { ok, info: settingsUi.tab + ' ' + (document.activeElement && document.activeElement.id) };
   }));
   await check('Stufenzeile öffnet die Stufenübersicht (auch per Tastatur)', async () => {
@@ -81,10 +81,10 @@ const SAAT = () => {
   const m = await b.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }); await m.route(/^https?:/, r => r.abort());
   const q = await m.newPage(); const merr = []; q.on('pageerror', e => merr.push(e.message));
   await q.goto('file://' + APP_PATH); await q.waitForTimeout(300); await q.evaluate(SAAT); await q.evaluate(() => setAppView('home')); await q.waitForTimeout(200);
-  await check('Handy: Fällig und Heute nebeneinander, kein Überlauf', () => q.evaluate(() => {
+  await check('Handy: Fällig und Heute untereinander in voller Breite, kein Überlauf', () => q.evaluate(() => {
     const a = document.getElementById('home-due').getBoundingClientRect(), c = document.getElementById('home-today').getBoundingClientRect();
     const over = document.documentElement.scrollWidth > innerWidth;
-    return { ok: Math.abs(a.top - c.top) < 2 && a.right <= c.left && !over && a.width > 120, info: Math.round(a.width) + '+' + Math.round(c.width) + ' · Überlauf ' + over };
+    return { ok: c.top >= a.bottom && Math.abs(a.width - c.width) < 2 && !over && a.width > 300, info: Math.round(a.width) + '+' + Math.round(c.width) + ' · Überlauf ' + over };
   }));
   await check('Handy: Woche ohne Scrollen sichtbar', () => q.evaluate(() => { const w = document.querySelector('.home-week').getBoundingClientRect(); return { ok: w.bottom < innerHeight - 62, info: Math.round(w.bottom) + ' < ' + (innerHeight - 62) }; }));
   await check('Keine JS-Fehler (Handy)', () => ({ ok: !merr.length, info: merr.slice(0, 2).join(' | ') }));

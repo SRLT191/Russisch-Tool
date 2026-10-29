@@ -1122,7 +1122,30 @@
   .home-hello p .ti-flame { color: var(--c-warm, #c9821d); }
   .home-go { height: 52px; padding: 0 24px; border-radius: 14px; border: 0; background: var(--c-accent); color: var(--c-on-accent); display: flex; align-items: center; gap: 10px; font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 6px 18px var(--c-shadow-soft, rgba(0,0,0,.12)); }
   .home-go span { opacity: .8; font-weight: 400; font-size: 14px; }
-  .home-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .home-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; grid-auto-flow: row dense; }
+  @media (min-width: 1600px) and (hover: hover) { #home-view { max-width: 1320px; } }
+  .home-fc { margin-top: 6px; }
+  .home-fc-bars { display: flex; gap: 6px; align-items: flex-end; height: 52px; }
+  .home-fc-bars > div { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; }
+  .home-fc-bars small { font-size: 10px; color: var(--c-text-muted); text-align: center; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .home-fc-bars span { display: block; border-radius: 4px 4px 2px 2px; background: #b8731a; opacity: .75; }
+  :root[data-theme="dark"] .home-fc-bars span { background: #f2b25c; }
+  .home-fc-bars span.leer { background: var(--c-track-bg); opacity: 1; }
+  .home-card .home-t.home-due-st { height: 6px; flex: none; width: 100%; margin-top: 4px; }
+  .home-due-st-t { font-size: 12px; }
+  .home-due-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .home-btn-2 { color: var(--c-text-secondary); font-weight: 500; }
+  .home-gewinn { color: var(--c-st4); display: flex; align-items: center; gap: 4px; }
+  .home-goal-pick { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .home-goal-pick button { font: inherit; font-size: 12.5px; border: 0.5px solid var(--c-border-input); background: var(--c-surface); color: var(--c-accent); border-radius: 8px; padding: 3px 10px; cursor: pointer; min-height: 30px; }
+  .home-goal-pick button:hover { background: var(--c-accent-soft-bg); }
+  .home-ring.voll { background: var(--c-success-border); } .home-ring span i { color: var(--c-success-border); font-size: 26px; }
+  @media (max-width: 700px) {
+    .home-goal-pick button, .home-due-btns .home-btn { min-height: 44px; }
+    /* Fällig (mit Vorschau) und Heute (mit Zielknöpfen) brauchen am Handy die volle Breite */
+    .home-grid > #home-due, .home-grid > #home-today { grid-column: 1 / -1; }
+    #home-today .home-ring { display: grid; width: 64px; height: 64px; } #home-today .home-ring span { width: 50px; height: 50px; font-size: 13px; }
+  }
   .home-card { background: var(--c-surface); border: 0.5px solid var(--c-border-light); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
   .home-card.home-row { flex-direction: row; align-items: center; gap: 16px; }
   .home-wide { grid-column: span 2; }
@@ -2652,6 +2675,17 @@
             <option value="10" selected>10er-Blöcke</option>
             <option value="20">20er-Blöcke</option>
             <option value="0">ein Block</option>
+          </select>
+        </div>
+        <div class="set-row">
+          <i class="ti ti-flag" aria-hidden="true"></i>
+          <div class="set-text"><strong>Tagesziel</strong><span>Antworten pro Tag, als Ring auf der Startseite</span></div>
+          <select class="settings-select" id="daygoal-select" aria-label="Tagesziel" onchange="setDayGoal(this.value)">
+            <option value="0">aus</option>
+            <option value="50">50 Antworten</option>
+            <option value="100">100 Antworten</option>
+            <option value="200">200 Antworten</option>
+            <option value="500">500 Antworten</option>
           </select>
         </div>
         <div class="set-row">
@@ -7477,7 +7511,7 @@ function homeStats() {
   const words = allVocabWords();
   const dueWords = words.filter(w => faellig(lifeVocabEntry(w))).length;
   let dueGrammar = 0; Object.values(loadLifetime().g || {}).forEach(m => Object.values(m || {}).forEach(e => { if (faellig(e)) dueGrammar++; }));
-  const week = []; for (let i = 6; i >= 0; i--) { const d = daysAgo(i); week.push({ k: dayKey(d), tag: d.toLocaleDateString('de-DE', { weekday: 'short' }).replace('.', ''), n: (log[dayKey(d)] || [0])[0] }); }
+  const week = []; for (let i = 6; i >= 0; i--) { const d = daysAgo(i); week.push({ k: dayKey(d), tag: d.toLocaleDateString('de-DE', { weekday: 'short' }).replace('.', ''), n: (log[dayKey(d)] || [0])[0], r: (log[dayKey(d)] || [0, 0])[1] || 0 }); }
   const levels = LV_NAMES.map(L => { const ws = words.filter(w => wordLevel(w) === L); return homeStufenZeile(L, ws.length, ws.map(lifeVocabEntry), now); });
   const today = log[dayKey()] || [0, 0];
   // Vorschau: wie viele Wörter und Grammatikaufgaben an den nächsten Tagen fällig werden (0 = heute später)
@@ -7497,7 +7531,17 @@ function homeStats() {
     .map(x => ({ w: x.w, falsch: x.f, richtig: x.e.c }));
   const hard = hardAll.slice(0, 5);
   const weekSum = week.reduce((a, d) => a + d.n, 0), weekRight = week.reduce((a, d) => a + ((log[d.k] || [0, 0])[1] || 0), 0);
-  return { streak, dueWords, dueGrammar, week, weekSum, weekRight, forecast, hard, hardAll, levels, today: { a: today[0], r: today[1] }, goal: sessionGoal, times: viewTimes(), bookmarks: bookmarkedWords.size };
+  // fällige Vokabeln nach Wiederholungsstufe (1–4)
+  const dueStufen = Array(LIFE_RUNS_MAX - 1).fill(0);
+  words.forEach(w => { const e = lifeVocabEntry(w); if (faellig(e)) dueStufen[e.d - 1]++; });
+  // heute erreicht: neu gelernt (0 → 1) und aufgestiegen (auf Stufe 2 und höher), Vokabeln und Grammatik
+  const heute0 = daysAgo(0); heute0.setHours(0, 0, 0, 0);
+  const heuteAuf = e => e && e.d > 0 && (e.dd || 0) >= heute0.getTime();
+  const gewinn = { neu: 0, auf: 0, gNeu: 0, gAuf: 0 };
+  words.forEach(w => { const e = lifeVocabEntry(w); if (heuteAuf(e)) gewinn[e.d === 1 ? 'neu' : 'auf']++; });
+  Object.values(loadLifetime().g || {}).forEach(m => Object.values(m || {}).forEach(e => { if (heuteAuf(e)) gewinn[e.d === 1 ? 'gNeu' : 'gAuf']++; }));
+  const weekDays = week.filter(d => d.n).length;
+  return { streak, dueWords, dueGrammar, dueStufen, week, weekSum, weekRight, weekDays, forecast, hard, hardAll, levels, today: { a: today[0], r: today[1] }, gewinn, goal: dayGoal, times: viewTimes(), bookmarks: bookmarkedWords.size };
 }
 // Startseite → gezielt üben: fällige Wörter bzw. „Oft falsch“ als feste Liste für diese Runde
 let homePool = [];
@@ -7514,7 +7558,10 @@ function setHardMin(n) {
   renderHome();
   const b = document.querySelector('#home-hard .set-seg button.on'); if (b) b.focus();
 }
-function homeStartPool(kind) {
+// „Älteste zuerst“: bei den fälligen Wörtern zuerst die, deren Wartezeit am längsten abgelaufen ist
+let homeDueOrder = 'zufall';
+function homeStartPool(kind, order) {
+  homeDueOrder = kind === 'due' && order === 'alt' ? 'alt' : 'zufall';
   const now = Date.now();
   const list = kind === 'due'
     ? allVocabWords().filter(w => { const e = lifeVocabEntry(w); return e && e.d > 0 && e.d < LIFE_RUNS_MAX && now >= lifeNextDue(e); })
@@ -7538,8 +7585,8 @@ function homeOpenGoal() {
   settingsUi.tab = 'ueben';
   if (!settingsUi.open.includes('ueben')) settingsUi.open = settingsUi.open.concat('ueben');
   saveSettingsUi(); renderSettingsSections();
-  const sel = document.getElementById('sessiongoal-select');
-  if (sel) { sel.scrollIntoView({ block: 'center' }); sel.focus(); }
+  const sel = document.getElementById('daygoal-select');
+  if (sel) { sel.value = String(dayGoal); sel.scrollIntoView({ block: 'center' }); sel.focus(); }
 }
 // Was „Weiterlernen“ als Nächstes öffnet
 function homePlanText(s) {
@@ -7558,7 +7605,9 @@ function homePlanText(s) {
     const faellig = pool.filter(w => { const e = lifeVocabEntry(w); return e && e.d > 0 && e.d < LIFE_RUNS_MAX && now >= lifeNextDue(e); }).length;
     const neu = pool.filter(w => !lifeVocabEntry(w)).length;
     const teile = [faellig ? faellig + ' fällig' : '', neu ? neu + ' neu' : ''].filter(Boolean);
-    return 'Vokabeln · ' + name + (teile.length ? ' · ' + teile.join(', ') : '');
+    const gesamt = s.dueWords + s.dueGrammar;
+    // die Zahl am Knopf gilt für alles; hier steht, was davon in der gewählten Auswahl liegt
+    return 'Vokabeln · ' + name + (teile.length ? ': ' + teile.join(', ') : '') + (gesamt && activeMain !== 'all' && activeMain !== 'due' ? ' · insgesamt ' + gesamt + ' fällig' : '');
   } catch (e) { return ''; }
 }
 function renderHome() {
@@ -7589,19 +7638,28 @@ function renderHome() {
   <div class="home-sync" id="home-sync" role="status" hidden><i class="ti ti-upload"></i><span>Lernstand noch nicht auf GitHub gespeichert</span><button type="button" onclick="ghSync()">Jetzt speichern</button></div>
   <div class="home-grid">
     ${(() => {
-      const inhalt = `<div class="home-k"><i class="ti ti-repeat"></i>Fällig<span class="home-lang"> zur Wiederholung</span></div>
+      const fmax = Math.max(1, ...s.forecast.map(d => d.n)), dsum = s.dueStufen.reduce((a, b) => a + b, 0);
+      const vorschau = s.forecast.some(d => d.n) ? `<div class="home-fc" id="home-forecast" role="img" aria-label="Fällig in den kommenden Tagen: ${s.forecast.map((d, i) => (i === 0 ? 'später heute' : d.tag) + ' ' + d.n).join(', ')}">
+        <div class="home-fc-bars">${s.forecast.map((d, i) => `<div title="${i === 0 ? 'später heute' : d.tag}: ${d.n} fällig"><small>${d.n || ''}</small><span class="${d.n ? '' : 'leer'}" style="height:${d.n ? Math.max(10, Math.round(d.n / fmax * 100)) : 6}%"></span></div>`).join('')}</div>
+        <div class="home-wl">${s.forecast.map((d, i) => `<span>${i === 0 ? 'später' : d.tag}</span>`).join('')}</div></div>` : '';
+      const stufenBalken = dsum ? `<div class="home-t home-due-st" role="img" aria-label="Fällige nach Stufe: ${s.dueStufen.map((n, i) => 'Stufe ' + (i + 1) + ' ' + n).join(', ')}">${s.dueStufen.map((n, i) => n ? `<span class="s${i + 1}" style="width:${n / dsum * 100}%" title="Stufe ${i + 1}: ${n} fällig – mit einer richtigen Antwort auf Stufe ${i + 2}"></span>` : '').join('')}</div>
+        <div class="home-s home-due-st-t">${s.dueStufen.map((n, i) => n ? 'Stufe ' + (i + 1) + ': ' + n : '').filter(Boolean).join(' · ')}</div>` : '';
+      return `<div class="home-card home-pair" id="home-due"${due ? ' onclick="if (!event.target.closest(\'button\')) homeStartPool(\'due\')"' : ''}><div class="home-k"><i class="ti ti-repeat"></i>Fällig<span class="home-lang"> zur Wiederholung</span></div>
       <div class="home-big home-warm">${s.dueWords} <small>${s.dueWords === 1 ? 'Wort' : 'Wörter'}</small></div>
-      <div class="home-s">${s.dueGrammar ? 'dazu ' + s.dueGrammar + (s.dueGrammar === 1 ? ' Grammatikaufgabe' : ' Grammatikaufgaben') + (due ? ' · ' : '') : ''}${due ? 'jetzt wiederholen' : naechste ? 'Nächste: ' + naechste.tag + ' · ' + naechste.n : 'Noch nichts in Wiederholung'}</div>
-      ${kommend ? `<div class="home-s" id="home-forecast">Kommende Tage: ${htmlEsc(kommend)}</div>` : ''}`;
-      return due ? `<div class="home-card home-pair home-click" id="home-due" role="button" tabindex="0" onclick="homeStartPool('due')" onkeydown="homeKey(event)" aria-label="Fällige wiederholen: ${due}">${inhalt}</div>` : `<div class="home-card home-pair" id="home-due">${inhalt}</div>`;
+      <div class="home-s">${s.dueGrammar ? 'dazu ' + s.dueGrammar + (s.dueGrammar === 1 ? ' Grammatikaufgabe' : ' Grammatikaufgaben') : ''}${!due ? (naechste ? 'Nächste: ' + (naechste === s.forecast[0] ? 'später heute' : naechste.tag) + ' · ' + naechste.n : 'Noch nichts in Wiederholung') : ''}</div>
+      ${stufenBalken}
+      ${s.dueWords ? `<div class="home-due-btns"><button type="button" class="home-btn" onclick="homeStartPool('due')" aria-label="Fällige wiederholen: ${s.dueWords}"><i class="ti ti-player-play"></i>Wiederholen</button><button type="button" class="home-btn home-btn-2" onclick="homeStartPool('due', 'alt')" title="Zuerst die Wörter, deren Wartezeit am längsten abgelaufen ist"><i class="ti ti-clock"></i>Älteste zuerst</button></div>` : ''}
+      ${vorschau}</div>`;
     })()}
-    <div class="home-card home-row home-pair home-click" id="home-today" role="button" tabindex="0" onclick="homeOpenGoal()" onkeydown="homeKey(event)" title="Tagesziel einstellen">${s.goal > 0 ? `<div class="home-ring" style="--p:${ziel}%" role="img" aria-label="${s.today.a} von ${s.goal}"><span>${s.today.a}</span></div>` : ''}
-      <div><div class="home-k"><i class="ti ti-target-arrow"></i>Heute</div><div class="home-big">${s.today.a} <small>${s.goal > 0 ? 'von ' + s.goal : (s.today.a === 1 ? 'Antwort' : 'Antworten')}</small></div>
-      <div class="home-s">${s.today.r} richtig · ${s.today.a - s.today.r} falsch${s.goal > 0 ? '' : ' · Ziel festlegen'}</div></div></div>
+    <div class="home-card home-row home-pair home-click" id="home-today" role="button" tabindex="0" onclick="homeOpenGoal()" onkeydown="homeKey(event)" title="${s.goal ? 'Tagesziel ändern' : 'Tagesziel festlegen'}">${s.goal > 0 ? `<div class="home-ring${s.today.a >= s.goal ? ' voll' : ''}" style="--p:${ziel}%" role="img" aria-label="${s.today.a} von ${s.goal}"><span>${s.today.a >= s.goal ? '<i class="ti ti-check"></i>' : ziel + ' %'}</span></div>` : ''}
+      <div><div class="home-k"><i class="ti ti-target-arrow"></i>Heute</div><div class="home-big">${s.today.a} <small>${s.goal > 0 ? 'von ' + s.goal + (s.today.a >= s.goal ? ' ✓' : '') : (s.today.a === 1 ? 'Antwort' : 'Antworten')}</small></div>
+      <div class="home-s">${s.today.r} richtig · ${s.today.a - s.today.r} falsch</div>
+      ${s.gewinn.neu + s.gewinn.auf + s.gewinn.gNeu + s.gewinn.gAuf ? `<div class="home-s home-gewinn" id="home-gewinn"><i class="ti ti-chart-line"></i>${[s.gewinn.neu ? s.gewinn.neu + ' neu gelernt' : '', s.gewinn.auf ? s.gewinn.auf + ' aufgestiegen' : '', s.gewinn.gNeu + s.gewinn.gAuf ? 'Grammatik ' + (s.gewinn.gNeu + s.gewinn.gAuf) : ''].filter(Boolean).join(' · ')}</div>` : ''}
+      ${s.goal > 0 ? '' : `<div class="home-goal-pick" role="group" aria-label="Tagesziel festlegen"><span class="home-s">Tagesziel:</span>${DAY_GOALS.map(n => `<button type="button" onclick="event.stopPropagation(); setDayGoal(${n})">${n}</button>`).join('')}</div>`}</div></div>
     <div class="home-card"><div class="home-k"><i class="ti ti-chart-bar"></i>Diese Woche</div>
-      ${s.weekSum ? `<div class="home-week" role="img" aria-label="Antworten der letzten sieben Tage: ${s.week.map(d => d.tag + ' ' + d.n).join(', ')}">${s.week.map((d, i) => `<div class="${d.n ? '' : 'leer'}${i === 6 ? ' heute' : ''}" style="height:${d.n ? Math.max(8, Math.round(d.n / max * 100)) : 6}%" title="${d.tag}: ${d.n}"></div>`).join('')}</div>
+      ${s.weekSum ? `<div class="home-week" role="img" aria-label="Antworten der letzten sieben Tage: ${s.week.map(d => d.tag + ' ' + d.n).join(', ')}">${s.week.map((d, i) => `<div class="${d.n ? '' : 'leer'}${i === 6 ? ' heute' : ''}" style="height:${d.n ? Math.max(8, Math.round(d.n / max * 100)) : 6}%" title="${d.tag}: ${d.n ? d.n + (d.n === 1 ? ' Antwort' : ' Antworten') + ' · ' + Math.round(d.r / d.n * 100) + ' % richtig' : 'nicht geübt'}"></div>`).join('')}</div>
       <div class="home-wl">${s.week.map((d, i) => `<span${i === 6 ? ' class="heute"' : ''}>${d.tag}</span>`).join('')}</div>
-      <div class="home-s" id="home-weeksum">${s.weekSum} ${s.weekSum === 1 ? 'Antwort' : 'Antworten'} · Ø ${Math.round(s.weekSum / 7)}/Tag · ${Math.round(s.weekRight / s.weekSum * 100)} % richtig</div>`
+      <div class="home-s" id="home-weeksum">${s.weekSum} ${s.weekSum === 1 ? 'Antwort' : 'Antworten'} · Ø ${Math.round(s.weekSum / Math.max(1, s.weekDays))} je Übungstag (${s.weekDays} von 7) · ${Math.round(s.weekRight / s.weekSum * 100)} % richtig</div>`
       : '<div class="home-s home-empty" id="home-weeksum">Diese Woche noch nichts geübt.</div>'}</div>
     ${(() => { const summe = homeLevelSumme(s.levels), gram = homeGrammarRows(Date.now()), gsum = homeLevelSumme(gram);
       return `<div class="home-card home-wide" id="home-stufen"><div class="home-k"><i class="ti ti-school"></i>Stand je Sprachstufe<span class="home-legend">Stufe${[1, 2, 3, 4, 5].map(i => `<span class="home-lgi" tabindex="0" title="${homeStufeInfo(i)}"><span class="home-lg s${i}"></span>${i === 5 ? '5 sicher' : i}</span>`).join('')}</span></div>
@@ -7997,7 +8055,7 @@ function updateSettingsSummaries() {
   const sel = id => { const e = document.getElementById(id); return e && e.selectedOptions && e.selectedOptions[0] ? e.selectedOptions[0].textContent.trim() : ''; };
   const an = id => { const e = document.getElementById(id); return !!(e && e.checked); };
   const T = {
-    ueben: [sel('maxlevel-select'), sel('blocksize-select'), 'Ziel ' + sel('sessiongoal-select'), an('cognate-toggle') ? 'ohne Lehnwörter' : '', an('lifedemote-toggle') ? 'Rückstufung an' : ''],
+    ueben: [sel('maxlevel-select'), sel('blocksize-select'), 'Tagesziel ' + sel('daygoal-select'), 'Ziel ' + sel('sessiongoal-select'), an('cognate-toggle') ? 'ohne Lehnwörter' : '', an('lifedemote-toggle') ? 'Rückstufung an' : ''],
     niveau: [sel('mylevel-select')],
     aussprache: ['Vorlesen ' + (an('autoplay-toggle') ? 'an' : 'aus'), (() => { try { return russianVoice ? russianVoice.name : ''; } catch (e) { return ''; } })(), sel('speakrate-select'), 'Umschrift: ' + (typeof TR_MODE_LABEL !== 'undefined' ? ({ speech: 'Aussprache', letters: 'Buchstaben', off: 'aus' })[transcriptionMode] : '')],
     darstellung: [{ light: 'hell', dark: 'dunkel', system: 'wie das System' }[themeMode()], ruFontMode() === 'sans' ? 'Russisch ohne Serifen' : 'Russisch mit Serifen'],
@@ -8721,12 +8779,23 @@ if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
 }
 
 // Sitzungsziel: einfacher Fortschrittsbalken für die laufende Runde
+// Tagesziel für die Startseite (Antworten pro Tag) – getrennt vom Sitzungsziel einer Runde
+const DAY_GOAL_KEY = 'vokabeltrainer-day-goal', DAY_GOALS = [50, 100, 200, 500];
+let dayGoal = 0;
+try { const v = parseInt(localStorage.getItem(DAY_GOAL_KEY), 10); if (v > 0) dayGoal = v; } catch (e) {}
+function setDayGoal(v) {
+  dayGoal = parseInt(v, 10) || 0;
+  try { if (dayGoal) localStorage.setItem(DAY_GOAL_KEY, String(dayGoal)); else localStorage.removeItem(DAY_GOAL_KEY); } catch (e) {}
+  const sel = document.getElementById('daygoal-select'); if (sel) sel.value = String(dayGoal);
+  if (appView === 'home') renderHome();
+}
 const SESSION_GOAL_KEY = 'vokabeltrainer-session-goal';
 let sessionGoal = 0;
 function loadSessionGoal() {
   try { sessionGoal = parseInt(localStorage.getItem(SESSION_GOAL_KEY), 10) || 0; } catch (e) {}
   const sel = document.getElementById('sessiongoal-select');
   if (sel) sel.value = String(sessionGoal);
+  const dg = document.getElementById('daygoal-select'); if (dg) dg.value = String(dayGoal);
   updateSessionGoal();
 }
 function setSessionGoal(v) {
@@ -14121,6 +14190,10 @@ function pickNextWord() {
   }
   let pool = fullPool.filter(w => !hasCorrectAnswer(w));
   if (!pool.length) { showCaughtUp(fullPool); return null; }
+  if (activeMain === 'due' && homeDueOrder === 'alt') {
+    const due = w => lifeNextDue(lifeVocabEntry(w)) || 0;
+    return pool.reduce((a, w) => due(w) < due(a) ? w : a);
+  }
   pool = applyLevelOrder(pool);
   let candidate = weightedPick(pool, getWeight);
   // zweiter Versuch, damit nicht zweimal hintereinander dasselbe Wort kommt
