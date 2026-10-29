@@ -13,7 +13,7 @@ const FILE = 'file://' + (process.argv[2] || APP_PATH);
     await p.goto(FILE); await p.waitForTimeout(300);
     const res = await p.evaluate((theme) => {
       const cur = document.documentElement.getAttribute('data-theme');
-      if ((theme === 'dark') !== (cur === 'dark' || (!cur && matchMedia('(prefers-color-scheme: dark)').matches))) toggleTheme();
+      if ((theme === 'dark') !== (cur === 'dark' || (!cur && matchMedia('(prefers-color-scheme: dark)').matches))) setThemeMode(theme);
       const parse = c => { const m = c.match(/rgba?\(([^)]+)\)/); if (!m) return null; const v = m[1].split(/[ ,/]+/).filter(Boolean).map(Number); return { r: v[0], g: v[1], b: v[2], a: v.length > 3 ? v[3] : 1 }; };
       const lum = c => { const f = x => { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); }; return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b); };
       const bgOf = el => { const stack = []; let e = el; while (e) { const c = parse(getComputedStyle(e).backgroundColor); if (c && c.a > 0) { stack.push(c); if (c.a >= 1) break; } e = e.parentElement; } let base = { r: 255, g: 255, b: 255 }; if (!stack.length || stack[stack.length - 1].a < 1) base = parse(getComputedStyle(document.body).backgroundColor) || base; for (let i = stack.length - 1; i >= 0; i--) { const c = stack[i]; base = { r: c.r * c.a + base.r * (1 - c.a), g: c.g * c.a + base.g * (1 - c.a), b: c.b * c.a + base.b * (1 - c.a) }; } return base; };

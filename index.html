@@ -1216,7 +1216,9 @@
   .home-hard div { display: flex; gap: 8px; font-size: 13.5px; min-width: 0; }
   .home-hard-mehr { margin: 0 0 6px; }
   .home-hard-sw { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
-  .home-hard-sw .set-seg button { min-height: 32px; } .home-hard-sw .set-seg button small { opacity: .7; margin-left: 2px; }
+  .home-hard-sw .set-seg { display: flex; flex-shrink: 1; min-width: 0; max-width: 100%; }
+  .home-hard-sw .set-seg button { min-height: 32px; flex: 1 1 auto; min-width: 0; padding: 4px 8px; line-height: 1.25; white-space: nowrap; }
+  .home-hard-sw .set-seg button small { display: block; opacity: .7; font-size: 11px; }   /* Anzahl unter „ab n×“, damit der Schalter auch bei vierstelligen Zahlen in die Karte passt */
   .home-hard-sw .set-seg button:disabled { opacity: .4; cursor: default; }
   @media (max-width: 700px) { .home-hard-sw .set-seg button { min-height: 44px; } }
   .home-hard b { font-weight: 600; } .home-hard span { color: var(--c-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; } .home-hard small { color: var(--c-typo-text); }
@@ -7308,6 +7310,9 @@ function reloadStateFromStorage() {
     grammarSrs = null; loadGrammarSrs();
     bookmarkedWords = loadBookmarks();
     daylogMem = null;
+    // Tagesziel und „Oft falsch“-Schwelle können beim Zusammenführen neu hinzukommen
+    { const v = parseInt(localStorage.getItem(DAY_GOAL_KEY), 10); if (v > 0) dayGoal = v; }
+    { const v = Number(localStorage.getItem(HARD_MIN_KEY)); if (HARD_MINS.includes(v)) hardMin = v; }
   } catch (e) {}
 }
 function saveLifetime() {
@@ -8309,7 +8314,7 @@ const BACKUP_KEYS = ['vokabeltrainer-grammar-info-open','vokabeltrainer-grammar-
   'vokabeltrainer-hearquiz-settings','vokabeltrainer-hoertrainer-cats','vokabeltrainer-hoertrainer-pause',
   'vokabeltrainer-autoplay','vokabeltrainer-block-size','vokabeltrainer-direction',
   'vokabeltrainer-skip-cognates','vokabeltrainer-theme','vokabeltrainer-session-goal',
-  'vokabeltrainer-cyr-keyboard','vokabeltrainer-max-level','vokabeltrainer-lifetime','vokabeltrainer-level-order','vokabeltrainer-my-level','vokabeltrainer-speak-rate','vokabeltrainer-view','vokabeltrainer-grammar-panel','vokabeltrainer-listening-panel','vokabeltrainer-sidebar-width','vokabeltrainer-width-vocab','vokabeltrainer-width-grammar','vokabeltrainer-width-listening','vokabeltrainer-dialog-sizes','vokabeltrainer-voice-ru','vokabeltrainer-voice-de','vokabeltrainer-life-demote','vokabeltrainer-reset-marks','vokabeltrainer-settings-ui','vokabeltrainer-ru-font','vokabeltrainer-daylog'];
+  'vokabeltrainer-cyr-keyboard','vokabeltrainer-max-level','vokabeltrainer-lifetime','vokabeltrainer-level-order','vokabeltrainer-my-level','vokabeltrainer-speak-rate','vokabeltrainer-view','vokabeltrainer-grammar-panel','vokabeltrainer-listening-panel','vokabeltrainer-sidebar-width','vokabeltrainer-width-vocab','vokabeltrainer-width-grammar','vokabeltrainer-width-listening','vokabeltrainer-dialog-sizes','vokabeltrainer-voice-ru','vokabeltrainer-voice-de','vokabeltrainer-life-demote','vokabeltrainer-reset-marks','vokabeltrainer-settings-ui','vokabeltrainer-ru-font','vokabeltrainer-daylog','vokabeltrainer-day-goal','vokabeltrainer-hard-min'];
 function exportBackup() {
   flushSaves();
   const data = { app: APP_ID, version: 1, saved: new Date().toISOString(), data: {} };
@@ -12383,12 +12388,12 @@ const SENTENCE_PAIRS = [
   { ru: 'Мой дядя — бизнесмен.', de: 'Mein Onkel ist Geschäftsmann.', targets: ['бизнесмен'] },
   { ru: 'Мой папа — экономист.', de: 'Mein Papa ist Ökonom.', targets: ['экономист'] },
   { ru: 'Где здесь посольство?', de: 'Wo ist hier die Botschaft?', targets: ['посольство'] },
-  { ru: 'У меня есть патент.', de: 'Ich habe ein Patent.', targets: ['патент'] },
+  { ru: 'У меня есть патент на работу.', de: 'Ich habe eine Arbeitserlaubnis.', targets: ['патент'] },
   { ru: 'Вот ваша анкета.', de: 'Hier ist Ihr Fragebogen.', targets: ['анкета'] },
   { ru: 'Политика — это сложно.', de: 'Politik ist kompliziert.', targets: ['политика'] },
   { ru: 'Где ваша родина?', de: 'Wo ist Ihre Heimat?', targets: ['родина'] },
   { ru: 'Администрация работает до пяти.', de: 'Die Verwaltung arbeitet bis fünf.', targets: ['администрация'] },
-  { ru: 'Мэр работает много.', de: 'Der Bürgermeister arbeitet viel.', targets: ['мэр'] },
+  { ru: 'Мэр много работает.', de: 'Der Bürgermeister arbeitet viel.', targets: ['мэр'] },
   { ru: 'Это важное соглашение.', de: 'Das ist ein wichtiges Abkommen.', targets: ['соглашение'] },
   { ru: 'Премьер-министр говорит.', de: 'Der Premierminister spricht.', targets: ['премьер-министр'] },
   { ru: 'Министерство в центре.', de: 'Das Ministerium ist im Zentrum.', targets: ['министерство'] },
@@ -12444,7 +12449,7 @@ const SENTENCE_PAIRS = [
   { ru: 'Мой папа — механик.', de: 'Mein Papa ist Mechaniker.', targets: ['механик'] },
   { ru: 'Мой папа — автомеханик.', de: 'Mein Papa ist Kfz-Mechaniker.', targets: ['автомеханик'] },
   { ru: 'Курьер уже здесь.', de: 'Der Kurier ist schon hier.', targets: ['курьер'] },
-  { ru: 'Он работает как уборщик.', de: 'Er arbeitet als Gebäudereiniger.', targets: ['уборщик'] },
+  { ru: 'Мой брат — уборщик.', de: 'Mein Bruder ist Gebäudereiniger.', targets: ['уборщик'] },
   { ru: 'Уборщица работает утром.', de: 'Die Putzfrau arbeitet morgens.', targets: ['уборщица'] },
   { ru: 'Машинист ведёт поезд.', de: 'Der Lokführer fährt den Zug.', targets: ['машинист'] },
   { ru: 'Кузнец работает с железом.', de: 'Der Schmied arbeitet mit Eisen.', targets: ['кузнец'] },
@@ -15042,10 +15047,6 @@ function applyRuFont() {
   document.querySelectorAll('#rufont-seg button').forEach(b => { const on = b.dataset.mode === m; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
   if (typeof updateSettingsSummaries === 'function') updateSettingsSummaries();
 }
-function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-  setThemeMode(current === 'dark' ? 'light' : 'dark');
-}
 // Farbschema: 'light' | 'dark' | 'system' (= kein Eintrag, folgt dem Gerät)
 function themeMode() {
   let s = null; try { s = localStorage.getItem('vokabeltrainer-theme'); } catch (e) {}
@@ -16051,7 +16052,8 @@ document.querySelectorAll('.overlay').forEach(el => {
   el.addEventListener('pointerdown', e => { el._downInside = e.target !== el; });
   el.addEventListener('click', e => { const innen = el._downInside; el._downInside = false; if (e.target === el && !innen) el.classList.remove('open'); });
 });
-document.addEventListener('keydown', e => {
+// Tastenkürzel, aufgeteilt nach Bereich; jede Teilfunktion meldet true, wenn sie die Taste verbraucht hat
+function keyGlobal(e) {
   if (e.key === 'Escape') {
     // Wortdetails liegen über der Vokabelliste — erst nur sie schließen,
     // damit die Liste samt Suche und Position erhalten bleibt.
@@ -16069,15 +16071,13 @@ document.addEventListener('keydown', e => {
     const tag = ((el && el.tagName) || '').toLowerCase();
     const isAnswer = el && el.id === 'answer-input';
     if (isAnswer || (tag !== 'input' && tag !== 'textarea' && tag !== 'select')) {
-      e.preventDefault(); openShortcuts(); return;
+      e.preventDefault(); openShortcuts(); return true;
     }
   }
-  // Im Auswahl-Modus (Mehrfachauswahl): nach dem Antworten per Klick auf eine
-  // der vier Optionen kann man mit Enter direkt zum nächsten Wort springen,
-  // ohne extra den "Weiter"-Button anklicken zu müssen.
-  // Im Auswahl-Modus (Mehrfachauswahl) und im Satzbau-Klick-Modus: nach dem
-  // Antworten kann man mit Enter direkt zum nächsten Wort springen, ohne
-  // extra den "Weiter"-Button anklicken zu müssen.
+  return false;
+}
+function keyVocabChoice(e) {
+  // Im Auswahl-Modus: nach dem Antworten springt Enter direkt zum nächsten Wort.
   if (e.key === 'Enter' && appView === 'vocab' && quizMode === 'mc' && answered) {
     const anyOverlayOpen = document.querySelector('.overlay.open');
     if (!anyOverlayOpen) nextWord();
@@ -16092,11 +16092,8 @@ document.addEventListener('keydown', e => {
       checkMC(Number(e.key) - 1);
     }
   }
-  // ── Tastaturkürzel am Rechner (Gegenstück zu den Wischgesten) ──
-  // Pfeil rechts = nächstes Wort, Pfeil links = auflösen, Leertaste =
-  // Aussprache. Die Pfeile greifen im Eingabefeld nur, wenn dort nichts
-  // steht, damit man weiter im getippten Text navigieren kann; die
-  // Leertaste nie, weil sie dort ein Leerzeichen ist.
+}
+function keyListeningSpace(e) {
   // Hörverstehen: Leertaste spielt das Wort erneut ab
   if (appView === 'listening' && !document.querySelector('.overlay.open')
       && (e.key === ' ' || e.code === 'Space')) {
@@ -16104,18 +16101,21 @@ document.addEventListener('keydown', e => {
     if (tag !== 'input' && tag !== 'textarea' && tag !== 'select') {
       e.preventDefault();
       if (document.getElementById('listening-hearquiz').classList.contains('open')) speakHearquiz();
-      return;
+      return true;
     }
   }
-    // Taste 2 im Satzbau: Wort-Tipp (gleiche Regel wie Taste 3)
+  return false;
+}
+function keyToolReveal(e) {
+  // Taste 2 im Satzbau: Wort-Tipp (gleiche Regel wie Taste 3)
   if (e.key === '2' && appView === 'grammar' && !document.querySelector('.overlay.open')) {
     const p = document.getElementById('overlay-sentencebuild');
     const el = e.target, tag = ((el && el.tagName) || '').toLowerCase();
     const imFeld = tag === 'input' || tag === 'textarea' || tag === 'select';
     if (p && p.classList.contains('open') && p.getClientRects().length && wgState.tool === 'sentence'
-        && (!imFeld || (tag === 'input' && el.value === ''))) { e.preventDefault(); revealWordgroupStep(); return; }
+        && (!imFeld || (tag === 'input' && el.value === ''))) { e.preventDefault(); revealWordgroupStep(); return true; }
   }
-    // Taste 3 blendet die Lösung ein — überall dort, wo es den Knopf dafür gibt
+  // Taste 3 blendet die Lösung ein — überall dort, wo es den Knopf dafür gibt
   if (e.key === '3' && !document.querySelector('.overlay.open')
       && (appView === 'grammar' || appView === 'listening')) {
     const el = e.target;
@@ -16123,10 +16123,13 @@ document.addEventListener('keydown', e => {
     const imFeld = tag === 'input' || tag === 'textarea' || tag === 'select';
     // im Eingabefeld nur, solange dort nichts steht (sonst wäre „3" Teil der Antwort)
     if (!imFeld || (tag === 'input' && el.value === '')) {
-      if (revealCurrentTool()) { e.preventDefault(); return; }
+      if (revealCurrentTool()) { e.preventDefault(); return true; }
     }
   }
-// Hörquiz im Aufdecken-Modus: Enter deckt auf, 1 = gewusst, 2 = nicht gewusst
+  return false;
+}
+function keyHearquizFlip(e) {
+  // Hörquiz im Aufdecken-Modus: Enter deckt auf, 1 = gewusst, 2 = nicht gewusst
   if (appView === 'listening' && !document.querySelector('.overlay.open')
       && hqState.mode === 'flip' && document.getElementById('listening-hearquiz').classList.contains('open')
       && ['Enter', '1', '2', '3', '4'].includes(e.key)) {
@@ -16137,9 +16140,17 @@ document.addEventListener('keydown', e => {
       else if (e.key === '4') undoHearquizRate();    // falsch bewertet: zurück
       else if (!hqState.revealed) revealHearquizFlip();
       else rateHearquiz(e.key !== '2');
-      return;
+      return true;
     }
   }
+  return false;
+}
+function keyVocabCard(e) {
+  // Lernkarte am Rechner (Gegenstück zu den Wischgesten):
+  // Pfeil rechts = nächstes Wort, Pfeil links = auflösen, Leertaste =
+  // Aussprache. Die Pfeile greifen im Eingabefeld nur, wenn dort nichts
+  // steht, damit man weiter im getippten Text navigieren kann; die
+  // Leertaste nie, weil sie dort ein Leerzeichen ist.
   // Vokabeln im Aufdecken-Modus: 3 = letzte Bewertung zurücknehmen (auch nach „Alles gelernt!“),
   // Enter bei „Alles gelernt!“ = Fortschritt zurücksetzen
   if (appView === 'vocab' && quizMode === 'flip' && !document.querySelector('.overlay.open')
@@ -16170,6 +16181,12 @@ document.addEventListener('keydown', e => {
     else if (quizMode === 'flip') flipReveal();
     else revealCurrentWord();
   }
+}
+document.addEventListener('keydown', e => {
+  if (keyGlobal(e)) return;
+  keyVocabChoice(e);
+  if (keyListeningSpace(e) || keyToolReveal(e) || keyHearquizFlip(e)) return;
+  keyVocabCard(e);
 });
 
 // ── Werkzeuge-Dropdown ───────────────────────────────────────
@@ -16410,21 +16427,21 @@ const conjugationData = {
     future: { "я":"буду видеть", "ты":"будешь видеть", "он / она / оно":"будет видеть", "мы":"будем видеть", "вы":"будете видеть", "они":"будут видеть" },
     past: { "он":"видел", "она":"видела", "оно":"видело", "они":"видели" },
     imperative: { "ты":"видь", "вы":"видьте" },
-    imperativeNote: "Grammatisch korrekte Form, im Alltag aber kaum gebräuchlich (man befiehlt niemandem zu \"sehen\")." },
+    imperativeNote: "Grammatisch korrekte Form, im Alltag aber kaum gebräuchlich (man befiehlt niemandem zu „sehen“)." },
   "хотеть": { de: "wollen", nonPastLabel: "Präsens",
     nonPastNote: "Unregelmäßiges Verb – Mischung aus 1. und 2. Konjugation:",
     nonPast: { "я":"хочу", "ты":"хочешь", "он / она / оно":"хочет", "мы":"хотим", "вы":"хотите", "они":"хотят" },
     future: { "я":"буду хотеть", "ты":"будешь хотеть", "он / она / оно":"будет хотеть", "мы":"будем хотеть", "вы":"будете хотеть", "они":"будут хотеть" },
     past: { "он":"хотел", "она":"хотела", "оно":"хотело", "они":"хотели" },
     imperative: { "ты":"хоти", "вы":"хотите" },
-    imperativeNote: "Grammatisch mögliche Form, wird aber praktisch nie benutzt (man befiehlt niemandem zu \"wollen\")." },
+    imperativeNote: "Grammatisch mögliche Form, wird aber praktisch nie benutzt (man befiehlt niemandem zu „wollen“)." },
   "мочь": { de: "können", nonPastLabel: "Präsens",
     nonPastNote: "Konsonantenwechsel г→ж außer in 1. Person Singular und 3. Person Plural:",
     nonPast: { "я":"могу", "ты":"можешь", "он / она / оно":"может", "мы":"можем", "вы":"можете", "они":"могут" },
     future: { "я":"буду мочь", "ты":"будешь мочь", "он / она / оно":"будет мочь", "мы":"будем мочь", "вы":"будете мочь", "они":"будут мочь" },
     past: { "он":"мог", "она":"могла", "оно":"могло", "они":"могли" },
     imperative: { "ты":"моги", "вы":"могите" },
-    imperativeNote: "Sehr seltene, veraltet wirkende Form (man befiehlt niemandem, etwas zu \"können\")." },
+    imperativeNote: "Sehr seltene, veraltet wirkende Form (man befiehlt niemandem, etwas zu „können“)." },
   "читать": { de: "lesen", nonPastLabel: "Präsens",
     nonPast: { "я":"читаю", "ты":"читаешь", "он / она / оно":"читает", "мы":"читаем", "вы":"читаете", "они":"читают" },
     future: { "я":"буду читать", "ты":"будешь читать", "он / она / оно":"будет читать", "мы":"будем читать", "вы":"будете читать", "они":"будут читать" },
@@ -19724,7 +19741,7 @@ const WG_ADJ_FIT = {
   'старый': ['POGVA', ''],
   'быстрый': ['V', 'ответ река обед'],
   'медленный': ['V', 'река'],
-  'красивый': ['POGVZ', 'язык жизнь любовь слово рука нога'],
+  'красивый': ['POGV', 'язык жизнь любовь слово рука нога праздник вечер утро ночь день'],
   'умный': ['P', 'вопрос ответ слово голова книга'],
   'тёмный': ['OZ', 'рубашка юбка шапка машина кресло дверь'],
   'светлый': ['', 'рубашка юбка шапка лампа окно голова день утро праздник музей школа дом квартира комната кухня магазин вокзал этаж'],
@@ -19739,8 +19756,8 @@ const WG_ADJ_FIT = {
   'низкий': ['', 'гора дом мост школа стул стол дверь окно лампа'],
   'весёлый': ['PZ', 'концерт слово'],
   'грустный': ['PZA', ''],
-  'сильный': ['PK', 'любовь машина'],
-  'слабый': ['PK', ''],
+  'сильный': ['P', 'рука нога любовь машина'],
+  'слабый': ['P', 'рука нога'],
   'чистый': ['GK', 'вода сок комната кухня дом квартира город парк лес море озеро река поле площадь школа'],
   'грязный': ['OGVK', 'вода'],
   'важный': ['PAZ', 'письмо ключ билет место'],
@@ -19811,7 +19828,7 @@ const WG_ADJ_FIT = {
   'обычный': ['POGVEZAKW', ''],
   'готовый': ['', 'обед суп ответ хлеб'],
   'круглый': ['', 'стол кольцо зеркало лампа голова'],
-  'местный': ['P', 'музей магазин парк школа вокзал хлеб сок праздник'],
+  'местный': ['', 'врач студент музей магазин парк школа вокзал хлеб сок праздник город лес озеро река дорога площадь'],
 };
 // Stoffe und Abstrakta ohne sinnvolle Mehrzahl (keine „zwei Wasser“)
 const WG_MASS = new Set(['вода', 'любовь', 'жизнь', 'погода', 'хлеб', 'сок', 'время']);
