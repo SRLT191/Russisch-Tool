@@ -636,6 +636,26 @@
   .td-de { color: var(--c-text-de); }
   .motion-list-note { display: block; margin-top: 2px; font-size: 0.82em; opacity: 0.75; }
   .td-cat { font-size: 12px; color: var(--c-text-muted); white-space: nowrap; }
+  /* Vokabelliste: Tabelle passt sich der Dialogbreite an (auch nach Größe-Ziehen) statt seitlich zu rollen */
+  #overlay-vocab .overlay-body { container-type: inline-size; overflow-x: hidden; }
+  #overlay-vocab .list-toolbar { flex-wrap: wrap; }
+  #overlay-vocab .list-toolbar .list-search { flex: 1 1 160px; min-width: 0; }
+  #overlay-vocab .vocab-table { min-width: 0; }
+  #overlay-vocab .td-de { overflow-wrap: anywhere; }
+  #overlay-vocab .td-score { white-space: nowrap; }
+  @container (max-width: 700px) { #overlay-vocab .td-cat { white-space: normal; } }
+  @container (max-width: 560px) {
+    #overlay-vocab .vocab-table th:nth-child(3), #overlay-vocab .vocab-table td:nth-child(3) { display: none; }
+    #overlay-vocab .vocab-table th, #overlay-vocab .vocab-table td { padding-left: 6px; padding-right: 6px; }
+  }
+  @container (max-width: 400px) {
+    #overlay-vocab .td-score .ever-ok { display: none; }
+    #overlay-vocab .vocab-table { table-layout: fixed; }
+    #overlay-vocab .vocab-table th:nth-child(1) { width: 36%; } #overlay-vocab .vocab-table th:nth-child(4) { width: 58px; } #overlay-vocab .vocab-table th:nth-child(5) { width: 30px; }
+    #overlay-vocab .td-de { hyphens: auto; }
+    #overlay-vocab .td-ru, #overlay-vocab .td-tr { overflow-wrap: anywhere; }
+    #overlay-vocab .td-ru { font-size: 16px; }
+  }
   .td-score { text-align: center; }
   .score-pill { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; padding: 2px 7px; border-radius: 999px; font-weight: 500; }
   .score-pill.good { background: var(--c-success-bg); color: var(--c-success-text); }
@@ -1028,6 +1048,8 @@
     .area-grip:focus-visible { outline: none; }
     body.area-ziehen { cursor: col-resize; user-select: none; }
     .overlay-box { resize: both; overflow: hidden; min-width: 360px; min-height: 160px; }
+    /* Vokabelliste am PC breiter, damit alle Spalten Platz haben */
+    #overlay-vocab .overlay-box:not(.dialog-custom) { width: min(960px, calc(100vw - 4rem)); max-height: 88vh; }
   }
   /* Breite Fenster am PC: Lernbereich wächst mit und rückt etwas nach unten */
   @media (min-width: 1200px) and (hover: hover) {
@@ -16020,6 +16042,8 @@ function openVocabList() {
   document.getElementById('vocab-sort').value = 'default';
   renderVocabTable();
   document.getElementById('overlay-vocab').classList.add('open');
+  // immer links oben beginnen (sonst bleibt eine alte waagerechte Rollposition stehen)
+  const vb = document.querySelector('#overlay-vocab .overlay-body'); if (vb) { vb.scrollLeft = 0; vb.scrollTop = 0; }
 }
 
 function renderVocabTable() {
