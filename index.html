@@ -1146,6 +1146,12 @@
   .home-lg.s5, .home-t .s5 { background: var(--c-st5); }
   .home-legend { flex-wrap: wrap; justify-content: flex-end; }
   .home-legend .home-lg { margin-left: 7px; margin-right: 1px; }
+  .home-lgi { display: inline-flex; align-items: center; cursor: help; border-radius: 4px; }
+  .home-lgi:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 1px; }
+  .home-t span { cursor: help; }
+  .home-lvr.home-lvr-sum { cursor: default; border-top: 0.5px solid var(--c-border-light); padding-top: 9px; }
+  .home-lvr.home-lvr-sum:hover b { color: inherit; }
+  .home-lv-sum { margin-top: 10px; }
   .home-t span + span { box-shadow: inset 1px 0 0 var(--c-surface); }
   .home-lv { display: flex; flex-direction: column; gap: 9px; margin-top: 4px; }
   .home-lvr { display: flex; align-items: center; gap: 10px; font-size: 13px; } .home-lvr b { width: 24px; }
@@ -7339,6 +7345,19 @@ function homeRelDay(ts) {
   return d.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
 }
 // Zahlen für die Startseite (auch für die Prüfung abrufbar)
+// Erklärung je Wiederholungsstufe für die Legende: wann man sie frühestens erreicht
+function homeStufeInfo(i) {
+  if (i === 1) return 'Stufe 1: sofort mit der ersten richtigen Antwort';
+  const t = LIFE_STEP_DAYS[i - 1];
+  return 'Stufe ' + i + ': frühestens ' + t + (t === 1 ? ' Tag' : ' Tage') + ' nach Stufe ' + (i - 1) + ' mit einer richtigen Antwort'
+    + (i === LIFE_RUNS_MAX ? ' – dann gilt das Wort als sicher' : '');
+}
+function homeProz(n, total) { if (!total) return '0 %'; const p = n / total * 100; return (p > 0 && p < 1 ? '<1' : Math.round(p)) + ' %'; }
+// Summe über alle Sprachstufen (Zeile „Σ“)
+function homeLevelSumme(levels) {
+  return levels.reduce((a, l) => ({ L: 'Gesamt', total: a.total + l.total, sicher: a.sicher + l.sicher, arbeit: a.arbeit + l.arbeit, stufen: a.stufen.map((n, i) => n + l.stufen[i]) }),
+    { L: 'Gesamt', total: 0, sicher: 0, arbeit: 0, stufen: Array(LIFE_RUNS_MAX).fill(0) });
+}
 // „Stufe 5 (sicher): 12 · Stufe 4: 3 …“ – nur Stufen mit Wörtern
 function homeStufenText(st) { return st.map((n, i) => ({ n, i })).filter(x => x.n).reverse().map(x => 'Stufe ' + (x.i + 1) + (x.i + 1 === LIFE_RUNS_MAX ? ' (sicher)' : '') + ': ' + x.n).join(' · '); }
 function homeStats() {
@@ -7479,8 +7498,9 @@ function renderHome() {
       <div class="home-wl">${s.week.map((d, i) => `<span${i === 6 ? ' class="heute"' : ''}>${d.tag}</span>`).join('')}</div>
       <div class="home-s" id="home-weeksum">${s.weekSum} ${s.weekSum === 1 ? 'Antwort' : 'Antworten'} · Ø ${Math.round(s.weekSum / 7)}/Tag · ${Math.round(s.weekRight / s.weekSum * 100)} % richtig</div>`
       : '<div class="home-s home-empty" id="home-weeksum">Diese Woche noch nichts geübt.</div>'}</div>
-    <div class="home-card home-wide"><div class="home-k"><i class="ti ti-school"></i>Stand je Sprachstufe<span class="home-legend" title="Wiederholungsstufe: steigt nur mit wachsendem Abstand, ab 5 gilt ein Wort als sicher">Stufe${[1, 2, 3, 4, 5].map(i => `<span class="home-lg s${i}"></span>${i === 5 ? '5 sicher' : i}`).join('')}</span></div>
-      <div class="home-lv">${s.levels.map(l => `<div class="home-lvr" role="button" tabindex="0" onclick="openLevelOverview()" onkeydown="homeKey(event)" aria-label="${l.L}: ${l.sicher + l.arbeit} von ${l.total}${l.stufen.some(n => n) ? ' (' + homeStufenText(l.stufen) + ')' : ''} – Stufenübersicht öffnen" title="${l.stufen.some(n => n) ? homeStufenText(l.stufen) : 'noch nichts geübt'}"><b>${l.L}</b><div class="home-t">${l.stufen.map((n, i) => n ? `<span class="s${i + 1}" style="width:${l.total ? n / l.total * 100 : 0}%"></span>` : '').reverse().join('')}</div><span class="home-n">${l.sicher + l.arbeit} / ${l.total}</span><span class="home-p">${l.total ? Math.round((l.sicher + l.arbeit) / l.total * 100) : 0} %</span></div>`).join('')}</div></div>
+    <div class="home-card home-wide"><div class="home-k"><i class="ti ti-school"></i>Stand je Sprachstufe<span class="home-legend">Stufe${[1, 2, 3, 4, 5].map(i => `<span class="home-lgi" tabindex="0" title="${homeStufeInfo(i)}"><span class="home-lg s${i}"></span>${i === 5 ? '5 sicher' : i}</span>`).join('')}</span></div>
+      <div class="home-lv">${[...s.levels, homeLevelSumme(s.levels)].map(l => `<div class="home-lvr${l.L === 'Gesamt' ? ' home-lvr-sum' : ''}" ${l.L === 'Gesamt' ? '' : 'role="button" tabindex="0" onclick="openLevelOverview()" onkeydown="homeKey(event)"'} aria-label="${l.L}: ${l.sicher + l.arbeit} von ${l.total} geübt${l.stufen.some(n => n) ? ' (' + homeStufenText(l.stufen) + ')' : ''}${l.L === 'Gesamt' ? '' : ' – Stufenübersicht öffnen'}" title="${l.stufen.some(n => n) ? homeStufenText(l.stufen) + ' · noch nicht geübt: ' + (l.total - l.sicher - l.arbeit) : 'noch nichts geübt'}"><b>${l.L === 'Gesamt' ? 'Σ' : l.L}</b><div class="home-t">${l.stufen.map((n, i) => n ? `<span class="s${i + 1}" style="width:${l.total ? n / l.total * 100 : 0}%" title="${l.L} · Stufe ${i + 1}${i + 1 === LIFE_RUNS_MAX ? ' (sicher)' : ''}: ${n} ${n === 1 ? 'Wort' : 'Wörter'} (${homeProz(n, l.total)} von ${l.total})"></span>` : '').reverse().join('')}</div><span class="home-n">${l.sicher + l.arbeit} / ${l.total}</span><span class="home-p">${l.total ? Math.round((l.sicher + l.arbeit) / l.total * 100) : 0} %</span></div>`).join('')}</div>
+      <div class="home-s home-lv-sum">${homeLevelSumme(s.levels).total} Vokabeln insgesamt · ${homeLevelSumme(s.levels).sicher} sicher · ${homeLevelSumme(s.levels).arbeit} in Wiederholung · ${homeLevelSumme(s.levels).total - homeLevelSumme(s.levels).sicher - homeLevelSumme(s.levels).arbeit} noch nicht geübt</div></div>
     ${s.hardAll.length ? (() => {
       const liste = homeHardList(s.hardAll), mehr = liste.length - 5, eff = homeHardMin(s.hardAll);
       return `<div class="home-card" id="home-hard"><div class="home-k"><i class="ti ti-circle-x"></i>Oft falsch</div>
