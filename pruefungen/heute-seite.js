@@ -35,6 +35,8 @@ const SAAT = () => {
   await check('Stufen: Prozent je Stufe', () => ev(() => { const p = [...document.querySelectorAll('#home-stufen .home-lvr:not(.home-lvr-sum) .home-p')].map(x => x.textContent); return { ok: p.length === 5 && p.every(x => /^\d+ %$/.test(x)) && p[0] === '5 %', info: p.join(' ') }; }));
   await check('Klick auf Fällig übt genau die fälligen Wörter', () => ev(() => {
     // auch mit Stufengrenze A1: fällig ist fällig, egal welche Stufe
+    // ein fälliges Wort über A1 dazunehmen (die Saat nimmt die ersten Wörter – seit der Sortierung nach Stufe alle A1)
+    { const L = loadLifetime(), w = allVocabWords().find(x => wordLevel(x) === 'B2'), t = Date.now(); L.v[getKey(w)] = { c: 1, w: 0, mb: 1, l: t, d: 1, dd: t - 3 * 864e5 }; saveLifetime(); }
     const n = homeStats().dueWords; maxLevel = 'A1'; document.getElementById('home-due').click();
     const pool = getPool(), hoeher = pool.filter(w => wordLevel(w) !== 'A1').length; maxLevel = '';
     return { ok: appView === 'vocab' && activeMain === 'due' && pool.length === n && hoeher > 0 && pool.includes(currentWord), info: activeMain + ' ' + pool.length + '/' + n + ' · über A1: ' + hoeher };
