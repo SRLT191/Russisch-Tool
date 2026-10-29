@@ -1152,6 +1152,15 @@
   .home-lvr.home-lvr-sum { cursor: default; border-top: 0.5px solid var(--c-border-light); padding-top: 9px; }
   .home-lvr.home-lvr-sum:hover b { color: inherit; }
   .home-lv-sum { margin-top: 10px; }
+  .home-up { width: 40px; flex-shrink: 0; text-align: right; font-size: 12px; color: var(--c-st4); font-weight: 600; cursor: help; font-variant-numeric: tabular-nums; }
+  .home-lv-det { font-size: 12.5px; color: var(--c-text-secondary); margin: -4px 0 4px 34px; line-height: 1.45; }
+  .home-lv-link { border: 0; background: none; color: var(--c-accent); font: inherit; font-weight: 600; padding: 4px 0; cursor: pointer; min-height: 32px; }
+  .home-verlauf { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  .home-verlauf svg { display: block; max-width: 100%; height: auto; }
+  .home-verlauf-n { color: var(--c-st5); font-size: 14px; }
+  #home-gstufen .home-lvr b { width: 104px; flex-shrink: 0; font-weight: 600; }
+  #home-gstufen .home-lv-det { margin-left: 114px; }
+  @media (max-width: 700px) { #home-gstufen .home-lvr b { width: 92px; font-size: 12px; } #home-gstufen .home-lv-det { margin-left: 0; } }
   .home-t span + span { box-shadow: inset 1px 0 0 var(--c-surface); }
   .home-lv { display: flex; flex-direction: column; gap: 9px; margin-top: 4px; }
   .home-lvr { display: flex; align-items: center; gap: 10px; font-size: 13px; } .home-lvr b { width: 24px; }
@@ -7345,6 +7354,104 @@ function homeRelDay(ts) {
   return d.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' });
 }
 // Zahlen für die Startseite (auch für die Prüfung abrufbar)
+// Eine Zeile der Stufenkarten: Anzahl je Wiederholungsstufe (stufen[i] = Stufe i+1, letzte = sicher),
+// heute aufstiegsbereit (Wartezeit abgelaufen) und die Termine, ab denen Wörter auf Stufe 4 sicher werden können
+function homeStufenZeile(L, total, entries, now) {
+  let sicher = 0, arbeit = 0, bereit = 0; const stufen = Array(LIFE_RUNS_MAX).fill(0), sicherAb = [];
+  entries.forEach(e => {
+    const d = (e && e.d) || 0; if (!d) return;
+    stufen[Math.min(d, LIFE_RUNS_MAX) - 1]++;
+    if (d >= LIFE_RUNS_MAX) { sicher++; return; }
+    arbeit++;
+    const due = lifeNextDue(e);
+    if (now >= due) bereit++;
+    else if (d === LIFE_RUNS_MAX - 1) sicherAb.push(due);
+  });
+  // nie weniger Aufgaben als geübte (alte Einträge von entfernten Aufgaben)
+  return { L, total: Math.max(total, sicher + arbeit), sicher, arbeit, stufen, bereit, sicherAb: sicherAb.sort((a, b) => a - b) };
+}
+// „frühestens sicher: 3 ab Mo 2.11. · 1 ab Mi 4.11.“ – die nächsten drei Termine
+function homeSicherAbText(liste) {
+  if (!liste.length) return '';
+  const tage = new Map();
+  liste.forEach(t => { const k = dayKey(new Date(t)); const x = tage.get(k); if (x) x.n++; else tage.set(k, { n: 1, t }); });
+  const fmt = t => new Date(t).toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'numeric' }).replace(',', '');
+  return 'frühestens sicher: ' + [...tage.values()].slice(0, 3).map(x => x.n + ' ab ' + fmt(x.t)).join(' · ') + (tage.size > 3 ? ' · …' : '');
+}
+// Text für Tooltip, Bildschirmleser und die aufgeklappte Zeile (Handy)
+function homeZeileText(l, wort) {
+  const teile = [];
+  if (l.stufen.some(n => n)) teile.push(homeStufenText(l.stufen));
+  teile.push('noch nicht geübt: ' + (l.total - l.sicher - l.arbeit));
+  if (l.bereit) teile.push(l.bereit + ' ' + (l.bereit === 1 ? wort[0] : wort[1]) + ' heute aufstiegsbereit');
+  const ab = homeSicherAbText(l.sicherAb); if (ab) teile.push(ab);
+  return teile.join(' · ');
+}
+// Zeilen einer Stufenkarte (Vokabeln oder Grammatik)
+function homeStufenRows(rows, opt) {
+  const wort = opt.wort || ['Wort', 'Wörter'];
+  return rows.map((l, idx) => {
+    const sum = l.L === 'Gesamt', key = (opt.id || 'lv') + '-' + idx, txt = homeZeileText(l, wort), name = l.name || (sum ? 'Gesamt' : l.L);
+    const klick = sum ? '' : `role="button" tabindex="0" aria-expanded="false" aria-controls="home-det-${key}" onclick="homeLvClick(event, '${key}', ${opt.klick ? `'${opt.klick}'` : 'null'})" onkeydown="homeKey(event)"`;
+    const segs = l.stufen.map((n, i) => n ? `<span class="s${i + 1}" style="width:${l.total ? n / l.total * 100 : 0}%" title="${htmlEsc(name)} · Stufe ${i + 1}${i + 1 === LIFE_RUNS_MAX ? ' (sicher)' : ''}: ${n} ${n === 1 ? wort[0] : wort[1]} (${homeProz(n, l.total)} von ${l.total})"></span>` : '').reverse().join('');
+    const up = l.bereit ? `<span class="home-up" title="${l.bereit} ${l.bereit === 1 ? wort[0] + ' kann' : wort[1] + ' können'} heute mit einer richtigen Antwort eine Stufe aufsteigen">↑${l.bereit}</span>` : '<span class="home-up" aria-hidden="true"></span>';
+    return `<div class="home-lvr${sum ? ' home-lvr-sum' : ''}" data-key="${key}" ${klick} aria-label="${htmlEsc(name)}: ${l.sicher + l.arbeit} von ${l.total} geübt · ${htmlEsc(txt)}" title="${htmlEsc(txt)}"><b>${sum ? 'Σ' : htmlEsc(l.L)}</b><div class="home-t">${segs}</div>${up}<span class="home-n">${l.sicher + l.arbeit} / ${l.total}</span><span class="home-p">${l.total ? Math.round((l.sicher + l.arbeit) / l.total * 100) : 0} %</span></div>`
+      + (sum ? '' : `<div class="home-lv-det" id="home-det-${key}" hidden>${l.name ? '<b>' + htmlEsc(l.name) + ':</b> ' : ''}${htmlEsc(txt)}${opt.klick ? ` <button type="button" class="home-lv-link" onclick="${opt.klick}()">${opt.klickText || 'Übersicht'} →</button>` : ''}</div>`);
+  }).join('');
+}
+// Klick auf eine Zeile: am PC die Übersicht öffnen (falls es eine gibt), sonst – und immer am Handy,
+// wo es kein Überfahren gibt – die Zahlen darunter auf- und zuklappen
+function homeLvClick(ev, key, fn) {
+  if (ev && ev.target && ev.target.closest && ev.target.closest('.home-lv-link')) return;
+  const touch = !!(window.matchMedia && matchMedia('(hover: none)').matches);
+  if (!touch && fn && typeof window[fn] === 'function') { window[fn](); return; }
+  const det = document.getElementById('home-det-' + key), row = document.querySelector('.home-lvr[data-key="' + key + '"]');
+  if (!det) return;
+  det.hidden = !det.hidden; if (row) row.setAttribute('aria-expanded', String(!det.hidden));
+}
+// Grammatik: Stand je Bereich (Verben, Substantive …) aus dem Gesamtstand
+const GRAMMAR_CAT_LABEL = { verb: 'Verben', noun: 'Substantive', adj: 'Adjektive', pron: 'Pronomen', prep: 'Präpositionen', syntax: 'Sätze' };
+// je Werkzeug: Schlüssel im Lernstand und Zahl der Aufgaben (wie „X von Y gelernt“ im Werkzeug)
+function grammarToolSources() {
+  const aspN = Object.keys(aspectData).filter(k => aspectData[k].pf).length;
+  return {
+    conjugate: [['conj'], getAllVocabVerbs().length], aspect: [['aspect:fwd', 'aspect:back'], aspN * 2],
+    motion: [['motion:fwd', 'motion:back', 'motion:quiz'], motionPairKeys().length * 2 + MOTION_QUIZ.length],
+    transform: [['transform'], buildTransformItems().length], rektion: [['rektion'], rektionTotal()],
+    noun: [['noun'], Object.keys(nounDeclensionData).length], caseform: [['caseform'], caseFormTotal('noun')],
+    numnoun: [['numnoun'], Object.keys(nounDeclensionData).length * 3], gender: [['gender'], genderTotal()],
+    decline: [['decl'], Object.keys(declensionData).length], caseadj: [['caseadj'], caseFormTotal('adj')], adjform: [['adjform'], adjFormTotal()],
+    pronoun: [['pronoun'], PRONOUN_GROUPS.reduce((n, g) => n + g[1]().length, 0)], pronform: [['pronform'], pronFormTotal()],
+    casedrill: [['case'], PREP_CASES.length], wordgroup: [['wordgroup'], 12 + 6 + 14 + 3],
+    sentencebuild: [Object.keys(loadLifetime().g || {}).filter(k => k.startsWith('sb:')), SB_ITEMS.length],
+  };
+}
+function homeGrammarRows(now) {
+  const g = loadLifetime().g || {}, src = grammarToolSources();
+  return Object.keys(GRAMMAR_CATS).map(c => {
+    let total = 0; const entries = [];
+    GRAMMAR_CATS[c].forEach(t => { const s = src[t]; if (!s) return; total += s[1]; s[0].forEach(k => Object.values(g[k] || {}).forEach(e => entries.push(e))); });
+    return homeStufenZeile(GRAMMAR_CAT_LABEL[c], total, entries, now);
+  });
+}
+// Verlauf der sicheren Vokabeln: Stand am Ende jeder der letzten Wochen
+// (aus dem Tag, an dem ein Wort Stufe 5 erreicht hat; heute = letzter Punkt)
+function homeSicherVerlauf(now, wochen) {
+  const n = wochen || 12, ts = [];
+  allVocabWords().forEach(w => { const e = lifeVocabEntry(w); if (e && e.d >= LIFE_RUNS_MAX) ts.push(e.dd || 0); });
+  const ende = daysAgo(0, now); ende.setHours(23, 59, 59, 999);
+  return Array.from({ length: n }, (_, i) => { const t = new Date(ende); t.setDate(t.getDate() - (n - 1 - i) * 7); return { t: t.getTime(), n: ts.filter(x => x <= t.getTime()).length }; });
+}
+function homeVerlaufSvg(punkte) {
+  const W = 240, H = 40, max = Math.max(1, ...punkte.map(p => p.n));
+  const xy = punkte.map((p, i) => [Math.round(i / (punkte.length - 1) * (W - 8)) + 4, Math.round(H - 4 - p.n / max * (H - 10))]);
+  const fmt = t => new Date(t).toLocaleDateString('de-DE', { day: 'numeric', month: 'numeric' });
+  return `<div class="home-verlauf" title="Sichere Vokabeln am Ende jeder Woche (ab dem Tag, an dem ein Wort Stufe 5 erreicht hat)"><span class="home-s">Sicher, letzte ${punkte.length} Wochen</span>`
+    + `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Sichere Vokabeln je Woche: ${punkte.map(p => fmt(p.t) + ' ' + p.n).join(', ')}">`
+    + `<polyline points="${xy.map(p => p.join(',')).join(' ')}" fill="none" stroke="var(--c-st5)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`
+    + xy.map((p, i) => `<circle cx="${p[0]}" cy="${p[1]}" r="${i === xy.length - 1 ? 3 : 1.6}" fill="var(--c-st5)"><title>${fmt(punkte[i].t)}: ${punkte[i].n} sicher</title></circle>`).join('')
+    + `</svg><b class="home-verlauf-n" title="heute sicher">${punkte[punkte.length - 1].n}</b></div>`;
+}
 // Erklärung je Wiederholungsstufe für die Legende: wann man sie frühestens erreicht
 function homeStufeInfo(i) {
   if (i === 1) return 'Stufe 1: sofort mit der ersten richtigen Antwort';
@@ -7355,8 +7462,11 @@ function homeStufeInfo(i) {
 function homeProz(n, total) { if (!total) return '0 %'; const p = n / total * 100; return (p > 0 && p < 1 ? '<1' : Math.round(p)) + ' %'; }
 // Summe über alle Sprachstufen (Zeile „Σ“)
 function homeLevelSumme(levels) {
-  return levels.reduce((a, l) => ({ L: 'Gesamt', total: a.total + l.total, sicher: a.sicher + l.sicher, arbeit: a.arbeit + l.arbeit, stufen: a.stufen.map((n, i) => n + l.stufen[i]) }),
-    { L: 'Gesamt', total: 0, sicher: 0, arbeit: 0, stufen: Array(LIFE_RUNS_MAX).fill(0) });
+  const s = levels.reduce((a, l) => ({ L: 'Gesamt', total: a.total + l.total, sicher: a.sicher + l.sicher, arbeit: a.arbeit + l.arbeit,
+    stufen: a.stufen.map((n, i) => n + l.stufen[i]), bereit: a.bereit + (l.bereit || 0), sicherAb: a.sicherAb.concat(l.sicherAb || []) }),
+    { L: 'Gesamt', total: 0, sicher: 0, arbeit: 0, stufen: Array(LIFE_RUNS_MAX).fill(0), bereit: 0, sicherAb: [] });
+  s.sicherAb.sort((x, y) => x - y);
+  return s;
 }
 // „Stufe 5 (sicher): 12 · Stufe 4: 3 …“ – nur Stufen mit Wörtern
 function homeStufenText(st) { return st.map((n, i) => ({ n, i })).filter(x => x.n).reverse().map(x => 'Stufe ' + (x.i + 1) + (x.i + 1 === LIFE_RUNS_MAX ? ' (sicher)' : '') + ': ' + x.n).join(' · '); }
@@ -7368,12 +7478,7 @@ function homeStats() {
   const dueWords = words.filter(w => faellig(lifeVocabEntry(w))).length;
   let dueGrammar = 0; Object.values(loadLifetime().g || {}).forEach(m => Object.values(m || {}).forEach(e => { if (faellig(e)) dueGrammar++; }));
   const week = []; for (let i = 6; i >= 0; i--) { const d = daysAgo(i); week.push({ k: dayKey(d), tag: d.toLocaleDateString('de-DE', { weekday: 'short' }).replace('.', ''), n: (log[dayKey(d)] || [0])[0] }); }
-  const levels = LV_NAMES.map(L => {
-    const ws = words.filter(w => wordLevel(w) === L); let sicher = 0, arbeit = 0;
-    const stufen = Array(LIFE_RUNS_MAX).fill(0);   // stufen[i] = Wörter auf Wiederholungsstufe i+1 (letzte = sicher)
-    ws.forEach(w => { const e = lifeVocabEntry(w); const d = (e && e.d) || 0; if (d >= LIFE_RUNS_MAX) sicher++; else if (d > 0) arbeit++; if (d > 0) stufen[Math.min(d, LIFE_RUNS_MAX) - 1]++; });
-    return { L, total: ws.length, sicher, arbeit, stufen };
-  });
+  const levels = LV_NAMES.map(L => { const ws = words.filter(w => wordLevel(w) === L); return homeStufenZeile(L, ws.length, ws.map(lifeVocabEntry), now); });
   const today = log[dayKey()] || [0, 0];
   // Vorschau: wie viele Wörter und Grammatikaufgaben an den nächsten Tagen fällig werden (0 = heute später)
   const start = new Date(); start.setHours(0, 0, 0, 0);
@@ -7498,9 +7603,14 @@ function renderHome() {
       <div class="home-wl">${s.week.map((d, i) => `<span${i === 6 ? ' class="heute"' : ''}>${d.tag}</span>`).join('')}</div>
       <div class="home-s" id="home-weeksum">${s.weekSum} ${s.weekSum === 1 ? 'Antwort' : 'Antworten'} · Ø ${Math.round(s.weekSum / 7)}/Tag · ${Math.round(s.weekRight / s.weekSum * 100)} % richtig</div>`
       : '<div class="home-s home-empty" id="home-weeksum">Diese Woche noch nichts geübt.</div>'}</div>
-    <div class="home-card home-wide"><div class="home-k"><i class="ti ti-school"></i>Stand je Sprachstufe<span class="home-legend">Stufe${[1, 2, 3, 4, 5].map(i => `<span class="home-lgi" tabindex="0" title="${homeStufeInfo(i)}"><span class="home-lg s${i}"></span>${i === 5 ? '5 sicher' : i}</span>`).join('')}</span></div>
-      <div class="home-lv">${[...s.levels, homeLevelSumme(s.levels)].map(l => `<div class="home-lvr${l.L === 'Gesamt' ? ' home-lvr-sum' : ''}" ${l.L === 'Gesamt' ? '' : 'role="button" tabindex="0" onclick="openLevelOverview()" onkeydown="homeKey(event)"'} aria-label="${l.L}: ${l.sicher + l.arbeit} von ${l.total} geübt${l.stufen.some(n => n) ? ' (' + homeStufenText(l.stufen) + ')' : ''}${l.L === 'Gesamt' ? '' : ' – Stufenübersicht öffnen'}" title="${l.stufen.some(n => n) ? homeStufenText(l.stufen) + ' · noch nicht geübt: ' + (l.total - l.sicher - l.arbeit) : 'noch nichts geübt'}"><b>${l.L === 'Gesamt' ? 'Σ' : l.L}</b><div class="home-t">${l.stufen.map((n, i) => n ? `<span class="s${i + 1}" style="width:${l.total ? n / l.total * 100 : 0}%" title="${l.L} · Stufe ${i + 1}${i + 1 === LIFE_RUNS_MAX ? ' (sicher)' : ''}: ${n} ${n === 1 ? 'Wort' : 'Wörter'} (${homeProz(n, l.total)} von ${l.total})"></span>` : '').reverse().join('')}</div><span class="home-n">${l.sicher + l.arbeit} / ${l.total}</span><span class="home-p">${l.total ? Math.round((l.sicher + l.arbeit) / l.total * 100) : 0} %</span></div>`).join('')}</div>
-      <div class="home-s home-lv-sum">${homeLevelSumme(s.levels).total} Vokabeln insgesamt · ${homeLevelSumme(s.levels).sicher} sicher · ${homeLevelSumme(s.levels).arbeit} in Wiederholung · ${homeLevelSumme(s.levels).total - homeLevelSumme(s.levels).sicher - homeLevelSumme(s.levels).arbeit} noch nicht geübt</div></div>
+    ${(() => { const summe = homeLevelSumme(s.levels), gram = homeGrammarRows(Date.now()), gsum = homeLevelSumme(gram);
+      return `<div class="home-card home-wide" id="home-stufen"><div class="home-k"><i class="ti ti-school"></i>Stand je Sprachstufe<span class="home-legend">Stufe${[1, 2, 3, 4, 5].map(i => `<span class="home-lgi" tabindex="0" title="${homeStufeInfo(i)}"><span class="home-lg s${i}"></span>${i === 5 ? '5 sicher' : i}</span>`).join('')}</span></div>
+      <div class="home-lv">${homeStufenRows([...s.levels, summe], { id: 'lv', klick: 'openLevelOverview', klickText: 'Stufenübersicht' })}</div>
+      <div class="home-s home-lv-sum">${summe.total} Vokabeln insgesamt · ${summe.sicher} sicher · ${summe.arbeit} in Wiederholung · ${summe.total - summe.sicher - summe.arbeit} noch nicht geübt${summe.bereit ? ' · ' + summe.bereit + ' heute aufstiegsbereit' : ''}${summe.sicherAb.length ? ' · ' + homeSicherAbText(summe.sicherAb) : ''}</div>
+      ${homeVerlaufSvg(homeSicherVerlauf(Date.now()))}</div>
+      <div class="home-card home-wide" id="home-gstufen"><div class="home-k"><i class="ti ti-book"></i>Stand Grammatik</div>
+      <div class="home-lv">${homeStufenRows([...gram, gsum], { id: 'gr', wort: ['Aufgabe', 'Aufgaben'] })}</div>
+      <div class="home-s home-lv-sum">${gsum.total} Grammatikaufgaben · ${gsum.sicher} sicher · ${gsum.arbeit} in Wiederholung · ${gsum.total - gsum.sicher - gsum.arbeit} noch nicht geübt${gsum.bereit ? ' · ' + gsum.bereit + ' heute aufstiegsbereit' : ''}</div></div>`; })()}
     ${s.hardAll.length ? (() => {
       const liste = homeHardList(s.hardAll), mehr = liste.length - 5, eff = homeHardMin(s.hardAll);
       return `<div class="home-card" id="home-hard"><div class="home-k"><i class="ti ti-circle-x"></i>Oft falsch</div>
