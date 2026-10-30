@@ -885,18 +885,28 @@
   .conj-result { text-align: center; font-size: 14px; font-weight: 600; min-height: 20px; color: var(--c-text-secondary); }
 
   /* Kyrillisches Alphabet */
-  .alpha-section-title { font-size: 11px; font-weight: 600; color: var(--c-text-muted); letter-spacing: 0.06em; text-transform: uppercase; margin: 1.1rem 0 0.6rem; }
-  .alpha-section-title:first-child { margin-top: 0; }
-  .alpha-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 10px; }
-  .alpha-card { background: var(--c-surface-alt); border: 0.5px solid var(--c-border); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; }
-  .alpha-card-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-  .alpha-letters { font-size: 24px; font-weight: 600; color: var(--c-text-primary); line-height: 1; }
-  .alpha-speak-btn { border: none; background: none; color: var(--c-text-muted); cursor: pointer; font-size: 15px; padding: 3px; border-radius: 6px; flex-shrink: 0; }
-  .alpha-speak-btn:hover { background: var(--c-bg-page); color: var(--c-accent); }
-  .alpha-tr { font-size: 12px; color: var(--c-text-faint); font-style: italic; }
-  .alpha-desc { font-size: 11.5px; color: var(--c-text-dim); line-height: 1.35; }
-  .alpha-example { font-size: 11.5px; color: var(--c-text-tertiary); margin-top: 2px; }
-  .alpha-example b { color: var(--c-text-secondary); font-weight: 500; }
+  .alpha-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+  .alpha-bar-hint { font-size: 12.5px; color: var(--c-text-muted); }
+  .alpha-section-title { font-size: 11px; font-weight: 600; color: var(--c-text-muted); letter-spacing: 0.06em; text-transform: uppercase; margin: 1.1rem 0 0.6rem; display: flex; align-items: center; gap: 6px; }
+  .alpha-section-title small { text-transform: none; letter-spacing: 0; font-weight: 400; font-size: 12px; }
+  .alpha-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); gap: 10px; }
+  .alpha-card { position: relative; background: var(--c-surface); border: 0.5px solid var(--c-border); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+  .alpha-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; }
+  .alpha-letters { font-family: var(--ru-font), 'Noto Sans', serif; font-size: 30px; font-weight: 600; color: var(--c-text-primary); line-height: 1.05; }
+  .alpha-letters span { font-weight: 400; margin-left: 6px; }
+  .alpha-nr { position: absolute; top: 8px; right: 50px; font-size: 11px; color: var(--c-text-muted); font-variant-numeric: tabular-nums; }
+  .alpha-speak-btn { border: 0.5px solid var(--c-border-input); background: var(--c-surface); color: var(--c-text-secondary); cursor: pointer; font-size: 16px; width: 32px; height: 32px; border-radius: 99px; display: grid; place-items: center; flex-shrink: 0; }
+  .alpha-speak-btn:hover { color: var(--c-accent); border-color: var(--c-accent); }
+  .alpha-tr { align-self: flex-start; font-size: 12px; font-weight: 600; color: var(--c-accent-strong); background: var(--c-accent-soft-bg); border-radius: 6px; padding: 2px 7px; }
+  .alpha-ff { font-size: 12px; color: var(--c-typo-text); display: flex; gap: 5px; align-items: flex-start; line-height: 1.35; }
+  .alpha-ff .ti { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .alpha-desc { font-size: 13px; color: var(--c-text-secondary); line-height: 1.45; }
+  .alpha-example { margin-top: auto; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 6px; width: 100%; text-align: left; font: inherit; font-size: 13px; color: var(--c-text-muted); background: var(--c-surface-alt); border: 0; border-radius: 8px; padding: 6px 8px; cursor: pointer; }
+  .alpha-example:hover { color: var(--c-text-secondary); }
+  .alpha-example b { font-family: var(--ru-font), 'Noto Sans', serif; font-size: 16px; font-weight: 600; color: var(--c-text-primary); }
+  .alpha-example { position: relative; padding-right: 28px; }
+  .alpha-example .ti { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: var(--c-text-muted); }
+  @media (max-width: 700px) { .alpha-grid { grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 8px; } .alpha-speak-btn { width: 44px; height: 44px; } .alpha-nr { right: 62px; } .alpha-example { min-height: 44px; align-items: center; } .alpha-letters { font-size: 26px; } }
 
   /* ── Mobile-Anpassung ─────────────────────────────────────────
      Unter 700px wird aus der festen Sidebar+Inhalt-Zweispaltigkeit
@@ -3023,11 +3033,11 @@
 </div>
 
 <!-- Alphabet Overlay -->
-<div class="overlay" id="overlay-alphabet">
+<div class="overlay" id="overlay-alphabet" role="dialog" aria-modal="true" aria-labelledby="overlay-alphabet-title">
   <div class="overlay-box overlay-box-wide">
     <div class="overlay-header">
-      <span class="overlay-title"><i class="ti ti-abc"></i> Kyrillisches Alphabet</span>
-      <button class="overlay-close" onclick="closeOverlay('overlay-alphabet')">×</button>
+      <span class="overlay-title" id="overlay-alphabet-title"><i class="ti ti-abc"></i> Kyrillisches Alphabet</span>
+      <button class="overlay-close" onclick="closeOverlay('overlay-alphabet')" aria-label="Schließen">×</button>
     </div>
     <div class="overlay-body" id="alphabet-content"></div>
   </div>
@@ -8394,7 +8404,7 @@ const BACKUP_KEYS = ['vokabeltrainer-grammar-info-open','vokabeltrainer-grammar-
   'vokabeltrainer-hearquiz-settings','vokabeltrainer-hoertrainer-cats','vokabeltrainer-hoertrainer-pause',
   'vokabeltrainer-autoplay','vokabeltrainer-block-size','vokabeltrainer-direction',
   'vokabeltrainer-skip-cognates','vokabeltrainer-theme','vokabeltrainer-session-goal',
-  'vokabeltrainer-cyr-keyboard','vokabeltrainer-max-level','vokabeltrainer-lifetime','vokabeltrainer-level-order','vokabeltrainer-my-level','vokabeltrainer-speak-rate','vokabeltrainer-view','vokabeltrainer-grammar-panel','vokabeltrainer-listening-panel','vokabeltrainer-sidebar-width','vokabeltrainer-width-vocab','vokabeltrainer-width-grammar','vokabeltrainer-width-listening','vokabeltrainer-dialog-sizes','vokabeltrainer-voice-ru','vokabeltrainer-voice-de','vokabeltrainer-life-demote','vokabeltrainer-reset-marks','vokabeltrainer-settings-ui','vokabeltrainer-ru-font','vokabeltrainer-daylog','vokabeltrainer-day-goal','vokabeltrainer-hard-min'];
+  'vokabeltrainer-cyr-keyboard','vokabeltrainer-max-level','vokabeltrainer-lifetime','vokabeltrainer-level-order','vokabeltrainer-my-level','vokabeltrainer-speak-rate','vokabeltrainer-view','vokabeltrainer-grammar-panel','vokabeltrainer-listening-panel','vokabeltrainer-sidebar-width','vokabeltrainer-width-vocab','vokabeltrainer-width-grammar','vokabeltrainer-width-listening','vokabeltrainer-dialog-sizes','vokabeltrainer-voice-ru','vokabeltrainer-voice-de','vokabeltrainer-life-demote','vokabeltrainer-reset-marks','vokabeltrainer-settings-ui','vokabeltrainer-ru-font','vokabeltrainer-daylog','vokabeltrainer-day-goal','vokabeltrainer-hard-min','vokabeltrainer-alphabet-order'];
 function exportBackup() {
   flushSaves();
   const data = { app: APP_ID, version: 1, saved: new Date().toISOString(), data: {} };
@@ -14262,6 +14272,7 @@ function setTranscriptionMode(mode) {
   saveSelection();
   applyTranscriptionButton();
   renderTranscription();
+  const al = document.getElementById('overlay-alphabet'); if (al && al.classList.contains('open')) renderAlphabet();
 }
 // Zustand des Transliterations-Knopfs in der Werkzeugleiste
 function applyTranscriptionButton() {
@@ -23121,70 +23132,78 @@ function revealDictation() {
 }
 
 // ── Kyrillisches Alphabet ───────────────────────────────────────
-const ALPHABET_GROUPS = [
-  { title: 'Vokale', letters: [
-    { upper:'А', lower:'а', tr:'a', desc:'Wie kurzes deutsches „a“ (Mann).', example:{ru:'дом', tr:'dom', de:'Haus'} },
-    { upper:'Е', lower:'е', tr:'je / e', desc:'Am Wortanfang/nach Vokal „je“ wie in „jetzt“, nach Konsonant nur „e“.', example:{ru:'есть', tr:"jest'", de:'essen'} },
-    { upper:'Ё', lower:'ё', tr:'jo', desc:'Wie „jo“ in „Joghurt“. Wird oft als е geschrieben, aber „jo“ gesprochen.', example:{ru:'жёлтый', tr:'schjoltyj', de:'gelb'} },
-    { upper:'И', lower:'и', tr:'i', desc:'Wie deutsches „i“.', example:{ru:'или', tr:'ili', de:'oder'} },
-    { upper:'О', lower:'о', tr:'o', desc:'Wie deutsches „o“.', example:{ru:'окно', tr:'okno', de:'Fenster'} },
-    { upper:'У', lower:'у', tr:'u', desc:'Wie deutsches „u“.', example:{ru:'утро', tr:'utro', de:'Morgen'} },
-    { upper:'Ы', lower:'ы', tr:'y', desc:'Einzigartiger russischer Laut: dunkles „i“, etwa wie „ü“ ohne Lippenrundung.', example:{ru:'ты', tr:'ty', de:'du'} },
-    { upper:'Э', lower:'э', tr:'e', desc:'Offenes, kurzes „ä“ – ohne vorangehendes „j“ (anders als е).', example:{ru:'это', tr:'eto', de:'das, dies'} },
-    { upper:'Ю', lower:'ю', tr:'ju', desc:'Wie „ju“ in „Jugend“.', example:{ru:'юбка', tr:'jubka', de:'Rock'} },
-    { upper:'Я', lower:'я', tr:'ja', desc:'Wie „ja“ in „Jacht“.', example:{ru:'я', tr:'ja', de:'ich'} },
-  ]},
-  { title: 'Konsonanten', letters: [
-    { upper:'Б', lower:'б', tr:'b', desc:'Wie deutsches „b“.', example:{ru:'банан', tr:'banan', de:'Banane'} },
-    { upper:'В', lower:'в', tr:'w', desc:'Wie deutsches „w“ (Wasser).', example:{ru:'вода', tr:'woda', de:'Wasser'} },
-    { upper:'Г', lower:'г', tr:'g', desc:'Wie deutsches „g“.', example:{ru:'город', tr:'gorod', de:'Stadt'} },
-    { upper:'Д', lower:'д', tr:'d', desc:'Wie deutsches „d“.', example:{ru:'дом', tr:'dom', de:'Haus'} },
-    { upper:'Ж', lower:'ж', tr:'sch (stimmhaft)', desc:'Stimmhaftes „sch“, wie französisches „j“ in „Jacques“.', example:{ru:'живот', tr:'schiwot', de:'Bauch'} },
-    { upper:'З', lower:'з', tr:'z (stimmhaft)', desc:'Stimmhaftes „s“ wie in „Sonne“.', example:{ru:'завтра', tr:'zawtra', de:'morgen'} },
-    { upper:'К', lower:'к', tr:'k', desc:'Wie deutsches „k“.', example:{ru:'кофе', tr:'kofe', de:'Kaffee'} },
-    { upper:'Л', lower:'л', tr:'l', desc:'Wie deutsches „l“.', example:{ru:'лес', tr:'les', de:'Wald'} },
-    { upper:'М', lower:'м', tr:'m', desc:'Wie deutsches „m“.', example:{ru:'мир', tr:'mir', de:'Frieden, Welt'} },
-    { upper:'Н', lower:'н', tr:'n', desc:'Wie deutsches „n“.', example:{ru:'нос', tr:'nos', de:'Nase'} },
-    { upper:'П', lower:'п', tr:'p', desc:'Wie deutsches „p“.', example:{ru:'пить', tr:"pit'", de:'trinken'} },
-    { upper:'Р', lower:'р', tr:'r', desc:'Gerolltes Zungenspitzen-„r“.', example:{ru:'рыба', tr:'ryba', de:'Fisch'} },
-    { upper:'С', lower:'с', tr:'s', desc:'Stimmloses „s“ wie in „Hass“.', example:{ru:'сыр', tr:'syr', de:'Käse'} },
-    { upper:'Т', lower:'т', tr:'t', desc:'Wie deutsches „t“.', example:{ru:'торт', tr:'tort', de:'Kuchen'} },
-    { upper:'Ф', lower:'ф', tr:'f', desc:'Wie deutsches „f“.', example:{ru:'фотограф', tr:'fotograf', de:'Fotograf'} },
-    { upper:'Х', lower:'х', tr:'ch', desc:'Wie „ch“ in „Bach“.', example:{ru:'хлеб', tr:'chleb', de:'Brot'} },
-    { upper:'Ц', lower:'ц', tr:'z (ts)', desc:'Wie deutsches „z“ in „Zeit“ – ein „ts“-Laut.', example:{ru:'цена', tr:'zena', de:'Preis'} },
-    { upper:'Ч', lower:'ч', tr:'tsch', desc:'Wie „tsch“ in „Tschüss“.', example:{ru:'чай', tr:'tschaj', de:'Tee'} },
-    { upper:'Ш', lower:'ш', tr:'sch', desc:'Wie „sch“ in „Schule“.', example:{ru:'шапка', tr:'schapka', de:'Mütze'} },
-    { upper:'Щ', lower:'щ', tr:'schtsch', desc:'Weiches „sch“+„tsch“ verschmolzen – ein einziger, langer weicher Laut.', example:{ru:'ещё', tr:'jeschtscho', de:'noch'} },
-    { upper:'Й', lower:'й', tr:'j (kurzes i)', desc:'Kurzes „j“ wie in „Mayer“, verschmilzt mit vorigem Vokal zum Diphthong.', example:{ru:'май', tr:'maj', de:'Mai'} },
-  ]},
-  { title: 'Zeichen ohne eigenen Laut', letters: [
-    { upper:'Ъ', lower:'ъ', tr:'– (hartes Zeichen)', desc:'Kein eigener Laut. Trennt einen harten Konsonanten scharf vom folgenden Vokal, heute selten, meist nach Vorsilben.', example:null },
-    { upper:'Ь', lower:'ь', tr:"– (weiches Zeichen, ')", desc:'Kein eigener Laut. Erweicht (palatalisiert) den vorangehenden Konsonanten – in der Transkription als Apostroph dargestellt.', example:{ru:'день', tr:"den'", de:'Tag'} },
-  ]},
+const ALPHABET_LETTERS = [
+  { upper:'А', lower:'а', tr:'a', kind:'v', desc:'Wie kurzes deutsches „a“ (Mann).', example:{ru:'дом', de:'Haus'} },
+  { upper:'Б', lower:'б', tr:'b', kind:'k', desc:'Wie deutsches „b“.', example:{ru:'банан', de:'Banane'} },
+  { upper:'В', lower:'в', tr:'w', kind:'k', ff:'Sieht aus wie lateinisches B – klingt wie „w“.', desc:'Wie deutsches „w“ (Wasser).', example:{ru:'вода', de:'Wasser'} },
+  { upper:'Г', lower:'г', tr:'g', kind:'k', desc:'Wie deutsches „g“.', example:{ru:'город', de:'Stadt'} },
+  { upper:'Д', lower:'д', tr:'d', kind:'k', desc:'Wie deutsches „d“.', example:{ru:'дом', de:'Haus'} },
+  { upper:'Е', lower:'е', tr:'je / e', kind:'v', ff:'Sieht aus wie lateinisches E – klingt am Wortanfang und nach Vokal wie „je“.', desc:'Am Wortanfang und nach Vokal „je“ wie in „jetzt“, nach Konsonant nur „e“.', example:{ru:'есть', de:'essen'} },
+  { upper:'Ё', lower:'ё', tr:'jo', kind:'v', desc:'Wie „jo“ in „Joghurt“. Wird oft als е geschrieben, aber „jo“ gesprochen.', example:{ru:'жёлтый', de:'gelb'} },
+  { upper:'Ж', lower:'ж', tr:'sch (stimmhaft)', kind:'k', desc:'Stimmhaftes „sch“, wie französisches „j“ in „Jacques“.', example:{ru:'живот', de:'Bauch'} },
+  { upper:'З', lower:'з', tr:'s (stimmhaft)', kind:'k', desc:'Stimmhaftes „s“ wie in „Sonne“.', example:{ru:'завтра', de:'morgen'} },
+  { upper:'И', lower:'и', tr:'i', kind:'v', desc:'Wie deutsches „i“.', example:{ru:'или', de:'oder'} },
+  { upper:'Й', lower:'й', tr:'j (kurzes i)', kind:'k', desc:'Kurzes „j“ wie in „Mayer“, verschmilzt mit dem vorigen Vokal zum Doppellaut.', example:{ru:'май', de:'Mai'} },
+  { upper:'К', lower:'к', tr:'k', kind:'k', desc:'Wie deutsches „k“.', example:{ru:'кофе', de:'Kaffee'} },
+  { upper:'Л', lower:'л', tr:'l', kind:'k', desc:'Wie deutsches „l“.', example:{ru:'лес', de:'Wald'} },
+  { upper:'М', lower:'м', tr:'m', kind:'k', desc:'Wie deutsches „m“.', example:{ru:'мир', de:'Frieden, Welt'} },
+  { upper:'Н', lower:'н', tr:'n', kind:'k', ff:'Sieht aus wie lateinisches H – klingt wie „n“.', desc:'Wie deutsches „n“.', example:{ru:'нос', de:'Nase'} },
+  { upper:'О', lower:'о', tr:'o', kind:'v', desc:'Wie deutsches „o“.', example:{ru:'окно', de:'Fenster'} },
+  { upper:'П', lower:'п', tr:'p', kind:'k', desc:'Wie deutsches „p“.', example:{ru:'пить', de:'trinken'} },
+  { upper:'Р', lower:'р', tr:'r', kind:'k', ff:'Sieht aus wie lateinisches P – klingt wie „r“.', desc:'Gerolltes Zungenspitzen-„r“.', example:{ru:'рыба', de:'Fisch'} },
+  { upper:'С', lower:'с', tr:'s', kind:'k', ff:'Sieht aus wie lateinisches C – klingt wie „s“.', desc:'Stimmloses „s“ wie in „Hass“.', example:{ru:'сыр', de:'Käse'} },
+  { upper:'Т', lower:'т', tr:'t', kind:'k', desc:'Wie deutsches „t“.', example:{ru:'торт', de:'Kuchen'} },
+  { upper:'У', lower:'у', tr:'u', kind:'v', ff:'Sieht aus wie lateinisches y – klingt wie „u“.', desc:'Wie deutsches „u“.', example:{ru:'утро', de:'Morgen'} },
+  { upper:'Ф', lower:'ф', tr:'f', kind:'k', desc:'Wie deutsches „f“.', example:{ru:'фотограф', de:'Fotograf'} },
+  { upper:'Х', lower:'х', tr:'ch', kind:'k', ff:'Sieht aus wie lateinisches X – klingt wie „ch“ in „Bach“.', desc:'Wie „ch“ in „Bach“.', example:{ru:'хлеб', de:'Brot'} },
+  { upper:'Ц', lower:'ц', tr:'z (ts)', kind:'k', desc:'Wie deutsches „z“ in „Zeit“ – ein „ts“-Laut.', example:{ru:'цена', de:'Preis'} },
+  { upper:'Ч', lower:'ч', tr:'tsch', kind:'k', desc:'Wie „tsch“ in „Tschüss“.', example:{ru:'чай', de:'Tee'} },
+  { upper:'Ш', lower:'ш', tr:'sch', kind:'k', desc:'Wie „sch“ in „Schule“.', example:{ru:'шапка', de:'Mütze'} },
+  { upper:'Щ', lower:'щ', tr:'schtsch', kind:'k', desc:'Weiches „sch“ und „tsch“ verschmolzen – ein einziger, langer weicher Laut.', example:{ru:'ещё', de:'noch'} },
+  { upper:'Ъ', lower:'ъ', tr:'hartes Zeichen', kind:'z', desc:'Kein eigener Laut. Trennt den Konsonanten vom folgenden Vokal, meist nach Vorsilben: „j“ wird mitgesprochen.', example:{ru:'подъезд', de:'Hauseingang'} },
+  { upper:'Ы', lower:'ы', tr:'y', kind:'v', desc:'Eigener russischer Laut: dunkles „i“, etwa wie „ü“ ohne Lippenrundung.', example:{ru:'ты', de:'du'} },
+  { upper:'Ь', lower:'ь', tr:"weiches Zeichen (')", kind:'z', desc:'Kein eigener Laut. Erweicht den vorangehenden Konsonanten – in der Umschrift ein Apostroph.', example:{ru:'день', de:'Tag'} },
+  { upper:'Э', lower:'э', tr:'e', kind:'v', desc:'Offenes, kurzes „ä“ – ohne vorangehendes „j“ (anders als е).', example:{ru:'это', de:'das, dies'} },
+  { upper:'Ю', lower:'ю', tr:'ju', kind:'v', desc:'Wie „ju“ in „Jugend“.', example:{ru:'юбка', de:'Rock'} },
+  { upper:'Я', lower:'я', tr:'ja', kind:'v', desc:'Wie „ja“ in „Jacht“.', example:{ru:'я', de:'ich'} },
 ];
-let alphabetRendered = false;
+// Ansicht „Nach Lauten“: Gruppen; „Alphabetisch“: alle 33 in der Reihenfolge А–Я
+const ALPHABET_GROUPS = [
+  { title: 'Vokale', test: l => l.kind === 'v' && !l.ff },
+  { title: 'Falsche Freunde', hint: 'sehen lateinisch aus, klingen aber anders', test: l => !!l.ff },
+  { title: 'Konsonanten', test: l => l.kind === 'k' && !l.ff },
+  { title: 'Zeichen ohne eigenen Laut', test: l => l.kind === 'z' },
+];
+const ALPHA_ORDER_KEY = 'vokabeltrainer-alphabet-order';
+function alphaOrder() { try { return localStorage.getItem(ALPHA_ORDER_KEY) === 'abc' ? 'abc' : 'laut'; } catch (e) { return 'laut'; } }
+function setAlphaOrder(o) { try { localStorage.setItem(ALPHA_ORDER_KEY, o === 'abc' ? 'abc' : 'laut'); } catch (e) {} renderAlphabet(); }
 function openAlphabet() {
-  if (!alphabetRendered) { renderAlphabet(); alphabetRendered = true; }
+  renderAlphabet();
   document.getElementById('overlay-alphabet').classList.add('open');
+}
+function alphaCard(l) {
+  const nr = ALPHABET_LETTERS.indexOf(l) + 1, ex = l.example;
+  const tr = ex && transcriptionMode !== 'off' ? trFor({ ru: ex.ru }) : '';
+  return `<div class="alpha-card" data-letter="${l.lower}">
+      <div class="alpha-card-top"><span class="alpha-letters" lang="ru">${l.upper}<span>${l.lower}</span></span>
+        <button class="alpha-speak-btn" type="button" onclick="speak('${l.lower}')" title="Buchstaben anhören" aria-label="${l.upper} anhören"><i class="ti ti-volume" aria-hidden="true"></i></button></div>
+      ${alphaOrder() === 'abc' ? `<span class="alpha-nr" aria-label="Buchstabe ${nr} von 33">${nr}</span>` : ''}
+      <span class="alpha-tr" title="Lautwert">${l.tr}</span>
+      ${l.ff ? `<span class="alpha-ff"><i class="ti ti-eye" aria-hidden="true"></i>${l.ff}</span>` : ''}
+      <span class="alpha-desc">${l.desc}</span>
+      ${ex ? `<button class="alpha-example" type="button" onclick="speak('${ex.ru}')" title="Beispiel anhören" aria-label="Beispiel ${ex.ru} – ${ex.de} anhören"><b lang="ru">${ex.ru}</b>${tr ? `<span>[${tr}]</span>` : ''}<span>– ${ex.de}</span><i class="ti ti-volume" aria-hidden="true"></i></button>` : ''}
+    </div>`;
 }
 function renderAlphabet() {
   const container = document.getElementById('alphabet-content');
-  container.innerHTML = ALPHABET_GROUPS.map(group => `
-    <div class="alpha-section-title">${group.title}</div>
-    <div class="alpha-grid">
-      ${group.letters.map(l => `
-        <div class="alpha-card">
-          <div class="alpha-card-top">
-            <span class="alpha-letters">${l.upper} ${l.lower}</span>
-            <button class="alpha-speak-btn" onclick="speak('${l.lower}')" title="Anhören" aria-label="Anhören"><i class="ti ti-volume"></i></button>
-          </div>
-          <span class="alpha-tr">[ ${l.tr} ]</span>
-          <span class="alpha-desc">${l.desc}</span>
-          ${l.example ? `<span class="alpha-example"><b>${l.example.ru}</b> [${l.example.tr}] – ${l.example.de}</span>` : ''}
-        </div>
-      `).join('')}
-    </div>
-  `).join('');
+  if (!container) return;
+  const o = alphaOrder();
+  const bar = `<div class="alpha-bar"><div class="set-seg" role="group" aria-label="Reihenfolge">`
+    + [['laut', 'Nach Lauten'], ['abc', 'Alphabetisch']].map(([k, t]) => `<button type="button" class="${o === k ? 'on' : ''}" aria-pressed="${o === k}" onclick="setAlphaOrder('${k}')">${t}</button>`).join('')
+    + `</div><span class="alpha-bar-hint">Beispielwort antippen zum Anhören</span></div>`;
+  container.innerHTML = bar + (o === 'abc'
+    ? `<div class="alpha-grid">${ALPHABET_LETTERS.map(alphaCard).join('')}</div>`
+    : ALPHABET_GROUPS.map(g => `<div class="alpha-section-title">${g.title}${g.hint ? ` <small>– ${g.hint}</small>` : ''}</div><div class="alpha-grid">${ALPHABET_LETTERS.filter(g.test).map(alphaCard).join('')}</div>`).join(''));
 }
 
 // ── Hörtrainer ────────────────────────────────────────────────
