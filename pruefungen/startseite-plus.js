@@ -33,7 +33,7 @@ const { chromium } = require('playwright');
   }));
   ok('Knopf: Gesamtzahl; Zeile darunter: Auswahl und „insgesamt“', r.go.replace(/\s/g, '') === 'Weiterlernen·5fällig' && /^Vokabeln · Sport: 3 fällig, \d+ neu · insgesamt 5 fällig$/.test(r.plan), r.go + ' | ' + r.plan);
   ok('Vorschau als Balkenreihe über 8 Tage, „später heute“, Zahlen im Tooltip', r.fcBars === 8 && /^Fällig in den kommenden Tagen: später heute 1, morgen 1,/.test(r.fc) && r.morgen === 'morgen: 1 fällig', r.fc);
-  ok('Fällige nach Stufe: Balken und Text', r.st === 'Stufe 1: 3 · Stufe 2: 1 · Stufe 3: 1' && r.stSegs === 's1,s2,s3', r.st + ' / ' + r.stSegs);
+  ok('Fällige nach Stufe: Balken und Text', r.st === 'Wiederholung 1: 3 · Wiederholung 2: 1 · Wiederholung 3: 1' && r.stSegs === 's1,s2,s3', r.st + ' / ' + r.stSegs);
   ok('Woche: Schnitt je Übungstag', r.week === '90 Antworten · Ø 30 je Übungstag (3 von 7) · 86 % richtig', r.week);
   ok('Woche: Tooltip je Balken mit Antworten und Quote', r.wTip[6] === 'Do: 30 Antworten · 90 % richtig' && r.wTip[0] === 'Fr: nicht geübt', r.wTip.join(' | '));
   ok('Heute: neu gelernt, aufgestiegen, Grammatik', r.gew === '1 neu gelernt · 2 aufgestiegen · Grammatik 1', r.gew);
