@@ -505,6 +505,36 @@
   .lvl-tool { display: inline-flex; gap: 8px; align-items: center; border: 0.5px solid var(--c-border-input); background: var(--c-surface); color: var(--c-text); border-radius: 8px; padding: 6px 10px; font-size: 13px; cursor: pointer; }
   .lvl-tool:hover { background: var(--c-surface-alt); }
   .lvl-tool-num { font-size: 11px; color: var(--c-text-muted); font-variant-numeric: tabular-nums; }
+  /* Fortschritt nach Stufen: Ziel oben, am PC zwei Spalten */
+  #overlay-levels .overlay-box { width: 980px; }
+  .lvl-top { display: flex; align-items: center; gap: 8px; }
+  .lvl-ziel-box { flex: 1; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .lvl-ziel-box .lvl-badge { font-size: 12px; padding: 4px 8px; background: var(--c-accent-soft-bg); color: var(--c-accent-strong); border-color: var(--c-accent); }
+  .lvl-ziel-box span:not(.lvl-badge) { font-weight: 400; font-size: 13px; color: var(--c-text-muted); }
+  .lvl-info { position: relative; margin-top: 10px; font-size: 13px; }
+  .lvl-info p { margin: 0; padding-right: 24px; line-height: 1.5; }
+  .lvl-cols { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 4px 32px; align-items: start; }
+  .lvl-col { min-width: 0; }
+  .lvl-hrow { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .lvl-legend2 { font-size: 11.5px; }
+  .lvl-row { grid-template-columns: 32px 1fr auto 40px; cursor: pointer; border-radius: 6px; padding: 2px 0; }
+  .lvl-row:hover .lvl-badge, .lvl-row.lvl-plan-on .lvl-badge { outline: 1.5px solid var(--c-accent); outline-offset: 1px; }
+  .lvl-row:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+  .lvl-t { height: 10px; }
+  .lvl-pct { font-size: 12px; color: var(--c-text-secondary); text-align: right; font-variant-numeric: tabular-nums; }
+  .lvl-gr-tools { flex-direction: column; flex-wrap: nowrap; gap: 4px; }
+  .lvl-tool { display: grid; grid-template-columns: minmax(0, 1fr) minmax(48px, 34%) 40px; gap: 10px; width: 100%; text-align: left; padding: 3px 8px; border-color: transparent; background: none; }
+  .lvl-tool:hover { border-color: var(--c-border-input); }
+  .lvl-tool-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lvl-tool .lvl-t { height: 6px; }
+  .lvl-gr-none { margin: 0 0 4px 42px; }
+  .lvl-schwach { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
+  .lvl-chip { font: inherit; font-size: 12px; border: 0.5px solid var(--c-border-input); background: var(--c-surface); color: var(--c-text); border-radius: 99px; padding: 4px 10px; cursor: pointer; }
+  .lvl-chip:hover { background: var(--c-surface-alt); color: var(--c-accent-strong); }
+  .lvl-next strong { color: var(--c-text-primary); }
+  .lvl-more { font-size: 12px; color: var(--c-text-muted); align-self: center; }
+  @media (max-width: 1000px) { #overlay-levels .overlay-box { width: 720px; } .lvl-cols { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 700px) { #overlay-levels .overlay-box { width: calc(100vw - 1.25rem); } .lvl-rows { gap: 0; } .lvl-gr-tools { gap: 0; } .lvl-row { grid-template-columns: 30px 1fr auto 36px; gap: 8px; } .lvl-row { min-height: 44px; } .lvl-gr { grid-template-columns: minmax(0, 1fr); gap: 4px; } .lvl-tool { min-height: 44px; grid-template-columns: minmax(0, 1fr) 64px 36px; padding: 3px 0; } .lvl-tool-name { white-space: normal; } .lvl-chip { min-height: 44px; } .lvl-gr-none { margin-left: 0; } }
   #card-level .lvl-badge { font-size: 10px; }
   #lvl-plan-tabs { margin-bottom: 10px; display: inline-flex; flex-wrap: wrap; }
   .lvl-plan-status { font-size: 13px; color: var(--c-text-muted); margin-bottom: 10px; line-height: 2; }
@@ -13482,38 +13512,84 @@ function chipName(tool) {
   const catBtn = cat && document.getElementById('gcat-' + cat);
   return (catBtn ? catBtn.textContent.trim() + ' · ' : '') + cl.textContent.trim();
 }
+// Gesamtstand je Grammatikwerkzeug als Stufenzeile (Wiederholungsstufen 1–5)
+function levelToolZeile(t, now) {
+  const g = loadLifetime().g || {}, s = grammarToolSources()[t];
+  const entries = []; if (s) s[0].forEach(k => Object.values(g[k] || {}).forEach(e => entries.push(e)));
+  return homeStufenZeile(chipName(t), s ? s[1] : 0, entries, now);
+}
+// Zielstufe: „Mein Niveau“ oder die erste Stufe, in der weniger als 80 % der Wörter schon einmal gelernt sind (Gesamtstand)
+function levelZiel(rows) {
+  if (myLevel) return { l: myLevel, warum: 'dein eingestelltes Niveau' };
+  const r = rows.find(x => x.total && (x.sicher + x.arbeit) / x.total < 0.8);
+  return r ? { l: r.L, warum: 'erste Stufe mit weniger als 80 % gelernten Wörtern' } : { l: 'C1', warum: 'alle Stufen zu mindestens 80 % gelernt' };
+}
+// Balkenreihe in den Farben der Wiederholungsstufen (wie „Stand je Sprachstufe“ auf der Startseite)
+function levelBalken(l, name, wort) {
+  return '<div class="home-t lvl-t">' + l.stufen.map((n, i) => n ? '<span class="s' + (i + 1) + '" style="width:' + (l.total ? n / l.total * 100 : 0) + '%" title="'
+    + htmlEsc(name) + ' · Stufe ' + (i + 1) + (i + 1 === LIFE_RUNS_MAX ? ' (sicher)' : '') + ': ' + n + ' ' + (n === 1 ? wort[0] : wort[1]) + ' (' + homeProz(n, l.total) + ' von ' + l.total + ')"></span>' : '').reverse().join('') + '</div>';
+}
+function toggleLevelInfo(force) {
+  const p = document.getElementById('lvl-info'), b = document.getElementById('lvl-info-btn'); if (!p) return;
+  p.hidden = typeof force === 'boolean' ? !force : !p.hidden;
+  if (b) b.setAttribute('aria-expanded', String(!p.hidden));
+  const st = gtInfoState(); st['overlay-levels'] = !p.hidden;
+  try { localStorage.setItem(GT_INFO_KEY, JSON.stringify(st)); } catch (e) {}
+}
+// Klick auf eine Stufenzeile: deren Stufenplan zeigen (am Handy dorthin rollen)
+function levelRowClick(l) {
+  renderLevelPlan(l);
+  const el = document.getElementById('lvl-plan-h');
+  if (el && el.scrollIntoView) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
 function openLevelOverview() {
   if (typeof updateGrammarTileProgress === 'function') updateGrammarTileProgress();
-  const st = levelStats();
+  const now = Date.now(), words = allVocabWords(), st = levelStats();
+  const rows = LEVELS.map(l => { const ws = words.filter(w => wordLevel(w) === l); return homeStufenZeile(l, ws.length, ws.map(lifeVocabEntry), now); });
+  const Z = levelZiel(rows), ziel = Z.l;
   const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
-  // Ziel: „Mein Niveau“ oder die erste Stufe, in der weniger als 80 % der Wörter gelernt sind
-  const ziel = myLevel || LEVELS.find(l => pct(st[l].learned, st[l].total) < 80) || 'C1';
-  const everTexts = {}; updateGrammarTileProgress(lifetimeAsSrs(), everTexts);
-  let html = '<p class="lvl-intro">Die Stufen sind ein <strong>Richtwert</strong>: A1 nach den offiziellen FIPI-Anforderungen, die übrigen nach Worthäufigkeit. Als gelernt gilt ein Wort, sobald es einmal richtig beantwortet wurde. <strong>Aktuell</strong> zählt der Übungsstand, <strong>schon einmal gelernt</strong> der Gesamtstand, der beim Zurücksetzen erhalten bleibt.</p>';
-  html += '<h4 class="lvl-h">Wörter</h4><div class="lvl-rows">' + LEVELS.map(l => {
-    const s = st[l], p = pct(s.learned, s.total), q = pct(s.ever, s.total);
-    return '<div class="lvl-row' + (l === ziel ? ' lvl-ziel' : '') + '">' + lvlBadge(l)
-      + '<div class="lvl-bar" role="img" aria-label="' + l + ': aktuell ' + p + ' % gelernt, ' + q + ' % schon einmal gelernt"><span class="lvl-bar-started" style="width:' + q + '%"></span><span class="lvl-bar-learned" style="width:' + p + '%"></span></div>'
-      + '<span class="lvl-num">' + s.learned + ' · ' + s.ever + ' / ' + s.total + '</span></div>';
-  }).join('') + '</div><p class="lvl-legend"><span class="lvl-key lvl-key-l"></span> aktuell gelernt <span class="lvl-key lvl-key-s"></span> schon einmal gelernt (Gesamtstand)</p>';
-  html += '<h4 class="lvl-h">Grammatik</h4>' + LEVELS.filter(l => Object.values(GRAMMAR_TOOL_LEVEL).includes(l)).map(l =>
-    '<div class="lvl-gr"><div class="lvl-gr-head">' + lvlBadge(l) + '</div><div class="lvl-gr-tools">'
+  const W = ['Wort', 'Wörter'], A = ['Aufgabe', 'Aufgaben'];
+  const infoOffen = !!gtInfoState()['overlay-levels'];
+  let html = '<div class="lvl-top"><div class="lvl-ziel-box">Dein Ziel: ' + lvlBadge(ziel) + ' <span>' + Z.warum + '</span></div>'
+    + '<button id="lvl-info-btn" class="conj-info-btn" type="button" onclick="toggleLevelInfo()" aria-expanded="' + infoOffen + '" aria-controls="lvl-info" aria-label="Erklärung anzeigen" title="Wie wird gezählt?"><i class="ti ti-info-circle"></i></button></div>'
+    + '<div class="conj-info-panel lvl-info" id="lvl-info"' + (infoOffen ? '' : ' hidden') + '><button aria-label="Erklärung schließen" class="gt-info-close" onclick="toggleLevelInfo(false)" title="Erklärung schließen" type="button"><i class="ti ti-x"></i></button>'
+    + '<p>Die Stufen sind ein <strong>Richtwert</strong>: A1 nach den offiziellen FIPI-Anforderungen, A2 nach dem Lexikalischen Minimum, die übrigen nach Worthäufigkeit. '
+    + 'Die Balken zeigen den <strong>Gesamtstand</strong>, der beim Zurücksetzen erhalten bleibt: Ein Wort zählt als gelernt, sobald es einmal richtig beantwortet wurde, '
+    + 'und steigt mit jeder richtigen Antwort nach wachsendem Abstand eine Wiederholungsstufe auf (Stufe 5 = sicher). Den aktuellen Übungsstand zeigt der Hinweis beim Darüberfahren. '
+    + 'Ein Klick auf eine Stufe öffnet ihren Stufenplan.</p></div>';
+  const legende = '<span class="home-legend lvl-legend2">Stufe' + [1, 2, 3, 4, 5].map(i => '<span class="home-lgi" tabindex="0" title="' + homeStufeInfo(i) + '"><span class="home-lg s' + i + '"></span>' + (i === 5 ? '5 sicher' : i) + '</span>').join('') + '</span>';
+  // linke Spalte: Wörter und Grammatik
+  let links = '<div class="lvl-hrow"><h4 class="lvl-h">Wörter</h4>' + legende + '</div><div class="lvl-rows">' + rows.map(r => {
+    const l = r.L, g = r.sicher + r.arbeit, txt = homeZeileText(r, W) + ' · aktuell (Übungsstand): ' + st[l].learned + ' von ' + st[l].total;
+    return '<div class="lvl-row' + (l === ziel ? ' lvl-ziel' : '') + '" role="button" tabindex="0" data-l="' + l + '" onclick="levelRowClick(\'' + l + '\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();levelRowClick(\'' + l + '\')}"'
+      + ' title="' + htmlEsc(txt) + '" aria-label="' + l + ': ' + g + ' von ' + r.total + ' Wörtern gelernt · ' + htmlEsc(txt) + ' · Stufenplan öffnen">'
+      + lvlBadge(l) + levelBalken(r, l, W) + '<span class="lvl-num">' + g + ' / ' + r.total + '</span><span class="lvl-pct">' + pct(g, r.total) + ' %</span></div>';
+  }).join('') + '</div>';
+  const toolLv = LEVELS.filter(l => Object.values(GRAMMAR_TOOL_LEVEL).includes(l)), ohne = LEVELS.filter(l => !toolLv.includes(l));
+  const toolZeilen = {};
+  links += '<h4 class="lvl-h">Grammatik</h4>' + toolLv.map(l => '<div class="lvl-gr"><div class="lvl-gr-head">' + lvlBadge(l) + '</div><div class="lvl-gr-tools">'
     + Object.keys(GRAMMAR_TOOL_LEVEL).filter(t => GRAMMAR_TOOL_LEVEL[t] === l).map(t => {
-      const g = grammarToolProgress(t), e = grammarToolProgress(t, everTexts);
-      return '<button class="lvl-tool" type="button" onclick="openToolFromLevels(\'' + t + '\')" title="aktuell ' + pct(g.n, g.total) + ' % · schon einmal gelernt ' + pct(e.n, e.total) + ' %"><span>' + chipName(t) + '</span><span class="lvl-tool-num">' + pct(g.n, g.total) + ' % · ' + pct(e.n, e.total) + ' %</span></button>';
-    }).join('') + '</div></div>').join('');
-  // Was fehlt bis zur Zielstufe?
-  const offen = st[ziel] ? st[ziel].total - st[ziel].learned : 0;
+      const z = toolZeilen[t] = levelToolZeile(t, now), a = grammarToolProgress(t), g = z.sicher + z.arbeit;
+      const txt = homeZeileText(z, A) + ' · aktuell (Übungsstand): ' + pct(a.n, a.total) + ' %';
+      return '<button class="lvl-tool" type="button" onclick="openToolFromLevels(\'' + t + '\')" title="' + htmlEsc(txt) + '" aria-label="' + htmlEsc(chipName(t)) + ': ' + pct(g, z.total) + ' % gelernt · ' + htmlEsc(txt) + '">'
+        + '<span class="lvl-tool-name">' + chipName(t) + '</span>' + levelBalken(z, chipName(t), A) + '<span class="lvl-pct">' + pct(g, z.total) + ' %</span></button>';
+    }).join('') + '</div></div>').join('')
+    + (ohne.length ? '<p class="lvl-none lvl-gr-none">' + ohne[0] + (ohne.length > 1 ? '–' + ohne[ohne.length - 1] : '') + ': noch keine eigenen Grammatikwerkzeuge – hier zählen die Wörter.</p>' : '');
+  // rechte Spalte: was fehlt bis zum Ziel, Stufenplan
+  const zr = rows.find(r => r.L === ziel) || { total: 0, sicher: 0, arbeit: 0 };
+  const offen = zr.total - zr.sicher - zr.arbeit;
   const schwach = Object.keys(GRAMMAR_TOOL_LEVEL).filter(t => levelIdx(GRAMMAR_TOOL_LEVEL[t]) <= levelIdx(ziel)
-    && (g => g.total && g.n / g.total < 0.5)(grammarToolProgress(t)));
-  html += '<h4 class="lvl-h">Bis ' + ziel + ' fehlen noch</h4><p class="lvl-next">' + offen + ' Wörter der Stufe ' + ziel + ' (noch nicht richtig beantwortet)'
-    + (schwach.length ? ' und ' + schwach.length + ' Grammatikwerkzeuge bis ' + ziel + ' mit weniger als 50 %: ' + schwach.map(chipName).join(', ') : '') + '.</p>'
+    && (z => z.total && (z.sicher + z.arbeit) / z.total < 0.5)(toolZeilen[t] || levelToolZeile(t, now)));
+  let rechts = '<h4 class="lvl-h">Bis ' + ziel + ' fehlen noch</h4><p class="lvl-next"><strong>' + offen + '</strong> ' + (offen === 1 ? 'Wort' : 'Wörter') + ' der Stufe ' + ziel + ' noch nie richtig'
+    + (schwach.length ? ' · <strong>' + schwach.length + '</strong> ' + (schwach.length === 1 ? 'Werkzeug' : 'Werkzeuge') + ' unter 50 %' : '') + '</p>'
+    + (schwach.length ? '<div class="lvl-schwach">' + schwach.slice(0, 6).map(t => '<button class="lvl-chip" type="button" onclick="openToolFromLevels(\'' + t + '\')">' + chipName(t) + '</button>').join('') + (schwach.length > 6 ? '<span class="lvl-more">und ' + (schwach.length - 6) + ' weitere – siehe Stufenplan</span>' : '') + '</div>' : '')
     + '<div class="conj-actions"><button class="tool-btn gt-primary" type="button" onclick="practiceLevel(\'' + ziel + '\')"><i class="ti ti-arrow-right"></i> Wörter bis ' + ziel + ' üben</button>'
     + '<button class="tool-btn" type="button" onclick="closeOverlay(\'overlay-levels\'); openPlacement()"><i class="ti ti-target"></i> Einstufungstest</button></div>';
   const L = loadLifetime();
-  html += '<h4 class="lvl-h">Stufenplan</h4><div class="tense-switcher" id="lvl-plan-tabs">'
+  rechts += '<h4 class="lvl-h" id="lvl-plan-h">Stufenplan</h4><div class="tense-switcher" id="lvl-plan-tabs">'
     + LEVELS.map(l => '<button class="mode-btn" type="button" data-l="' + l + '" onclick="renderLevelPlan(\'' + l + '\')">' + l
       + (L.lv && L.lv[l] ? ' <i class="ti ti-trophy" aria-label="bestanden"></i>' : '') + '</button>').join('') + '</div><div id="lvl-plan"></div>';
+  html += '<div class="lvl-cols"><div class="lvl-col">' + links + '</div><div class="lvl-col">' + rechts + '</div></div>';
   document.getElementById('level-overview-body').innerHTML = html;
   renderLevelPlan(levelExam ? levelExam.level : (LEVELS.includes(levelPlanShown) ? levelPlanShown : ziel));
   document.getElementById('overlay-levels').classList.add('open');
@@ -13655,6 +13731,7 @@ function partLabel(sel) {
 function renderLevelPlan(l) {
   levelPlanShown = l;
   document.querySelectorAll('#lvl-plan-tabs .mode-btn').forEach(b => b.classList.toggle('active', b.dataset.l === l));
+  document.querySelectorAll('#level-overview-body .lvl-row').forEach(r => r.classList.toggle('lvl-plan-on', r.dataset.l === l));
   const words = allVocabWords().filter(w => wordLevel(w) === l);
   const ever = words.filter(everLearned).length, sicher = words.filter(w => ((lifeVocabEntry(w) || {}).d || 0) >= LIFE_RUNS_MAX).length;
   const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
