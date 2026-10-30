@@ -1,5 +1,5 @@
 {
-  "name": "russisch-tool-pruefungen",
+  "name": "sprachtool-pruefungen",
   "private": true,
   "description": "Browser-Prüfungen für das Russisch-Sprachtool (index.html)",
   "scripts": { "test": "bash alle.sh" },
