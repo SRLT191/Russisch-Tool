@@ -493,18 +493,11 @@
   .lvl-rows { display: flex; flex-direction: column; gap: 8px; }
   .lvl-row { display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 10px; }
   .lvl-row.lvl-ziel .lvl-badge { background: var(--c-accent-soft-bg); color: var(--c-accent-strong); border-color: var(--c-accent); }
-  .lvl-bar { position: relative; height: 10px; border-radius: 5px; background: var(--c-surface-alt); overflow: hidden; }
-  .lvl-bar span { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; }
-  .lvl-bar-started { background: var(--c-accent-soft-bg); }
-  .lvl-bar-learned { background: var(--c-accent); }
   .lvl-num { font-size: 12px; color: var(--c-text-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .lvl-key { display: inline-block; width: 10px; height: 10px; border-radius: 3px; vertical-align: middle; margin: 0 3px 0 8px; }
-  .lvl-key-l { background: var(--c-accent); } .lvl-key-s { background: var(--c-accent-soft-bg); }
   .lvl-gr { display: grid; grid-template-columns: 32px 1fr; gap: 10px; margin-bottom: 8px; align-items: start; }
   .lvl-gr-tools { display: flex; flex-wrap: wrap; gap: 6px; }
   .lvl-tool { display: inline-flex; gap: 8px; align-items: center; border: 0.5px solid var(--c-border-input); background: var(--c-surface); color: var(--c-text); border-radius: 8px; padding: 6px 10px; font-size: 13px; cursor: pointer; }
   .lvl-tool:hover { background: var(--c-surface-alt); }
-  .lvl-tool-num { font-size: 11px; color: var(--c-text-muted); font-variant-numeric: tabular-nums; }
   /* Fortschritt nach Stufen: Ziel oben, am PC zwei Spalten */
   #overlay-levels .overlay-box { width: 980px; }
   .lvl-top { display: flex; align-items: center; gap: 8px; }
@@ -901,8 +894,8 @@
   .alpha-ff { font-size: 12px; color: var(--c-typo-text); display: flex; gap: 5px; align-items: flex-start; line-height: 1.35; }
   .alpha-ff .ti { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
   .alpha-desc { font-size: 13px; color: var(--c-text-secondary); line-height: 1.45; }
-  .alpha-example { margin-top: auto; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 6px; width: 100%; text-align: left; font: inherit; font-size: 13px; color: var(--c-text-muted); background: var(--c-surface-alt); border: 0; border-radius: 8px; padding: 6px 8px; cursor: pointer; }
-  .alpha-example:hover { color: var(--c-text-secondary); }
+  .alpha-example { margin-top: auto; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 6px; width: 100%; text-align: left; font: inherit; font-size: 13px; color: var(--c-text-secondary); background: var(--c-surface-alt); border: 0; border-radius: 8px; padding: 6px 8px; cursor: pointer; }
+  .alpha-example:hover { color: var(--c-text-primary); }
   .alpha-example b { font-family: var(--ru-font), 'Noto Sans', serif; font-size: 16px; font-weight: 600; color: var(--c-text-primary); }
   .alpha-example { position: relative; padding-right: 28px; }
   .alpha-example .ti { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: var(--c-text-muted); }
@@ -11257,7 +11250,7 @@ const SENTENCE_OVERRIDES = {
   "штормовой": [ { ru: 'Это ___ ветер.', de: 'Das ist ein Sturmwind.' } ],
   "безоблачный": [ { ru: 'Был ___ день.', de: 'Es war ein wolkenloser Tag.' } ],
   "грозовой": [ { ru: 'Это ___ дождь.', de: 'Das ist ein Gewitterregen.' } ],
-  "дикий": [ { ru: 'Это ___ зверь.', de: 'Das ist ein wildes Tier.' } ],
+  "дикий": [ { ru: 'Это ___ кот.', de: 'Das ist ein wilder Kater.' } ],
   "конечный": [ { ru: 'Это ___ пункт.', de: 'Das ist der Endpunkt.' } ],
   "частичный": [ { ru: 'Это ___ успех.', de: 'Das ist ein Teilerfolg.' } ],
   "приблизительный": [ { ru: 'Это ___ расчёт.', de: 'Das ist eine ungefähre Berechnung.' } ],
@@ -13497,14 +13490,12 @@ function allVocabWords() {
   return out;
 }
 function levelStats() {
-  const st = {}; LEVELS.forEach(l => st[l] = { total: 0, learned: 0, started: 0, ever: 0 });
+  // Übungsstand je Stufe (für den Hinweis „aktuell“ in der Übersicht)
+  const st = {}; LEVELS.forEach(l => st[l] = { total: 0, learned: 0 });
   allVocabWords().forEach(w => {
     const l = wordLevel(w); if (!l) return;
-    const s = scores[getKey(w)];
     st[l].total++;
-    if (srsDone(s)) st[l].learned++;
-    if (hasCorrectAnswer(w)) st[l].started++;
-    if (everLearned(w)) st[l].ever++;
+    if (srsDone(scores[getKey(w)])) st[l].learned++;
   });
   return st;
 }
