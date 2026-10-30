@@ -24,7 +24,7 @@ const { chromium } = require('playwright');
   ok('fünf Abschnitte, sicher zuerst', r.n === 5 && r.klassen.join() === 's5,s4,s3,s2,s1', r.klassen.join());
   ok('jede Stufe hat eine eigene Farbe, Legende passt dazu', new Set(r.cols).size === 5 && new Set(r.leg).size === 5 && r.leg.slice().reverse().join() === r.cols.join(), r.cols.join(' | '));
   ok('Breiten entsprechen den Anteilen', Math.abs(r.breiten[0] - 6 / r.total * 100) < 0.01 && Math.abs(r.breiten[4] - 1 / r.total * 100) < 0.01);
-  ok('Tooltip und Bildschirmleser nennen die Stufen', r.title.startsWith('Stufe 5 (sicher): 6 · Stufe 4: 4 · Stufe 3: 3 · Stufe 2: 2 · Stufe 1: 1 · noch nicht geübt: ' + (r.total - 16)) && r.aria.includes('Stufe 5 (sicher): 6'), r.title);
+  ok('Tooltip und Bildschirmleser nennen die Stufen', r.title.startsWith('Wiederholung 5 (sicher): 6 · Wiederholung 4: 4 · Wiederholung 3: 3 · Wiederholung 2: 2 · Wiederholung 1: 1 · noch nicht geübt: ' + (r.total - 16)) && r.aria.includes('Wiederholung 5 (sicher): 6'), r.title);
   ok('Zahl rechts bleibt geübt / gesamt', r.zahl === '16 / ' + r.total, r.zahl);
   ok('Stufe ohne geübte Wörter: leerer Balken, Hinweis', r.leerSegs === 0 && /^noch nicht geübt: \d+$/.test(r.leerTitle));
   for (const t of ['light', 'dark']) {

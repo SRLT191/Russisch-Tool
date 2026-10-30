@@ -19,10 +19,10 @@ const { chromium } = require('playwright');
       sumSegs: [...sum.querySelectorAll('.home-t span')].map(x => x.className + ':' + x.title.split(':')[0]),
       text: document.querySelector('.home-lv-sum').textContent, gesamt: allVocabWords().length, rowTitle: rows[0].title };
   });
-  ok('Legende: Tooltip je Stufe mit Mindestabstand (sofort, 1, 3, 7, 14 Tage), per Tastatur erreichbar', r.legFokus && /sofort/.test(r.leg[0]) && /1 Tag nach Stufe 1/.test(r.leg[1]) && /3 Tage nach Stufe 2/.test(r.leg[2]) && /7 Tage nach Stufe 3/.test(r.leg[3]) && /14 Tage nach Stufe 4.*sicher/.test(r.leg[4]), r.leg.join(' | '));
-  ok('A1-Abschnitte nennen Stufe, Anzahl und Anteil', r.a1Segs.join('|') === `A1 · Stufe 5 (sicher): 1 Wort (<1 % von ${r.a1Total})|A1 · Stufe 2: 2 Wörter (<1 % von ${r.a1Total})|A1 · Stufe 1: 3 Wörter (<1 % von ${r.a1Total})`, r.a1Segs.join(' | '));
+  ok('Legende: Tooltip je Stufe mit Mindestabstand (sofort, 1, 3, 7, 14 Tage), per Tastatur erreichbar', r.legFokus && /sofort/.test(r.leg[0]) && /1 Tag nach Wiederholung 1/.test(r.leg[1]) && /3 Tage nach Wiederholung 2/.test(r.leg[2]) && /7 Tage nach Wiederholung 3/.test(r.leg[3]) && /14 Tage nach Wiederholung 4.*sicher/.test(r.leg[4]), r.leg.join(' | '));
+  ok('A1-Abschnitte nennen Stufe, Anzahl und Anteil', r.a1Segs.join('|') === `A1 · Wiederholung 5 (sicher): 1 Wort (<1 % von ${r.a1Total})|A1 · Wiederholung 2: 2 Wörter (<1 % von ${r.a1Total})|A1 · Wiederholung 1: 3 Wörter (<1 % von ${r.a1Total})`, r.a1Segs.join(' | '));
   ok('Zeilen-Tooltip nennt auch „noch nicht geübt“', r.rowTitle.endsWith('noch nicht geübt: ' + (r.a1Total - 6)), r.rowTitle);
-  ok('Zeile Σ: Summe aller Stufen, nicht anklickbar', r.zeilen === 6 && r.sumB === 'Σ' && r.sumN === '7 / ' + r.gesamt && r.sumKlick === null && r.sumSegs.join() === 's5:Gesamt · Stufe 5 (sicher),s2:Gesamt · Stufe 2,s1:Gesamt · Stufe 1', JSON.stringify([r.sumN, r.sumSegs]));
+  ok('Zeile Σ: Summe aller Stufen, nicht anklickbar', r.zeilen === 6 && r.sumB === 'Σ' && r.sumN === '7 / ' + r.gesamt && r.sumKlick === null && r.sumSegs.join() === 's5:Gesamt · Wiederholung 5 (sicher),s2:Gesamt · Wiederholung 2,s1:Gesamt · Wiederholung 1', JSON.stringify([r.sumN, r.sumSegs]));
   ok('Gesamtzeile mit Vokabelzahl', r.text === `${r.gesamt} Vokabeln insgesamt · 1 sicher · 6 in Wiederholung · ${r.gesamt - 7} noch nicht geübt`, r.text);
   await p.setViewportSize({ width: 320, height: 800 }); await p.waitForTimeout(150);
   ok('320 px: kein Überlauf', await p.evaluate(() => document.documentElement.scrollWidth <= 320));

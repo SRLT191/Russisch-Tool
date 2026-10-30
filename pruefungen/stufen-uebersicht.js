@@ -32,7 +32,7 @@ const { chromium } = require('playwright');
   const a1 = w.find(x => x.l === 'A1') || {};
   ok('2 Fünf Stufenzeilen mit Balken in Stufenfarben s1–s5', w.length === 5 && a1.segs === 's5,s4,s3,s2,s1', JSON.stringify(a1.segs));
   ok('2 Zahl „gelernt / gesamt“ und Prozent statt „1 · 403 / 838“', a1.num === vor.n1 + ' / ' + vor.a1 && a1.pct === Math.round(vor.n1 / vor.a1 * 100) + ' %', a1.num + ' · ' + a1.pct);
-  ok('2 Hinweis nennt Stufen und den aktuellen Übungsstand', /Stufe 5 \(sicher\)/.test(a1.title) && /aktuell \(Übungsstand\): 0 von/.test(a1.title), a1.title);
+  ok('2 Hinweis nennt Stufen und den aktuellen Übungsstand', /Wiederholung 5 \(sicher\)/.test(a1.title) && /aktuell \(Übungsstand\): 0 von/.test(a1.title), a1.title);
   ok('2 Legende Stufe 1–5 sicher', await p.evaluate(() => document.querySelectorAll('#level-overview-body .lvl-legend2 .home-lg').length === 5));
 
   // 3 Grammatik als Liste mit Balken und einem Prozentwert
@@ -46,7 +46,7 @@ const { chromium } = require('playwright');
   ok('3 Hinweis für Stufen ohne Werkzeuge', /^B1–C1: noch keine eigenen Grammatikwerkzeuge/.test(g.none), g.none);
   const gw = await p.evaluate(() => { const L = loadLifetime(); L.g.gender = L.g.gender || {}; ['дом', 'мама', 'окно'].forEach(k => L.g.gender[k] = { c: 1, w: 0, mb: 1, l: Date.now(), z: Date.now(), d: 2, dd: Date.now() }); saveLifetime(); openLevelOverview();
     const t = [...document.querySelectorAll('#level-overview-body .lvl-tool')].find(x => /Geschlecht/.test(x.textContent)); return { segs: t.querySelectorAll('.lvl-t span.s2').length, title: t.title }; });
-  ok('3 Werkzeugbalken aus dem Gesamtstand', gw.segs === 1 && /Stufe 2: 3 · noch nicht geübt/.test(gw.title), JSON.stringify(gw));
+  ok('3 Werkzeugbalken aus dem Gesamtstand', gw.segs === 1 && /Wiederholung 2: 3 · noch nicht geübt/.test(gw.title), JSON.stringify(gw));
 
   // 4 „fehlen noch“: kurze Zeile, höchstens 6 Knöpfe, Rest als Hinweis; Knopf öffnet das Werkzeug
   const f = await p.evaluate(() => { setMyLevel('A1'); openLevelOverview(); const c = document.querySelectorAll('#level-overview-body .lvl-schwach .lvl-chip'); return { n: c.length, more: (document.querySelector('#level-overview-body .lvl-more') || {}).textContent || '', next: document.querySelector('#level-overview-body .lvl-next').textContent }; });
