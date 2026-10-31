@@ -197,6 +197,7 @@ Noch nicht gebaut; wird erst nach ausdrücklichem Auftrag umgesetzt.
 - **Wortschatz** (29.10.): **Substantivkategorien noch nach Stufe sortieren** (A1 → C1, innerhalb einer Stufe Reihenfolge behalten) – alle übrigen Kategorien sind seit 29.10. so sortiert (Prüfung `stufen-sortierung`).
 - **Kategoriezuordnung** (Gesamtprüfung 29.10.): zusammengehörige Wörter in eine Kategorie legen – соседка (Familie) zu сосед (Wohnen), студентка/ученица (Menschen) zu студент/ученик (Bildung), парень (Soziales) zu девушка/мальчик (Menschen); дата von Geschichte nach Zeit.
 - **Wortschatz-Lücken** (Gesamtprüfung 29.10.): Verbkategorien unter 30 Wörtern (Bewegungsverben 19, Zustand & Leben 26, Alltagsverben 27, Wahrnehmung & Gefühle 28); A1 fehlen noch 79 Wörter, davon 27 vollendete Verben (взять, купить, сделать …) – als nächste Runden vorschlagen; A2 fehlen rund 350, davon etwa 160 Substantive.
+- **Englisch** (31.10., Idee): englische Oberfläche und Lernen Englisch → Russisch als Zusatz – erst wenn der deutsche Teil als fertig gilt. Reihenfolge: Oberfläche (Sprachschicht, Umschalter) → Wortübersetzungen (A1/A2 zuerst, A2-PDF hat englische Spalte; nur bestätigte Übersetzungen) → Sätze, Infotexte, Wortgruppen-Generator, englisches Umschrift-Schema, englische Stimme. Grobe Größe am 31.10.: ~2100 Oberflächentexte, 4132 Übersetzungen, ~2300 Sätze, 21 Infotexte.
 - **Speicher** (25.10.): kleineres Speicherformat für Lernstand und `lernstand.json` (Punkt 3 aus dem Vorschlag „Speichern effizienter“; Punkte 1 und 2 sind gebaut).
 
 ## Feste Regeln
